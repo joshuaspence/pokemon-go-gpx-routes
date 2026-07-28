@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gpx xmlns="http://www.topografix.com/GPX/1/1" version="1.1" creator="iSpoofer For Pokémon Go">
   <trk>
-    <name>0</name>
     <trkseg>
       <trkpt lat="48.122881" lon="11.517506"/>
       <trkpt lat="48.122990" lon="11.516698"/>

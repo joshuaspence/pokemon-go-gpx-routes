@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gpx xmlns="http://www.topografix.com/GPX/1/1" version="1.1" creator="GPS Visualizer http://www.gpsvisualizer.com/">
   <trk>
-    <name>0</name>
     <trkseg>
       <trkpt lat="48.203776" lon="16.379648"/>
       <trkpt lat="48.204017" lon="16.378637"/>

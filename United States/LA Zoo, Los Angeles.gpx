@@ -61,7 +61,6 @@
   <trkpt lat="34.149226526" lon="-118.285151683"/>
   <trkpt lat="34.149015373" lon="-118.282238469"/>
   <trk>
-    <name>Los Angeles Zoo</name>
     <trkseg>
       <trkpt lat="34.149008159" lon="-118.281282932">
         <ele>152.0</ele>
