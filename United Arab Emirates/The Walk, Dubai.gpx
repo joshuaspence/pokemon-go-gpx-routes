@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gpx xmlns="http://www.topografix.com/GPX/1/1" version="1.1">
   <trk>
+    <name>The Walk, Dubai</name>
+    <desc>United Arab Emirates</desc>
     <trkseg>
       <trkpt lat="25.077867" lon="55.133697"/>
       <trkpt lat="25.077928" lon="55.134128"/>

@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gpx xmlns="http://www.topografix.com/GPX/1/1" version="1.1">
   <trk>
+    <name>Melbourne Zoo, Victoria</name>
+    <desc>Australia</desc>
     <trkseg>
       <trkpt lat="-37.785519" lon="144.949761"/>
       <trkpt lat="-37.785073" lon="144.949484"/>

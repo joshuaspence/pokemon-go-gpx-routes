@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gpx xmlns="http://www.topografix.com/GPX/1/1" version="1.1">
   <trk>
+    <name>Royal Botanic Gardens, Sydney</name>
+    <desc>Australia</desc>
     <trkseg>
       <trkpt lat="-33.86631865143274" lon="151.21678388085223"/>
       <trkpt lat="-33.867018" lon="151.217565"/>

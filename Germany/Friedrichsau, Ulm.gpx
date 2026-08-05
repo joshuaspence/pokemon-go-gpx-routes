@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gpx xmlns="http://www.topografix.com/GPX/1/1" version="1.1">
   <trk>
+    <name>Friedrichsau, Ulm</name>
+    <desc>Germany</desc>
     <trkseg>
       <trkpt lat="48.408390" lon="10.012122"/>
       <trkpt lat="48.407841" lon="10.012243"/>

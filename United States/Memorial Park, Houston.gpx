@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gpx xmlns="http://www.topografix.com/GPX/1/1" version="1.1">
   <trk>
+    <name>Memorial Park, Houston</name>
+    <desc>United States</desc>
     <trkseg>
       <trkpt lat="29.764878" lon="-95.449907"/>
       <trkpt lat="29.767091" lon="-95.447714"/>

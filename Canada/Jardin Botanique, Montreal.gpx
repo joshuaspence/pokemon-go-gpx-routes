@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gpx xmlns="http://www.topografix.com/GPX/1/1" version="1.1">
   <trk>
+    <name>Jardin Botanique, Montreal</name>
+    <desc>Canada</desc>
     <trkseg>
       <trkpt lat="45.564485" lon="-73.570347"/>
       <trkpt lat="45.564221" lon="-73.569195"/>

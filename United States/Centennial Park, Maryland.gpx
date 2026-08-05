@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gpx xmlns="http://www.topografix.com/GPX/1/1" version="1.1">
   <trk>
+    <name>Centennial Park, Maryland</name>
+    <desc>United States</desc>
     <trkseg>
       <trkpt lat="39.244152" lon="-76.855280"/>
       <trkpt lat="39.243690" lon="-76.854526"/>

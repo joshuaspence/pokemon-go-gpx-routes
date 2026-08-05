@@ -232,9 +232,9 @@
   ></script>
   <script>
     // Route files, relative to this page. Static hosting cannot list a directory,
-    // so the paths live here, but the country (folder) and route name (file name)
-    // are derived from each path at runtime — the GPX files stay the source of
-    // truth. When you add or remove a route, update this list to match.
+    // so the paths live here, but each route's name and country are read from the
+    // GPX metadata (<trk><name> and <trk><desc>) when it loads — the GPX files are
+    // the source of truth. When you add or remove a route, update this list.
     const ROUTE_FILES = [
       "Australia/Kings Park, Western Australia.gpx",
       "Australia/Melbourne Zoo, Victoria.gpx",
@@ -277,7 +277,9 @@
       "United States/Slater Memorial Park, Rhode Island.gpx",
     ];
 
-    // Derive { file, country, name } from each path.
+    // Path-derived fallback for each file — used only when a route is missing
+    // its <trk><name>/<desc> metadata or fails to load. Real values come from
+    // the GPX metadata and overwrite these in init().
     const ROUTES = ROUTE_FILES.map((file) => {
       const slash = file.lastIndexOf("/");
       return { file, country: file.slice(0, slash), name: file.slice(slash + 1).replace(/\.gpx$/i, "") };
@@ -376,7 +378,11 @@
         const lon = parseFloat(p.getAttribute("lon"));
         if (Number.isFinite(lat) && Number.isFinite(lon)) latlngs.push([lat, lon]);
       }
-      return { latlngs, text };
+      const nameEl = doc.querySelector("trk > name");
+      const descEl = doc.querySelector("trk > desc");
+      const name = nameEl ? nameEl.textContent.trim() : "";
+      const desc = descEl ? descEl.textContent.trim() : "";
+      return { latlngs, text, name, desc };
     }
 
     // Load large cities from Large Cities.gpx, which holds each city as a named
@@ -618,7 +624,10 @@
       results.forEach((res, i) => {
         const r = flat[i];
         if (res.status === "fulfilled" && res.value.latlngs.length > 1) {
-          const { latlngs, text } = res.value;
+          const { latlngs, text, name, desc } = res.value;
+          // Prefer the GPX metadata; fall back to the path-derived values.
+          if (name) r.name = name;
+          if (desc) r.country = desc;
           const line = L.polyline(latlngs, {
             color: cssVar("--track"), weight: 2, opacity: 0.55,
           }).addTo(map);
@@ -633,7 +642,7 @@
         }
       });
 
-      // Load large cities from the README and drop a marker for each.
+      // Load large cities from Large Cities.gpx and drop a marker for each.
       try {
         const cities = await loadCities();
         for (const c of cities) {
