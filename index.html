@@ -109,9 +109,52 @@
       border-left-color: var(--accent);
       font-weight: 600;
     }
-    .route .meta { font-size: 11px; color: var(--muted); white-space: nowrap; }
+    .route .end { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+    .route .meta { font-size: 11px; color: var(--muted); }
+    .route .copy {
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--muted);
+      border-radius: 6px;
+      padding: 2px 6px;
+      font-size: 12px;
+      line-height: 1.2;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.12s;
+    }
+    .route:hover .copy, .route.active .copy, .route .copy:focus-visible { opacity: 1; }
+    .route .copy:hover { border-color: var(--accent); color: var(--accent); }
+    .route .copy.done { border-color: var(--start); color: var(--start); opacity: 1; }
     .route.hidden { display: none; }
     .country.hidden { display: none; }
+    .popup-copy {
+      margin-top: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .popup-copy:hover { border-color: var(--accent); color: var(--accent); }
+    .popup-copy.done { border-color: var(--start); color: var(--start); }
+    #toast {
+      position: absolute;
+      z-index: 1200;
+      bottom: 18px; left: 50%;
+      transform: translateX(-50%) translateY(12px);
+      background: var(--text);
+      color: var(--panel);
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.18s, transform 0.18s;
+    }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
     #map { height: 100%; width: 100%; background: var(--bg); }
     footer {
       padding: 10px 18px;
@@ -168,6 +211,7 @@
 
   <div class="map-wrap">
     <div id="banner"></div>
+    <div id="toast"></div>
     <div id="map"></div>
   </div>
 
@@ -264,9 +308,55 @@
     const countEl = document.getElementById("count");
     const filterEl = document.getElementById("filter");
     const bannerEl = document.getElementById("banner");
+    const toastEl = document.getElementById("toast");
 
-    const store = []; // { name, country, file, latlngs, line, el, markers, distance }
+    const store = []; // { name, country, file, gpx, latlngs, line, el, markers, distance }
     let active = null;
+    let toastTimer = null;
+
+    function toast(msg) {
+      toastEl.textContent = msg;
+      toastEl.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toastEl.classList.remove("show"), 1800);
+    }
+
+    // Copy text to the clipboard, falling back to execCommand for insecure
+    // contexts (e.g. served over plain http, where the async Clipboard API is
+    // unavailable). Returns a promise that resolves to true on success.
+    async function copyText(text) {
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+          return true;
+        }
+      } catch (e) { /* fall through to legacy path */ }
+      try {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        const ok = document.execCommand("copy");
+        document.body.removeChild(ta);
+        return ok;
+      } catch (e) {
+        return false;
+      }
+    }
+
+    async function copyRoute(entry, btn) {
+      const ok = await copyText(entry.gpx);
+      if (btn) {
+        const original = btn.textContent;
+        btn.textContent = ok ? "Copied" : "Failed";
+        btn.classList.add("done");
+        setTimeout(() => { btn.textContent = original; btn.classList.remove("done"); }, 1400);
+      }
+      toast(ok ? `Copied “${entry.name}” GPX to clipboard` : "Copy failed");
+    }
 
     function haversine(a, b) {
       const R = 6371000, toRad = (d) => d * Math.PI / 180;
@@ -297,7 +387,7 @@
         const lon = parseFloat(p.getAttribute("lon"));
         if (Number.isFinite(lat) && Number.isFinite(lon)) latlngs.push([lat, lon]);
       }
-      return latlngs;
+      return { latlngs, text };
     }
 
     function clearMarkers(entry) {
@@ -325,10 +415,18 @@
       const end = L.circleMarker(b, { radius: 6, color: "#fff", weight: 2, fillColor: cssVar("--end"), fillOpacity: 1 }).bindTooltip("End");
       entry.markers = [start.addTo(map), end.addTo(map)];
 
-      entry.line.bindPopup(
-        `<b>${entry.name}</b><br>${entry.country}<br>` +
-        `${entry.latlngs.length} points · ${fmtDist(entry.distance)}`
-      );
+      const popup = document.createElement("div");
+      const title = document.createElement("b");
+      title.textContent = entry.name;
+      const info = document.createElement("div");
+      info.textContent = `${entry.country} · ${entry.latlngs.length} points · ${fmtDist(entry.distance)}`;
+      const pCopy = document.createElement("button");
+      pCopy.className = "popup-copy";
+      pCopy.type = "button";
+      pCopy.textContent = "Copy GPX";
+      pCopy.addEventListener("click", () => copyRoute(entry, pCopy));
+      popup.append(title, info, pCopy);
+      entry.line.bindPopup(popup);
       if (pan) {
         map.fitBounds(entry.line.getBounds(), { padding: [40, 40], maxZoom: 17 });
         entry.line.openPopup();
@@ -353,7 +451,24 @@
             el.innerHTML = `<span>${r.name}</span><span class="meta">unavailable</span>`;
             el.style.opacity = "0.5";
           } else {
-            el.innerHTML = `<span>${r.name}</span><span class="meta">${fmtDist(entry.distance)}</span>`;
+            const label = document.createElement("span");
+            label.textContent = r.name;
+            const end = document.createElement("span");
+            end.className = "end";
+            const meta = document.createElement("span");
+            meta.className = "meta";
+            meta.textContent = fmtDist(entry.distance);
+            const copyBtn = document.createElement("button");
+            copyBtn.className = "copy";
+            copyBtn.type = "button";
+            copyBtn.textContent = "Copy";
+            copyBtn.title = "Copy GPX file contents to clipboard";
+            copyBtn.addEventListener("click", (e) => {
+              e.stopPropagation();
+              copyRoute(entry, copyBtn);
+            });
+            end.append(meta, copyBtn);
+            el.append(label, end);
             el.addEventListener("click", () => selectRoute(entry));
             entry.el = el;
           }
@@ -389,13 +504,13 @@
       let failures = 0;
       results.forEach((res, i) => {
         const r = flat[i];
-        if (res.status === "fulfilled" && res.value.length > 1) {
-          const latlngs = res.value;
+        if (res.status === "fulfilled" && res.value.latlngs.length > 1) {
+          const { latlngs, text } = res.value;
           const line = L.polyline(latlngs, {
             color: cssVar("--track"), weight: 2, opacity: 0.55,
           }).addTo(map);
           const entry = {
-            name: r.name, country: r.country, file: r.file,
+            name: r.name, country: r.country, file: r.file, gpx: text,
             latlngs, line, markers: null, distance: routeDistance(latlngs),
           };
           line.on("click", () => selectRoute(entry, { pan: false }));
