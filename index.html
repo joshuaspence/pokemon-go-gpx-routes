@@ -124,6 +124,8 @@
       transition: opacity 0.12s;
     }
     .route:hover .copy, .route.active .copy, .route .copy:focus-visible { opacity: 1; }
+    /* Touch devices have no hover — always show the copy button there. */
+    @media (hover: none) { .route .copy { opacity: 1; } }
     .route .copy:hover { border-color: var(--accent); color: var(--accent); }
     .route .copy.done { border-color: var(--start); color: var(--start); opacity: 1; }
     .route.hidden { display: none; }
