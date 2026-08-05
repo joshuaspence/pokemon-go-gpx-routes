@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pokémon GO GPX Routes</title>
+  <link rel="stylesheet" href="vendor/leaflet/leaflet.css" />
+  <style>
+    :root {
+      --bg: #f7f8fa;
+      --panel: #ffffff;
+      --border: #e2e5ea;
+      --text: #1c1f26;
+      --muted: #6b7280;
+      --accent: #e3350d;      /* Poké-red */
+      --accent-soft: #fdecea;
+      --track: #2f6fed;
+      --start: #16a34a;
+      --end: #e3350d;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #12141a;
+        --panel: #1a1d25;
+        --border: #2a2e38;
+        --text: #e7e9ee;
+        --muted: #9aa1ad;
+        --accent: #ff5a3c;
+        --accent-soft: #3a1f1a;
+        --track: #6ea8ff;
+        --start: #34d17b;
+        --end: #ff5a3c;
+      }
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      grid-template-rows: 100%;
+      height: 100vh;
+      overflow: hidden;
+    }
+    #sidebar {
+      background: var(--panel);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+    header {
+      padding: 16px 18px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    header h1 {
+      margin: 0;
+      font-size: 17px;
+      letter-spacing: -0.01em;
+    }
+    header .sub {
+      margin-top: 3px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .search {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .search input {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 13px;
+    }
+    .search input:focus { outline: 2px solid var(--track); outline-offset: -1px; }
+    #list { overflow-y: auto; flex: 1; padding: 6px 0 14px; min-height: 0; }
+    .country {
+      padding: 12px 18px 4px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+    }
+    .route {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 7px 18px;
+      cursor: pointer;
+      font-size: 13px;
+      border-left: 3px solid transparent;
+    }
+    .route:hover { background: var(--bg); }
+    .route.active {
+      background: var(--accent-soft);
+      border-left-color: var(--accent);
+      font-weight: 600;
+    }
+    .route .meta { font-size: 11px; color: var(--muted); white-space: nowrap; }
+    .route.hidden { display: none; }
+    .country.hidden { display: none; }
+    #map { height: 100%; width: 100%; background: var(--bg); }
+    footer {
+      padding: 10px 18px;
+      border-top: 1px solid var(--border);
+      font-size: 11px;
+      color: var(--muted);
+    }
+    footer a { color: var(--track); }
+    #banner {
+      display: none;
+      position: absolute;
+      z-index: 1000;
+      top: 12px; left: 50%;
+      transform: translateX(-50%);
+      max-width: 620px;
+      background: var(--accent-soft);
+      color: var(--text);
+      border: 1px solid var(--accent);
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 13px;
+      line-height: 1.5;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.15);
+    }
+    #banner code {
+      background: rgba(127,127,127,0.18);
+      padding: 1px 5px; border-radius: 4px;
+      font-size: 12px;
+    }
+    .map-wrap { position: relative; min-width: 0; }
+    .leaflet-popup-content { font-size: 13px; }
+    .leaflet-popup-content b { font-size: 14px; }
+    @media (max-width: 720px) {
+      body { grid-template-columns: 1fr; grid-template-rows: 45% 55%; }
+      #sidebar { border-right: none; border-bottom: 1px solid var(--border); }
+    }
+  </style>
+</head>
+<body>
+  <aside id="sidebar">
+    <header>
+      <h1>Pokémon GO GPX Routes</h1>
+      <div class="sub" id="count">Loading routes…</div>
+    </header>
+    <div class="search">
+      <input id="filter" type="search" placeholder="Filter routes…" autocomplete="off" />
+    </div>
+    <div id="list"></div>
+    <footer>
+      Map data © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors.
+      Click a route to zoom.
+    </footer>
+  </aside>
+
+  <div class="map-wrap">
+    <div id="banner"></div>
+    <div id="map"></div>
+  </div>
+
+  <script src="vendor/leaflet/leaflet.js"></script>
+  <script>
+    // Route manifest — grouped by country. Paths are loaded at runtime, so the
+    // GPX files remain the single source of truth. When you add or remove a
+    // route, update this list to match.
+    const MANIFEST = [
+      { country: "Australia", routes: [
+        { name: "Kings Park, Western Australia", file: "Australia/Kings Park, Western Australia.gpx" },
+        { name: "Melbourne Zoo, Victoria", file: "Australia/Melbourne Zoo, Victoria.gpx" },
+        { name: "Royal Botanic Gardens, Sydney", file: "Australia/Royal Botanic Gardens, Sydney.gpx" },
+      ]},
+      { country: "Austria", routes: [
+        { name: "Stadtpark, Vienna", file: "Austria/Stadtpark, Vienna.gpx" },
+      ]},
+      { country: "Brazil", routes: [
+        { name: "Ibirapuera Park, São Paulo", file: "Brazil/Ibirapuera Park, São Paulo.gpx" },
+      ]},
+      { country: "Canada", routes: [
+        { name: "Assiniboine Park Zoo, Manitoba", file: "Canada/Assiniboine Park Zoo, Manitoba.gpx" },
+        { name: "Jardin Botanique, Montreal", file: "Canada/Jardin Botanique, Montreal.gpx" },
+      ]},
+      { country: "Denmark", routes: [
+        { name: "Copenhagen Mall", file: "Denmark/Copenhagen Mall.gpx" },
+      ]},
+      { country: "England", routes: [
+        { name: "Chester Park", file: "England/Chester Park.gpx" },
+      ]},
+      { country: "France", routes: [
+        { name: "Pere Lachaise Cemetery, Paris", file: "France/Pere Lachaise Cemetery, Paris.gpx" },
+      ]},
+      { country: "Germany", routes: [
+        { name: "Dortmund", file: "Germany/Dortmund.gpx" },
+        { name: "Munich", file: "Germany/Munich.gpx" },
+        { name: "Schwetzingen", file: "Germany/Schwetzingen.gpx" },
+        { name: "Ulm", file: "Germany/Ulm.gpx" },
+      ]},
+      { country: "Hungary", routes: [
+        { name: "Budapest Alternate Route", file: "Hungary/Budapest Alternate Route.gpx" },
+        { name: "Margaret Island, Budapest", file: "Hungary/Margaret Island, Budapest.gpx" },
+      ]},
+      { country: "Japan", routes: [
+        { name: "Hibiya Park", file: "Japan/Hibiya Park.gpx" },
+        { name: "Igashira Park, Tochigi", file: "Japan/Igashira Park, Tochigi.gpx" },
+        { name: "Iwate Prefecture", file: "Japan/Iwate Prefecture.gpx" },
+        { name: "Nagai Park, Osaka", file: "Japan/Nagai Park, Osaka.gpx" },
+        { name: "Ueno, Tokyo", file: "Japan/Ueno, Tokyo.gpx" },
+      ]},
+      { country: "New Zealand", routes: [
+        { name: "Ashburton Domain Park", file: "New Zealand/Ashburton Domain Park.gpx" },
+        { name: "Wellington Botanical Gardens", file: "New Zealand/Wellington Botanical Gardens.gpx" },
+      ]},
+      { country: "South Korea", routes: [
+        { name: "Starfield Mall", file: "South Korea/Starfield Mall.gpx" },
+      ]},
+      { country: "Spain", routes: [
+        { name: "Seville", file: "Spain/Seville.gpx" },
+        { name: "Zaragoza XXL", file: "Spain/Zaragoza XXL.gpx" },
+        { name: "Zaragoza", file: "Spain/Zaragoza.gpx" },
+      ]},
+      { country: "United Arab Emirates", routes: [
+        { name: "Dubai", file: "United Arab Emirates/Dubai.gpx" },
+      ]},
+      { country: "United States", routes: [
+        { name: "Centennial Park, Maryland", file: "United States/Centennial Park, Maryland.gpx" },
+        { name: "Central Park, New York City", file: "United States/Central Park, New York City.gpx" },
+        { name: "Golden Gate Bridge, San Francisco", file: "United States/Golden Gate Bridge, San Francisco.gpx" },
+        { name: "Honolulu Downtown, Hawaii", file: "United States/Honolulu Downtown, Hawaii.gpx" },
+        { name: "LA Zoo, Los Angeles", file: "United States/LA Zoo, Los Angeles.gpx" },
+        { name: "Lebanon Hills, Minnesota", file: "United States/Lebanon Hills, Minnesota.gpx" },
+        { name: "Memorial Park, Houston Texas", file: "United States/Memorial Park, Houston Texas.gpx" },
+        { name: "Navy Pier, Chicago", file: "United States/Navy Pier, Chicago.gpx" },
+        { name: "Pier 39, San Francisco", file: "United States/Pier 39, San Francisco.gpx" },
+        { name: "River Park, New York", file: "United States/River Park, New York.gpx" },
+        { name: "Slater Memorial Park, Rhode Island", file: "United States/Slater Memorial Park, Rhode Island.gpx" },
+      ]},
+    ];
+
+    const cssVar = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+    const map = L.map("map", { worldCopyJump: true }).setView([20, 0], 2);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    }).addTo(map);
+
+    const listEl = document.getElementById("list");
+    const countEl = document.getElementById("count");
+    const filterEl = document.getElementById("filter");
+    const bannerEl = document.getElementById("banner");
+
+    const store = []; // { name, country, file, latlngs, line, el, markers, distance }
+    let active = null;
+
+    function haversine(a, b) {
+      const R = 6371000, toRad = (d) => d * Math.PI / 180;
+      const dLat = toRad(b[0] - a[0]), dLon = toRad(b[1] - a[1]);
+      const s = Math.sin(dLat / 2) ** 2 +
+        Math.cos(toRad(a[0])) * Math.cos(toRad(b[0])) * Math.sin(dLon / 2) ** 2;
+      return 2 * R * Math.asin(Math.sqrt(s));
+    }
+    function routeDistance(latlngs) {
+      let d = 0;
+      for (let i = 1; i < latlngs.length; i++) d += haversine(latlngs[i - 1], latlngs[i]);
+      return d;
+    }
+    function fmtDist(m) {
+      return m >= 1000 ? (m / 1000).toFixed(2) + " km" : Math.round(m) + " m";
+    }
+
+    async function loadGpx(route) {
+      const res = await fetch(encodeURI(route.file));
+      if (!res.ok) throw new Error(res.status + " " + res.statusText);
+      const text = await res.text();
+      const doc = new DOMParser().parseFromString(text, "application/xml");
+      if (doc.querySelector("parsererror")) throw new Error("XML parse error");
+      const pts = doc.getElementsByTagName("trkpt");
+      const latlngs = [];
+      for (const p of pts) {
+        const lat = parseFloat(p.getAttribute("lat"));
+        const lon = parseFloat(p.getAttribute("lon"));
+        if (Number.isFinite(lat) && Number.isFinite(lon)) latlngs.push([lat, lon]);
+      }
+      return latlngs;
+    }
+
+    function clearMarkers(entry) {
+      if (entry.markers) { entry.markers.forEach((m) => map.removeLayer(m)); entry.markers = null; }
+    }
+
+    function selectRoute(entry, { pan = true } = {}) {
+      if (active && active !== entry) {
+        active.line.setStyle({ color: cssVar("--track"), weight: 2, opacity: 0.55 });
+        active.line.bringToBack();
+        clearMarkers(active);
+        active.el.classList.remove("active");
+      }
+      active = entry;
+      entry.el.classList.add("active");
+      entry.line.setStyle({ color: cssVar("--accent"), weight: 4, opacity: 1 });
+      entry.line.bringToFront();
+
+      clearMarkers(entry);
+      const a = entry.latlngs[0], b = entry.latlngs[entry.latlngs.length - 1];
+      const dot = (color) => L.circleMarker(a, {
+        radius: 6, color: "#fff", weight: 2, fillColor: color, fillOpacity: 1,
+      });
+      const start = L.circleMarker(a, { radius: 6, color: "#fff", weight: 2, fillColor: cssVar("--start"), fillOpacity: 1 }).bindTooltip("Start");
+      const end = L.circleMarker(b, { radius: 6, color: "#fff", weight: 2, fillColor: cssVar("--end"), fillOpacity: 1 }).bindTooltip("End");
+      entry.markers = [start.addTo(map), end.addTo(map)];
+
+      entry.line.bindPopup(
+        `<b>${entry.name}</b><br>${entry.country}<br>` +
+        `${entry.latlngs.length} points · ${fmtDist(entry.distance)}`
+      );
+      if (pan) {
+        map.fitBounds(entry.line.getBounds(), { padding: [40, 40], maxZoom: 17 });
+        entry.line.openPopup();
+      }
+      entry.el.scrollIntoView({ block: "nearest" });
+    }
+
+    function buildSidebar() {
+      countEl.textContent = `${store.length} routes across ${MANIFEST.length} countries`;
+      for (const group of MANIFEST) {
+        const head = document.createElement("div");
+        head.className = "country";
+        head.textContent = group.country;
+        head.dataset.country = group.country;
+        listEl.appendChild(head);
+        for (const r of group.routes) {
+          const entry = store.find((s) => s.file === r.file);
+          const el = document.createElement("div");
+          el.className = "route";
+          el.dataset.country = group.country;
+          if (!entry) {
+            el.innerHTML = `<span>${r.name}</span><span class="meta">unavailable</span>`;
+            el.style.opacity = "0.5";
+          } else {
+            el.innerHTML = `<span>${r.name}</span><span class="meta">${fmtDist(entry.distance)}</span>`;
+            el.addEventListener("click", () => selectRoute(entry));
+            entry.el = el;
+          }
+          el.dataset.name = r.name.toLowerCase();
+          listEl.appendChild(el);
+        }
+      }
+    }
+
+    filterEl.addEventListener("input", () => {
+      const q = filterEl.value.trim().toLowerCase();
+      document.querySelectorAll(".route").forEach((el) => {
+        const hit = !q || el.dataset.name.includes(q) || el.dataset.country.toLowerCase().includes(q);
+        el.classList.toggle("hidden", !hit);
+      });
+      // hide country headers with no visible routes
+      document.querySelectorAll(".country").forEach((head) => {
+        let sib = head.nextElementSibling, anyVisible = false;
+        while (sib && sib.classList.contains("route")) {
+          if (!sib.classList.contains("hidden")) { anyVisible = true; break; }
+          sib = sib.nextElementSibling;
+        }
+        head.classList.toggle("hidden", !anyVisible);
+      });
+    });
+
+    function showBanner(html) { bannerEl.innerHTML = html; bannerEl.style.display = "block"; }
+
+    async function init() {
+      const flat = MANIFEST.flatMap((g) => g.routes.map((r) => ({ ...r, country: g.country })));
+      const results = await Promise.allSettled(flat.map((r) => loadGpx(r)));
+
+      let failures = 0;
+      results.forEach((res, i) => {
+        const r = flat[i];
+        if (res.status === "fulfilled" && res.value.length > 1) {
+          const latlngs = res.value;
+          const line = L.polyline(latlngs, {
+            color: cssVar("--track"), weight: 2, opacity: 0.55,
+          }).addTo(map);
+          const entry = {
+            name: r.name, country: r.country, file: r.file,
+            latlngs, line, markers: null, distance: routeDistance(latlngs),
+          };
+          line.on("click", () => selectRoute(entry, { pan: false }));
+          store.push(entry);
+        } else {
+          failures++;
+        }
+      });
+
+      buildSidebar();
+
+      if (store.length === 0) {
+        showBanner(
+          "<b>No routes could be loaded.</b><br>" +
+          "This page reads the <code>.gpx</code> files over HTTP, so it needs to be " +
+          "served rather than opened directly from disk. Try:<br>" +
+          "<code>python3 -m http.server</code> then open " +
+          "<code>http://localhost:8000/</code> — or view it via GitHub Pages."
+        );
+        return;
+      }
+      if (failures > 0) {
+        showBanner(`<b>${failures} route(s) failed to load.</b> The rest are shown below.`);
+        setTimeout(() => { bannerEl.style.display = "none"; }, 6000);
+      }
+
+      const all = L.featureGroup(store.map((s) => s.line));
+      map.fitBounds(all.getBounds(), { padding: [30, 30] });
+    }
+
+    init();
+  </script>
+</body>
+</html>

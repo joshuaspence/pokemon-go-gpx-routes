@@ -2,6 +2,17 @@
 
 Coordinates for teleporting to popular locations & hotspots for raiding, community days, and farming.
 
+## Route Viewer
+
+[`index.html`](index.html) renders every GPX route on an interactive map. It reads
+the `.gpx` files directly, so it needs to be served over HTTP rather than opened
+from disk — either publish the repository with GitHub Pages, or run a local server:
+
+```sh
+python3 -m http.server
+# then open http://localhost:8000/
+```
+
 ## Pokestop/Gym Clusters
 
 | Country              | City         | Coordinates             |
