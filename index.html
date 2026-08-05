@@ -136,16 +136,6 @@
       background: var(--city); flex: 0 0 auto; margin-right: 8px;
       box-shadow: 0 0 0 1px var(--panel);
     }
-    .section {
-      padding: 14px 18px 6px;
-      margin-top: 6px;
-      border-top: 1px solid var(--border);
-      font-size: 12px;
-      font-weight: 800;
-      letter-spacing: 0.04em;
-      color: var(--text);
-    }
-    .section.hidden { display: none; }
     .route.hidden { display: none; }
     .country.hidden { display: none; }
     .popup-copy {
@@ -536,94 +526,90 @@
       toast(ok ? `Copied ${c.city} coordinates to clipboard` : "Copy failed");
     }
 
+    function buildRouteRow(r, country) {
+      const entry = store.find((s) => s.file === r.file);
+      const el = document.createElement("div");
+      el.className = "route";
+      el.dataset.country = country;
+      el.dataset.name = r.name.toLowerCase();
+      if (!entry) {
+        el.innerHTML = `<span>${r.name}</span><span class="meta">unavailable</span>`;
+        el.style.opacity = "0.5";
+        return el;
+      }
+      const label = document.createElement("span");
+      label.textContent = r.name;
+      const end = document.createElement("span");
+      end.className = "end";
+      const meta = document.createElement("span");
+      meta.className = "meta";
+      meta.textContent = fmtDist(entry.distance);
+      const copyBtn = document.createElement("button");
+      copyBtn.className = "copy";
+      copyBtn.type = "button";
+      copyBtn.textContent = "Copy";
+      copyBtn.title = "Copy GPX file contents to clipboard";
+      copyBtn.addEventListener("click", (e) => { e.stopPropagation(); copyRoute(entry, copyBtn); });
+      end.append(meta, copyBtn);
+      el.append(label, end);
+      el.addEventListener("click", () => selectRoute(entry));
+      entry.el = el;
+      return el;
+    }
+
+    function buildCityRow(c, country) {
+      const el = document.createElement("div");
+      el.className = "route city";
+      el.dataset.country = country;
+      el.dataset.name = c.city.toLowerCase();
+      const label = document.createElement("span");
+      label.className = "label";
+      const pin = document.createElement("span");
+      pin.className = "pin";
+      const txt = document.createElement("span");
+      txt.textContent = c.city;
+      label.append(pin, txt);
+      const end = document.createElement("span");
+      end.className = "end";
+      const copyBtn = document.createElement("button");
+      copyBtn.className = "copy";
+      copyBtn.type = "button";
+      copyBtn.textContent = "Copy";
+      copyBtn.title = "Copy coordinates to clipboard";
+      copyBtn.addEventListener("click", (e) => { e.stopPropagation(); copyCoords(c, copyBtn); });
+      end.append(copyBtn);
+      el.append(label, end);
+      el.addEventListener("click", () => selectCity(c));
+      c.el = el;
+      return el;
+    }
+
+    // Render one list grouped by country, with each country's routes followed by
+    // its large cities (cities are marked with a pin, routes show a distance).
     function buildSidebar() {
       countEl.textContent = cityStore.length
-        ? `${store.length} routes · ${cityStore.length} large cities`
+        ? `${store.length} routes \u00b7 ${cityStore.length} large cities`
         : `${store.length} routes across ${MANIFEST.length} countries`;
+
+      const countries = {};
       for (const group of MANIFEST) {
-        const head = document.createElement("div");
-        head.className = "country";
-        head.textContent = group.country;
-        head.dataset.country = group.country;
-        listEl.appendChild(head);
-        for (const r of group.routes) {
-          const entry = store.find((s) => s.file === r.file);
-          const el = document.createElement("div");
-          el.className = "route";
-          el.dataset.country = group.country;
-          if (!entry) {
-            el.innerHTML = `<span>${r.name}</span><span class="meta">unavailable</span>`;
-            el.style.opacity = "0.5";
-          } else {
-            const label = document.createElement("span");
-            label.textContent = r.name;
-            const end = document.createElement("span");
-            end.className = "end";
-            const meta = document.createElement("span");
-            meta.className = "meta";
-            meta.textContent = fmtDist(entry.distance);
-            const copyBtn = document.createElement("button");
-            copyBtn.className = "copy";
-            copyBtn.type = "button";
-            copyBtn.textContent = "Copy";
-            copyBtn.title = "Copy GPX file contents to clipboard";
-            copyBtn.addEventListener("click", (e) => {
-              e.stopPropagation();
-              copyRoute(entry, copyBtn);
-            });
-            end.append(meta, copyBtn);
-            el.append(label, end);
-            el.addEventListener("click", () => selectRoute(entry));
-            entry.el = el;
-          }
-          el.dataset.name = r.name.toLowerCase();
-          listEl.appendChild(el);
-        }
+        (countries[group.country] ||= { routes: [], cities: [] }).routes.push(...group.routes);
+      }
+      for (const c of cityStore) {
+        (countries[c.country] ||= { routes: [], cities: [] }).cities.push(c);
       }
 
-      if (cityStore.length) {
-        const section = document.createElement("div");
-        section.className = "section";
-        section.textContent = "Large Cities";
-        listEl.appendChild(section);
-
-        const byCountry = {};
-        for (const c of cityStore) (byCountry[c.country] ||= []).push(c);
-        for (const country of Object.keys(byCountry).sort()) {
-          const head = document.createElement("div");
-          head.className = "country";
-          head.textContent = country;
-          head.dataset.country = country;
-          listEl.appendChild(head);
-          for (const c of byCountry[country].sort((a, b) => a.city.localeCompare(b.city))) {
-            const el = document.createElement("div");
-            el.className = "route city";
-            el.dataset.country = country;
-            el.dataset.name = c.city.toLowerCase();
-            const label = document.createElement("span");
-            label.className = "label";
-            const pin = document.createElement("span");
-            pin.className = "pin";
-            const txt = document.createElement("span");
-            txt.textContent = c.city;
-            label.append(pin, txt);
-            const end = document.createElement("span");
-            end.className = "end";
-            const copyBtn = document.createElement("button");
-            copyBtn.className = "copy";
-            copyBtn.type = "button";
-            copyBtn.textContent = "Copy";
-            copyBtn.title = "Copy coordinates to clipboard";
-            copyBtn.addEventListener("click", (e) => {
-              e.stopPropagation();
-              copyCoords(c, copyBtn);
-            });
-            end.append(copyBtn);
-            el.append(label, end);
-            el.addEventListener("click", () => selectCity(c));
-            c.el = el;
-            listEl.appendChild(el);
-          }
+      for (const country of Object.keys(countries).sort()) {
+        const head = document.createElement("div");
+        head.className = "country";
+        head.textContent = country;
+        head.dataset.country = country;
+        listEl.appendChild(head);
+        for (const r of countries[country].routes) {
+          listEl.appendChild(buildRouteRow(r, country));
+        }
+        for (const c of countries[country].cities.sort((a, b) => a.city.localeCompare(b.city))) {
+          listEl.appendChild(buildCityRow(c, country));
         }
       }
     }
@@ -642,15 +628,6 @@
           sib = sib.nextElementSibling;
         }
         head.classList.toggle("hidden", !anyVisible);
-      });
-      // hide a section header when all of its entries are filtered out
-      document.querySelectorAll(".section").forEach((sec) => {
-        let sib = sec.nextElementSibling, anyVisible = false;
-        while (sib) {
-          if (sib.classList.contains("route") && !sib.classList.contains("hidden")) { anyVisible = true; break; }
-          sib = sib.nextElementSibling;
-        }
-        sec.classList.toggle("hidden", !anyVisible);
       });
     });
 
