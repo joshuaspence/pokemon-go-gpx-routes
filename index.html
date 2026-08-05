@@ -88,13 +88,26 @@
     .search input:focus { outline: 2px solid var(--track); outline-offset: -1px; }
     #list { overflow-y: auto; flex: 1; padding: 6px 0 14px; min-height: 0; }
     .country {
-      padding: 12px 18px 4px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 10px 18px;
       font-size: 11px;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.06em;
       color: var(--muted);
+      cursor: pointer;
+      user-select: none;
     }
+    .country:hover { color: var(--text); }
+    .country .chev {
+      font-size: 9px;
+      transition: transform 0.15s;
+      transform: none;
+    }
+    .country-group.collapsed .country .chev { transform: rotate(-90deg); }
+    .country-group.collapsed .country-items { display: none; }
     .route {
       display: flex;
       align-items: baseline;
@@ -131,7 +144,7 @@
     .route .copy:hover { border-color: var(--accent); color: var(--accent); }
     .route .copy.done { border-color: var(--start); color: var(--start); opacity: 1; }
     .route.hidden { display: none; }
-    .country.hidden { display: none; }
+    .country-group.hidden { display: none; }
     .popup-copy {
       margin-top: 8px;
       border: 1px solid var(--border);
@@ -451,6 +464,7 @@
         map.fitBounds(entry.line.getBounds(), { padding: [40, 40], maxZoom: 17 });
         entry.line.openPopup();
       }
+      entry.el.closest(".country-group")?.classList.remove("collapsed");
       entry.el.scrollIntoView({ block: "nearest" });
     }
 
@@ -493,6 +507,7 @@
         map.setView(c.coords, Math.max(map.getZoom(), 12));
         c.marker.openPopup();
       }
+      c.el.closest(".country-group")?.classList.remove("collapsed");
       c.el.scrollIntoView({ block: "nearest" });
     }
 
@@ -576,14 +591,26 @@
       }
 
       for (const country of Object.keys(countries).sort()) {
+        const group = document.createElement("div");
+        group.className = "country-group collapsed";   // collapsed by default
         const head = document.createElement("div");
         head.className = "country";
-        head.textContent = country;
         head.dataset.country = country;
-        listEl.appendChild(head);
+        const chev = document.createElement("span");
+        chev.className = "chev";
+        chev.textContent = "▾";
+        const label = document.createElement("span");
+        label.textContent = country;
+        head.append(chev, label);
+        head.addEventListener("click", () => group.classList.toggle("collapsed"));
+        group.appendChild(head);
+        const items = document.createElement("div");
+        items.className = "country-items";
         for (const item of countries[country].sort((a, b) => a.name.localeCompare(b.name))) {
-          listEl.appendChild(item.build());
+          items.appendChild(item.build());
         }
+        group.appendChild(items);
+        listEl.appendChild(group);
       }
     }
 
@@ -593,14 +620,12 @@
         const hit = !q || el.dataset.name.includes(q) || el.dataset.country.toLowerCase().includes(q);
         el.classList.toggle("hidden", !hit);
       });
-      // hide country headers with no visible routes
-      document.querySelectorAll(".country").forEach((head) => {
-        let sib = head.nextElementSibling, anyVisible = false;
-        while (sib && sib.classList.contains("route")) {
-          if (!sib.classList.contains("hidden")) { anyVisible = true; break; }
-          sib = sib.nextElementSibling;
-        }
-        head.classList.toggle("hidden", !anyVisible);
+      // Hide countries with no matches; while searching, auto-expand those that
+      // have matches so the results are visible. With no query, collapse all.
+      document.querySelectorAll(".country-group").forEach((group) => {
+        const anyVisible = [...group.querySelectorAll(".route")].some((r) => !r.classList.contains("hidden"));
+        group.classList.toggle("hidden", !anyVisible);
+        group.classList.toggle("collapsed", q ? !anyVisible : true);
       });
     });
 
