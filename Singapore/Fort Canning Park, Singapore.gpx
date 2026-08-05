@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx xmlns="http://www.topografix.com/GPX/1/1" version="1.1">
+  <trk>
+    <name>Fort Canning Park, Singapore</name>
+    <desc>Singapore</desc>
+    <trkseg>
+      <trkpt lat="1.297059" lon="103.845638"/>
+      <trkpt lat="1.296233" lon="103.845927"/>
+      <trkpt lat="1.296062" lon="103.846399"/>
+      <trkpt lat="1.296308" lon="103.846668"/>
+      <trkpt lat="1.296480" lon="103.846700"/>
+      <trkpt lat="1.296727" lon="103.846936"/>
+      <trkpt lat="1.296501" lon="103.847086"/>
+      <trkpt lat="1.296062" lon="103.847043"/>
+      <trkpt lat="1.296008" lon="103.847687"/>
+      <trkpt lat="1.295343" lon="103.848116"/>
+      <trkpt lat="1.295321" lon="103.847075"/>
+      <trkpt lat="1.294828" lon="103.846957"/>
+      <trkpt lat="1.294528" lon="103.847655"/>
+      <trkpt lat="1.293895" lon="103.847461"/>
+      <trkpt lat="1.292972" lon="103.847783"/>
+      <trkpt lat="1.292822" lon="103.847665"/>
+      <trkpt lat="1.292200" lon="103.847730"/>
+      <trkpt lat="1.292114" lon="103.847483"/>
+      <trkpt lat="1.291782" lon="103.847665"/>
+      <trkpt lat="1.291664" lon="103.847901"/>
+      <trkpt lat="1.290913" lon="103.847869"/>
+      <trkpt lat="1.291128" lon="103.847708"/>
+      <trkpt lat="1.291203" lon="103.846893"/>
+      <trkpt lat="1.291793" lon="103.846850"/>
+      <trkpt lat="1.292061" lon="103.846850"/>
+      <trkpt lat="1.291889" lon="103.845906"/>
+      <trkpt lat="1.292211" lon="103.845466"/>
+      <trkpt lat="1.292350" lon="103.846174"/>
+      <trkpt lat="1.292608" lon="103.846678"/>
+      <trkpt lat="1.292919" lon="103.846120"/>
+      <trkpt lat="1.293294" lon="103.846378"/>
+      <trkpt lat="1.293552" lon="103.846035"/>
+      <trkpt lat="1.293444" lon="103.845326"/>
+      <trkpt lat="1.294163" lon="103.845841"/>
+      <trkpt lat="1.294678" lon="103.845638"/>
+      <trkpt lat="1.295053" lon="103.845959"/>
+      <trkpt lat="1.295128" lon="103.846496"/>
+      <trkpt lat="1.295590" lon="103.845895"/>
+      <trkpt lat="1.295407" lon="103.845208"/>
+      <trkpt lat="1.296019" lon="103.845058"/>
+      <trkpt lat="1.296512" lon="103.845080"/>
+      <trkpt lat="1.296995" lon="103.845595"/>
+    </trkseg>
+  </trk>
+</gpx>
