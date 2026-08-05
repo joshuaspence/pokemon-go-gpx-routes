@@ -130,17 +130,6 @@
     @media (hover: none) { .route .copy { opacity: 1; } }
     .route .copy:hover { border-color: var(--accent); color: var(--accent); }
     .route .copy.done { border-color: var(--start); color: var(--start); opacity: 1; }
-    .route .tag {
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 0.03em;
-      text-transform: uppercase;
-      color: var(--city);
-      border: 1px solid var(--city);
-      border-radius: 999px;
-      padding: 0 6px;
-      line-height: 15px;
-    }
     .route.hidden { display: none; }
     .country.hidden { display: none; }
     .popup-copy {
@@ -573,16 +562,13 @@
       label.textContent = c.city;
       const end = document.createElement("span");
       end.className = "end";
-      const tag = document.createElement("span");
-      tag.className = "tag";
-      tag.textContent = "Waypoint";
       const copyBtn = document.createElement("button");
       copyBtn.className = "copy";
       copyBtn.type = "button";
       copyBtn.textContent = "Copy";
       copyBtn.title = "Copy coordinates to clipboard";
       copyBtn.addEventListener("click", (e) => { e.stopPropagation(); copyCoords(c, copyBtn); });
-      end.append(tag, copyBtn);
+      end.append(copyBtn);
       el.append(label, end);
       el.addEventListener("click", () => selectCity(c));
       c.el = el;
