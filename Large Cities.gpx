@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx xmlns="http://www.topografix.com/GPX/1/1" version="1.1">
+  <wpt lat="-34.599085" lon="-58.398801">
+    <name>Buenos Aires</name>
+    <desc>Argentina</desc>
+  </wpt>
+  <wpt lat="-37.815114" lon="144.966514">
+    <name>Melbourne</name>
+    <desc>Australia</desc>
+  </wpt>
+  <wpt lat="-33.861898" lon="151.210024">
+    <name>Sydney</name>
+    <desc>Australia</desc>
+  </wpt>
+  <wpt lat="48.209445" lon="16.372196">
+    <name>Vienna</name>
+    <desc>Austria</desc>
+  </wpt>
+  <wpt lat="50.845710" lon="4.355076">
+    <name>Brussels</name>
+    <desc>Belgium</desc>
+  </wpt>
+  <wpt lat="-22.912900" lon="-43.177271">
+    <name>Rio de Janeiro</name>
+    <desc>Brazil</desc>
+  </wpt>
+  <wpt lat="50.088015" lon="14.422866">
+    <name>Prague</name>
+    <desc>Czechia</desc>
+  </wpt>
+  <wpt lat="51.512369" lon="-0.119003">
+    <name>London</name>
+    <desc>England</desc>
+  </wpt>
+  <wpt lat="48.855218" lon="2.346307">
+    <name>Paris</name>
+    <desc>France</desc>
+  </wpt>
+  <wpt lat="52.516991" lon="13.407505">
+    <name>Berlin</name>
+    <desc>Germany</desc>
+  </wpt>
+  <wpt lat="48.136378" lon="11.578512">
+    <name>Munich</name>
+    <desc>Germany</desc>
+  </wpt>
+  <wpt lat="18.5138342" lon="73.85366767">
+    <name>Pune</name>
+    <desc>India</desc>
+  </wpt>
+  <wpt lat="53.343987" lon="-6.266908">
+    <name>Dublin</name>
+    <desc>Ireland</desc>
+  </wpt>
+  <wpt lat="43.776737" lon="11.257311">
+    <name>Florence</name>
+    <desc>Italy</desc>
+  </wpt>
+  <wpt lat="41.914208" lon="12.484971">
+    <name>Rome</name>
+    <desc>Italy</desc>
+  </wpt>
+  <wpt lat="34.693759" lon="135.501064">
+    <name>Osaka</name>
+    <desc>Japan</desc>
+  </wpt>
+  <wpt lat="35.691619" lon="139.696914">
+    <name>Tokyo</name>
+    <desc>Japan</desc>
+  </wpt>
+  <wpt lat="52.373166" lon="4.890620">
+    <name>Amsterdam</name>
+    <desc>Netherlands</desc>
+  </wpt>
+  <wpt lat="55.761583" lon="37.609466">
+    <name>Moscow</name>
+    <desc>Russia</desc>
+  </wpt>
+  <wpt lat="37.551167" lon="126.939058">
+    <name>Seoul</name>
+    <desc>South Korea</desc>
+  </wpt>
+  <wpt lat="41.391129" lon="2.164906">
+    <name>Barcelona</name>
+    <desc>Spain</desc>
+  </wpt>
+  <wpt lat="40.423504" lon="-3.700581">
+    <name>Madrid</name>
+    <desc>Spain</desc>
+  </wpt>
+  <wpt lat="25.033612" lon="121.553963">
+    <name>Taipei City</name>
+    <desc>Taiwan</desc>
+  </wpt>
+  <wpt lat="33.756025" lon="-84.388758">
+    <name>Atlanta, GA</name>
+    <desc>United States</desc>
+  </wpt>
+  <wpt lat="42.358814" lon="-71.056500">
+    <name>Boston, MA</name>
+    <desc>United States</desc>
+  </wpt>
+  <wpt lat="41.876136" lon="-87.629140">
+    <name>Chicago, IL</name>
+    <desc>United States</desc>
+  </wpt>
+  <wpt lat="34.053331" lon="-118.242341">
+    <name>Los Angeles, CA</name>
+    <desc>United States</desc>
+  </wpt>
+  <wpt lat="40.755931" lon="-73.984606">
+    <name>New York City, NY</name>
+    <desc>United States</desc>
+  </wpt>
+  <wpt lat="39.954647" lon="-75.164452">
+    <name>Philadelphia, PA</name>
+    <desc>United States</desc>
+  </wpt>
+  <wpt lat="37.785583" lon="-122.415337">
+    <name>San Francisco, CA</name>
+    <desc>United States</desc>
+  </wpt>
+  <wpt lat="38.635791" lon="-90.288158">
+    <name>St. Louis, MO</name>
+    <desc>United States</desc>
+  </wpt>
+</gpx>

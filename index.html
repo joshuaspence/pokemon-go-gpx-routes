@@ -412,35 +412,28 @@
       return { latlngs, text };
     }
 
-    // Parse the "## Large Cities" table from the README so it stays the single
-    // source of truth for hotspot coordinates. Returns [{country, city, coords,
-    // coordStr}]. Returns [] if the section or file is missing.
+    // Load large cities from Large Cities.gpx, which holds each city as a named
+    // GPX waypoint (<wpt> with <name> = city and <desc> = country). Returns
+    // [{country, city, coords, coordStr}]; coordStr preserves the file's exact
+    // lat/lon text for copying.
     async function loadCities() {
-      const res = await fetch("README.md");
+      const res = await fetch(encodeURI("Large Cities.gpx"));
       if (!res.ok) throw new Error(res.status + " " + res.statusText);
-      const md = await res.text();
-      const idx = md.search(/^##\s+Large Cities\s*$/m);
-      if (idx < 0) return [];
-      let section = md.slice(idx);
-      const nl = section.indexOf("\n");
-      const afterHeading = section.slice(nl + 1);
-      const nextHeading = afterHeading.search(/^##\s/m);
-      if (nextHeading >= 0) section = section.slice(0, nl + 1 + nextHeading);
-
+      const doc = new DOMParser().parseFromString(await res.text(), "application/xml");
+      if (doc.querySelector("parsererror")) throw new Error("XML parse error");
       const cities = [];
-      for (const line of section.split("\n")) {
-        const t = line.trim();
-        if (!t.startsWith("|")) continue;
-        const cells = t.split("|").slice(1, -1).map((c) => c.trim());
-        if (cells.length < 3) continue;
-        const [country, city, coordCell] = cells;
-        if (country.toLowerCase() === "country") continue;   // header row
-        if (/^:?-{2,}:?$/.test(cells[0])) continue;          // separator row
-        const m = coordCell.replace(/`/g, "").trim()
-          .match(/^(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)$/);
-        if (!m) continue;
-        const lat = parseFloat(m[1]), lon = parseFloat(m[2]);
-        cities.push({ country, city, coords: [lat, lon], coordStr: `${lat},${lon}` });
+      for (const w of doc.getElementsByTagName("wpt")) {
+        const latStr = w.getAttribute("lat"), lonStr = w.getAttribute("lon");
+        const lat = parseFloat(latStr), lon = parseFloat(lonStr);
+        if (!Number.isFinite(lat) || !Number.isFinite(lon)) continue;
+        const nameEl = w.getElementsByTagName("name")[0];
+        const descEl = w.getElementsByTagName("desc")[0];
+        cities.push({
+          country: descEl ? descEl.textContent.trim() : "Other",
+          city: nameEl ? nameEl.textContent.trim() : `${lat}, ${lon}`,
+          coords: [lat, lon],
+          coordStr: `${latStr},${lonStr}`,
+        });
       }
       return cities;
     }
