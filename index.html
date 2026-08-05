@@ -231,80 +231,57 @@
     crossorigin=""
   ></script>
   <script>
-    // Route manifest — grouped by country. Paths are loaded at runtime, so the
-    // GPX files remain the single source of truth. When you add or remove a
-    // route, update this list to match.
-    const MANIFEST = [
-      { country: "Australia", routes: [
-        { name: "Kings Park, Western Australia", file: "Australia/Kings Park, Western Australia.gpx" },
-        { name: "Melbourne Zoo, Victoria", file: "Australia/Melbourne Zoo, Victoria.gpx" },
-        { name: "Royal Botanic Gardens, Sydney", file: "Australia/Royal Botanic Gardens, Sydney.gpx" },
-      ]},
-      { country: "Austria", routes: [
-        { name: "Stadtpark, Vienna", file: "Austria/Stadtpark, Vienna.gpx" },
-      ]},
-      { country: "Brazil", routes: [
-        { name: "Ibirapuera Park, São Paulo", file: "Brazil/Ibirapuera Park, São Paulo.gpx" },
-      ]},
-      { country: "Canada", routes: [
-        { name: "Assiniboine Park Zoo, Manitoba", file: "Canada/Assiniboine Park Zoo, Manitoba.gpx" },
-        { name: "Jardin Botanique, Montreal", file: "Canada/Jardin Botanique, Montreal.gpx" },
-      ]},
-      { country: "Denmark", routes: [
-        { name: "Fisketorvet, Copenhagen", file: "Denmark/Fisketorvet, Copenhagen.gpx" },
-      ]},
-      { country: "England", routes: [
-        { name: "Chester Zoo", file: "England/Chester Zoo.gpx" },
-      ]},
-      { country: "France", routes: [
-        { name: "Pere Lachaise Cemetery, Paris", file: "France/Pere Lachaise Cemetery, Paris.gpx" },
-      ]},
-      { country: "Germany", routes: [
-        { name: "Friedrichsau, Ulm", file: "Germany/Friedrichsau, Ulm.gpx" },
-        { name: "Schlossgarten, Schwetzingen", file: "Germany/Schlossgarten, Schwetzingen.gpx" },
-        { name: "Westfalenpark, Dortmund", file: "Germany/Westfalenpark, Dortmund.gpx" },
-        { name: "Westpark, Munich", file: "Germany/Westpark, Munich.gpx" },
-      ]},
-      { country: "Hungary", routes: [
-        { name: "Margaret Island Alternate Route, Budapest", file: "Hungary/Margaret Island Alternate Route, Budapest.gpx" },
-        { name: "Margaret Island, Budapest", file: "Hungary/Margaret Island, Budapest.gpx" },
-      ]},
-      { country: "Japan", routes: [
-        { name: "Hibiya Park, Tokyo", file: "Japan/Hibiya Park, Tokyo.gpx" },
-        { name: "Igashira Park, Tochigi", file: "Japan/Igashira Park, Tochigi.gpx" },
-        { name: "Morioka Castle Ruins Park, Iwate", file: "Japan/Morioka Castle Ruins Park, Iwate.gpx" },
-        { name: "Nagai Park, Osaka", file: "Japan/Nagai Park, Osaka.gpx" },
-        { name: "Ueno Park, Tokyo", file: "Japan/Ueno Park, Tokyo.gpx" },
-      ]},
-      { country: "New Zealand", routes: [
-        { name: "Ashburton Domain, Canterbury", file: "New Zealand/Ashburton Domain, Canterbury.gpx" },
-        { name: "Botanic Garden, Wellington", file: "New Zealand/Botanic Garden, Wellington.gpx" },
-      ]},
-      { country: "South Korea", routes: [
-        { name: "Starfield COEX Mall, Seoul", file: "South Korea/Starfield COEX Mall, Seoul.gpx" },
-      ]},
-      { country: "Spain", routes: [
-        { name: "Parque San Pablo, Zaragoza", file: "Spain/Parque San Pablo, Zaragoza.gpx" },
-        { name: "Parque de María Luisa, Seville", file: "Spain/Parque de María Luisa, Seville.gpx" },
-        { name: "Plaza Lucas Miret Rodríguez, Zaragoza", file: "Spain/Plaza Lucas Miret Rodríguez, Zaragoza.gpx" },
-      ]},
-      { country: "United Arab Emirates", routes: [
-        { name: "The Walk, Dubai", file: "United Arab Emirates/The Walk, Dubai.gpx" },
-      ]},
-      { country: "United States", routes: [
-        { name: "Centennial Park, Maryland", file: "United States/Centennial Park, Maryland.gpx" },
-        { name: "Central Park, New York City", file: "United States/Central Park, New York City.gpx" },
-        { name: "Golden Gate Bridge, San Francisco", file: "United States/Golden Gate Bridge, San Francisco.gpx" },
-        { name: "Honolulu Downtown, Hawaii", file: "United States/Honolulu Downtown, Hawaii.gpx" },
-        { name: "LA Zoo, Los Angeles", file: "United States/LA Zoo, Los Angeles.gpx" },
-        { name: "Lebanon Hills, Minnesota", file: "United States/Lebanon Hills, Minnesota.gpx" },
-        { name: "Memorial Park, Houston", file: "United States/Memorial Park, Houston.gpx" },
-        { name: "Navy Pier, Chicago", file: "United States/Navy Pier, Chicago.gpx" },
-        { name: "Pier 39, San Francisco", file: "United States/Pier 39, San Francisco.gpx" },
-        { name: "River Park, New York", file: "United States/River Park, New York.gpx" },
-        { name: "Slater Memorial Park, Rhode Island", file: "United States/Slater Memorial Park, Rhode Island.gpx" },
-      ]},
+    // Route files, relative to this page. Static hosting cannot list a directory,
+    // so the paths live here, but the country (folder) and route name (file name)
+    // are derived from each path at runtime — the GPX files stay the source of
+    // truth. When you add or remove a route, update this list to match.
+    const ROUTE_FILES = [
+      "Australia/Kings Park, Western Australia.gpx",
+      "Australia/Melbourne Zoo, Victoria.gpx",
+      "Australia/Royal Botanic Gardens, Sydney.gpx",
+      "Austria/Stadtpark, Vienna.gpx",
+      "Brazil/Ibirapuera Park, São Paulo.gpx",
+      "Canada/Assiniboine Park Zoo, Manitoba.gpx",
+      "Canada/Jardin Botanique, Montreal.gpx",
+      "Denmark/Fisketorvet, Copenhagen.gpx",
+      "England/Chester Zoo.gpx",
+      "France/Pere Lachaise Cemetery, Paris.gpx",
+      "Germany/Friedrichsau, Ulm.gpx",
+      "Germany/Schlossgarten, Schwetzingen.gpx",
+      "Germany/Westfalenpark, Dortmund.gpx",
+      "Germany/Westpark, Munich.gpx",
+      "Hungary/Margaret Island Alternate Route, Budapest.gpx",
+      "Hungary/Margaret Island, Budapest.gpx",
+      "Japan/Hibiya Park, Tokyo.gpx",
+      "Japan/Igashira Park, Tochigi.gpx",
+      "Japan/Morioka Castle Ruins Park, Iwate.gpx",
+      "Japan/Nagai Park, Osaka.gpx",
+      "Japan/Ueno Park, Tokyo.gpx",
+      "New Zealand/Ashburton Domain, Canterbury.gpx",
+      "New Zealand/Botanic Garden, Wellington.gpx",
+      "South Korea/Starfield COEX Mall, Seoul.gpx",
+      "Spain/Parque San Pablo, Zaragoza.gpx",
+      "Spain/Parque de María Luisa, Seville.gpx",
+      "Spain/Plaza Lucas Miret Rodríguez, Zaragoza.gpx",
+      "United Arab Emirates/The Walk, Dubai.gpx",
+      "United States/Centennial Park, Maryland.gpx",
+      "United States/Central Park, New York City.gpx",
+      "United States/Golden Gate Bridge, San Francisco.gpx",
+      "United States/Honolulu Downtown, Hawaii.gpx",
+      "United States/LA Zoo, Los Angeles.gpx",
+      "United States/Lebanon Hills, Minnesota.gpx",
+      "United States/Memorial Park, Houston.gpx",
+      "United States/Navy Pier, Chicago.gpx",
+      "United States/Pier 39, San Francisco.gpx",
+      "United States/River Park, New York.gpx",
+      "United States/Slater Memorial Park, Rhode Island.gpx",
     ];
+
+    // Derive { file, country, name } from each path.
+    const ROUTES = ROUTE_FILES.map((file) => {
+      const slash = file.lastIndexOf("/");
+      return { file, country: file.slice(0, slash), name: file.slice(slash + 1).replace(/\.gpx$/i, "") };
+    });
 
     const cssVar = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 
@@ -589,11 +566,11 @@
     function buildSidebar() {
       countEl.textContent = cityStore.length
         ? `${store.length} routes \u00b7 ${cityStore.length} large cities`
-        : `${store.length} routes across ${MANIFEST.length} countries`;
+        : `${store.length} routes across ${new Set(ROUTES.map((r) => r.country)).size} countries`;
 
       const countries = {};
-      for (const group of MANIFEST) {
-        (countries[group.country] ||= { routes: [], cities: [] }).routes.push(...group.routes);
+      for (const r of ROUTES) {
+        (countries[r.country] ||= { routes: [], cities: [] }).routes.push(r);
       }
       for (const c of cityStore) {
         (countries[c.country] ||= { routes: [], cities: [] }).cities.push(c);
@@ -634,7 +611,7 @@
     function showBanner(html) { bannerEl.innerHTML = html; bannerEl.style.display = "block"; }
 
     async function init() {
-      const flat = MANIFEST.flatMap((g) => g.routes.map((r) => ({ ...r, country: g.country })));
+      const flat = ROUTES;
       const results = await Promise.allSettled(flat.map((r) => loadGpx(r)));
 
       let failures = 0;
