@@ -215,12 +215,12 @@
       <div class="sub" id="count">Loading routes…</div>
     </header>
     <div class="search">
-      <input id="filter" type="search" placeholder="Filter routes & cities…" autocomplete="off" />
+      <input id="filter" type="search" placeholder="Filter tracks & waypoints…" autocomplete="off" />
     </div>
     <div id="list"></div>
     <footer>
       Map data © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors.
-      Click a route or city to zoom.
+      Click a track or waypoint to zoom.
     </footer>
   </aside>
 
@@ -556,7 +556,7 @@
       end.className = "end";
       const tag = document.createElement("span");
       tag.className = "tag";
-      tag.textContent = "City";
+      tag.textContent = "Waypoint";
       const copyBtn = document.createElement("button");
       copyBtn.className = "copy";
       copyBtn.type = "button";
@@ -570,19 +570,19 @@
       return el;
     }
 
-    // Render one list grouped by country, with each country's routes followed by
-    // its large cities (cities show a "City" tag, routes show a distance).
+    // Render one list grouped by country. Within each country, tracks and
+    // waypoints are interleaved and sorted alphabetically by name.
     function buildSidebar() {
       countEl.textContent = cityStore.length
-        ? `${store.length} routes \u00b7 ${cityStore.length} large cities`
-        : `${store.length} routes across ${new Set(ROUTES.map((r) => r.country)).size} countries`;
+        ? `${store.length} tracks \u00b7 ${cityStore.length} waypoints`
+        : `${store.length} tracks across ${new Set(ROUTES.map((r) => r.country)).size} countries`;
 
       const countries = {};
       for (const r of ROUTES) {
-        (countries[r.country] ||= { routes: [], cities: [] }).routes.push(r);
+        (countries[r.country] ||= []).push({ name: r.name, build: () => buildRouteRow(r, r.country) });
       }
       for (const c of cityStore) {
-        (countries[c.country] ||= { routes: [], cities: [] }).cities.push(c);
+        (countries[c.country] ||= []).push({ name: c.city, build: () => buildCityRow(c, c.country) });
       }
 
       for (const country of Object.keys(countries).sort()) {
@@ -591,11 +591,8 @@
         head.textContent = country;
         head.dataset.country = country;
         listEl.appendChild(head);
-        for (const r of countries[country].routes) {
-          listEl.appendChild(buildRouteRow(r, country));
-        }
-        for (const c of countries[country].cities.sort((a, b) => a.city.localeCompare(b.city))) {
-          listEl.appendChild(buildCityRow(c, country));
+        for (const item of countries[country].sort((a, b) => a.name.localeCompare(b.name))) {
+          listEl.appendChild(item.build());
         }
       }
     }
@@ -664,7 +661,7 @@
 
       if (store.length === 0) {
         showBanner(
-          "<b>No routes could be loaded.</b><br>" +
+          "<b>No tracks could be loaded.</b><br>" +
           "This page reads the <code>.gpx</code> files over HTTP, so it needs to be " +
           "served rather than opened directly from disk. Try:<br>" +
           "<code>python3 -m http.server</code> then open " +
@@ -673,7 +670,7 @@
         return;
       }
       if (failures > 0) {
-        showBanner(`<b>${failures} route(s) failed to load.</b> The rest are shown below.`);
+        showBanner(`<b>${failures} track(s) failed to load.</b> The rest are shown below.`);
         setTimeout(() => { bannerEl.style.display = "none"; }, 6000);
       }
 
