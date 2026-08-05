@@ -130,11 +130,16 @@
     @media (hover: none) { .route .copy { opacity: 1; } }
     .route .copy:hover { border-color: var(--accent); color: var(--accent); }
     .route .copy.done { border-color: var(--start); color: var(--start); opacity: 1; }
-    .route.city .label { display: flex; align-items: center; min-width: 0; }
-    .route.city .pin {
-      width: 8px; height: 8px; border-radius: 50%;
-      background: var(--city); flex: 0 0 auto; margin-right: 8px;
-      box-shadow: 0 0 0 1px var(--panel);
+    .route .tag {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      color: var(--city);
+      border: 1px solid var(--city);
+      border-radius: 999px;
+      padding: 0 6px;
+      line-height: 15px;
     }
     .route.hidden { display: none; }
     .country.hidden { display: none; }
@@ -546,21 +551,19 @@
       el.dataset.country = country;
       el.dataset.name = c.city.toLowerCase();
       const label = document.createElement("span");
-      label.className = "label";
-      const pin = document.createElement("span");
-      pin.className = "pin";
-      const txt = document.createElement("span");
-      txt.textContent = c.city;
-      label.append(pin, txt);
+      label.textContent = c.city;
       const end = document.createElement("span");
       end.className = "end";
+      const tag = document.createElement("span");
+      tag.className = "tag";
+      tag.textContent = "City";
       const copyBtn = document.createElement("button");
       copyBtn.className = "copy";
       copyBtn.type = "button";
       copyBtn.textContent = "Copy";
       copyBtn.title = "Copy coordinates to clipboard";
       copyBtn.addEventListener("click", (e) => { e.stopPropagation(); copyCoords(c, copyBtn); });
-      end.append(copyBtn);
+      end.append(tag, copyBtn);
       el.append(label, end);
       el.addEventListener("click", () => selectCity(c));
       c.el = el;
@@ -568,7 +571,7 @@
     }
 
     // Render one list grouped by country, with each country's routes followed by
-    // its large cities (cities are marked with a pin, routes show a distance).
+    // its large cities (cities show a "City" tag, routes show a distance).
     function buildSidebar() {
       countEl.textContent = cityStore.length
         ? `${store.length} routes \u00b7 ${cityStore.length} large cities`
