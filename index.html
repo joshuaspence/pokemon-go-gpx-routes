@@ -22,6 +22,7 @@
       --track: #2f6fed;
       --start: #16a34a;
       --end: #e3350d;
+      --city: #d97706;
     }
     @media (prefers-color-scheme: dark) {
       :root {
@@ -35,6 +36,7 @@
         --track: #6ea8ff;
         --start: #34d17b;
         --end: #ff5a3c;
+        --city: #f59e0b;
       }
     }
     * { box-sizing: border-box; }
@@ -128,6 +130,22 @@
     @media (hover: none) { .route .copy { opacity: 1; } }
     .route .copy:hover { border-color: var(--accent); color: var(--accent); }
     .route .copy.done { border-color: var(--start); color: var(--start); opacity: 1; }
+    .route.city .label { display: flex; align-items: center; min-width: 0; }
+    .route.city .pin {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--city); flex: 0 0 auto; margin-right: 8px;
+      box-shadow: 0 0 0 1px var(--panel);
+    }
+    .section {
+      padding: 14px 18px 6px;
+      margin-top: 6px;
+      border-top: 1px solid var(--border);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      color: var(--text);
+    }
+    .section.hidden { display: none; }
     .route.hidden { display: none; }
     .country.hidden { display: none; }
     .popup-copy {
@@ -202,12 +220,12 @@
       <div class="sub" id="count">Loading routes…</div>
     </header>
     <div class="search">
-      <input id="filter" type="search" placeholder="Filter routes…" autocomplete="off" />
+      <input id="filter" type="search" placeholder="Filter routes & cities…" autocomplete="off" />
     </div>
     <div id="list"></div>
     <footer>
       Map data © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors.
-      Click a route to zoom.
+      Click a route or city to zoom.
     </footer>
   </aside>
 
@@ -313,7 +331,9 @@
     const toastEl = document.getElementById("toast");
 
     const store = []; // { name, country, file, gpx, latlngs, line, el, markers, distance }
+    const cityStore = []; // { city, country, coords:[lat,lon], coordStr, marker, el }
     let active = null;
+    let activeCity = null;
     let toastTimer = null;
 
     function toast(msg) {
@@ -392,11 +412,45 @@
       return { latlngs, text };
     }
 
+    // Parse the "## Large Cities" table from the README so it stays the single
+    // source of truth for hotspot coordinates. Returns [{country, city, coords,
+    // coordStr}]. Returns [] if the section or file is missing.
+    async function loadCities() {
+      const res = await fetch("README.md");
+      if (!res.ok) throw new Error(res.status + " " + res.statusText);
+      const md = await res.text();
+      const idx = md.search(/^##\s+Large Cities\s*$/m);
+      if (idx < 0) return [];
+      let section = md.slice(idx);
+      const nl = section.indexOf("\n");
+      const afterHeading = section.slice(nl + 1);
+      const nextHeading = afterHeading.search(/^##\s/m);
+      if (nextHeading >= 0) section = section.slice(0, nl + 1 + nextHeading);
+
+      const cities = [];
+      for (const line of section.split("\n")) {
+        const t = line.trim();
+        if (!t.startsWith("|")) continue;
+        const cells = t.split("|").slice(1, -1).map((c) => c.trim());
+        if (cells.length < 3) continue;
+        const [country, city, coordCell] = cells;
+        if (country.toLowerCase() === "country") continue;   // header row
+        if (/^:?-{2,}:?$/.test(cells[0])) continue;          // separator row
+        const m = coordCell.replace(/`/g, "").trim()
+          .match(/^(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)$/);
+        if (!m) continue;
+        const lat = parseFloat(m[1]), lon = parseFloat(m[2]);
+        cities.push({ country, city, coords: [lat, lon], coordStr: `${lat},${lon}` });
+      }
+      return cities;
+    }
+
     function clearMarkers(entry) {
       if (entry.markers) { entry.markers.forEach((m) => map.removeLayer(m)); entry.markers = null; }
     }
 
     function selectRoute(entry, { pan = true } = {}) {
+      deselectCity();
       if (active && active !== entry) {
         active.line.setStyle({ color: cssVar("--track"), weight: 2, opacity: 0.55 });
         active.line.bringToBack();
@@ -436,8 +490,63 @@
       entry.el.scrollIntoView({ block: "nearest" });
     }
 
+    function deselectCity() {
+      if (!activeCity) return;
+      activeCity.marker.setStyle({ radius: 5, fillColor: cssVar("--city") });
+      activeCity.el.classList.remove("active");
+      activeCity = null;
+    }
+
+    function selectCity(c, { pan = true } = {}) {
+      // Clear any active route selection so only one thing is highlighted.
+      if (active) {
+        active.line.setStyle({ color: cssVar("--track"), weight: 2, opacity: 0.55 });
+        active.line.bringToBack();
+        clearMarkers(active);
+        active.el.classList.remove("active");
+        active = null;
+      }
+      deselectCity();
+      activeCity = c;
+      c.el.classList.add("active");
+      c.marker.setStyle({ radius: 8, fillColor: cssVar("--accent") });
+      c.marker.bringToFront();
+
+      const popup = document.createElement("div");
+      const title = document.createElement("b");
+      title.textContent = c.city;
+      const info = document.createElement("div");
+      info.textContent = `${c.country} · ${c.coordStr}`;
+      const btn = document.createElement("button");
+      btn.className = "popup-copy";
+      btn.type = "button";
+      btn.textContent = "Copy coordinates";
+      btn.addEventListener("click", () => copyCoords(c, btn));
+      popup.append(title, info, btn);
+      c.marker.bindPopup(popup);
+
+      if (pan) {
+        map.setView(c.coords, Math.max(map.getZoom(), 12));
+        c.marker.openPopup();
+      }
+      c.el.scrollIntoView({ block: "nearest" });
+    }
+
+    async function copyCoords(c, btn) {
+      const ok = await copyText(c.coordStr);
+      if (btn) {
+        const original = btn.textContent;
+        btn.textContent = ok ? "Copied" : "Failed";
+        btn.classList.add("done");
+        setTimeout(() => { btn.textContent = original; btn.classList.remove("done"); }, 1400);
+      }
+      toast(ok ? `Copied ${c.city} coordinates to clipboard` : "Copy failed");
+    }
+
     function buildSidebar() {
-      countEl.textContent = `${store.length} routes across ${MANIFEST.length} countries`;
+      countEl.textContent = cityStore.length
+        ? `${store.length} routes · ${cityStore.length} large cities`
+        : `${store.length} routes across ${MANIFEST.length} countries`;
       for (const group of MANIFEST) {
         const head = document.createElement("div");
         head.className = "country";
@@ -478,6 +587,52 @@
           listEl.appendChild(el);
         }
       }
+
+      if (cityStore.length) {
+        const section = document.createElement("div");
+        section.className = "section";
+        section.textContent = "Large Cities";
+        listEl.appendChild(section);
+
+        const byCountry = {};
+        for (const c of cityStore) (byCountry[c.country] ||= []).push(c);
+        for (const country of Object.keys(byCountry).sort()) {
+          const head = document.createElement("div");
+          head.className = "country";
+          head.textContent = country;
+          head.dataset.country = country;
+          listEl.appendChild(head);
+          for (const c of byCountry[country].sort((a, b) => a.city.localeCompare(b.city))) {
+            const el = document.createElement("div");
+            el.className = "route city";
+            el.dataset.country = country;
+            el.dataset.name = c.city.toLowerCase();
+            const label = document.createElement("span");
+            label.className = "label";
+            const pin = document.createElement("span");
+            pin.className = "pin";
+            const txt = document.createElement("span");
+            txt.textContent = c.city;
+            label.append(pin, txt);
+            const end = document.createElement("span");
+            end.className = "end";
+            const copyBtn = document.createElement("button");
+            copyBtn.className = "copy";
+            copyBtn.type = "button";
+            copyBtn.textContent = "Copy";
+            copyBtn.title = "Copy coordinates to clipboard";
+            copyBtn.addEventListener("click", (e) => {
+              e.stopPropagation();
+              copyCoords(c, copyBtn);
+            });
+            end.append(copyBtn);
+            el.append(label, end);
+            el.addEventListener("click", () => selectCity(c));
+            c.el = el;
+            listEl.appendChild(el);
+          }
+        }
+      }
     }
 
     filterEl.addEventListener("input", () => {
@@ -494,6 +649,15 @@
           sib = sib.nextElementSibling;
         }
         head.classList.toggle("hidden", !anyVisible);
+      });
+      // hide a section header when all of its entries are filtered out
+      document.querySelectorAll(".section").forEach((sec) => {
+        let sib = sec.nextElementSibling, anyVisible = false;
+        while (sib) {
+          if (sib.classList.contains("route") && !sib.classList.contains("hidden")) { anyVisible = true; break; }
+          sib = sib.nextElementSibling;
+        }
+        sec.classList.toggle("hidden", !anyVisible);
       });
     });
 
@@ -522,6 +686,21 @@
         }
       });
 
+      // Load large cities from the README and drop a marker for each.
+      try {
+        const cities = await loadCities();
+        for (const c of cities) {
+          const marker = L.circleMarker(c.coords, {
+            radius: 5, color: "#fff", weight: 2,
+            fillColor: cssVar("--city"), fillOpacity: 1,
+          }).addTo(map);
+          marker.bindTooltip(c.city);
+          const entry = { ...c, marker };
+          marker.on("click", () => selectCity(entry, { pan: false }));
+          cityStore.push(entry);
+        }
+      } catch (e) { /* cities are optional — routes still render */ }
+
       buildSidebar();
 
       if (store.length === 0) {
@@ -539,7 +718,10 @@
         setTimeout(() => { bannerEl.style.display = "none"; }, 6000);
       }
 
-      const all = L.featureGroup(store.map((s) => s.line));
+      const all = L.featureGroup([
+        ...store.map((s) => s.line),
+        ...cityStore.map((c) => c.marker),
+      ]);
       map.fitBounds(all.getBounds(), { padding: [30, 30] });
     }
 
