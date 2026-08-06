@@ -396,28 +396,39 @@
       return { latlngs, text, name, desc };
     }
 
-    // Load large cities from Large Cities.gpx, which holds each city as a named
-    // GPX waypoint (<wpt> with <name> = city and <desc> = country). Returns
-    // [{country, city, coords, coordStr}]; coordStr preserves the file's exact
-    // lat/lon text for copying.
+    // Waypoint files: each holds points of interest as named GPX waypoints
+    // (<wpt> with <name> = place and <desc> = country).
+    const WAYPOINT_FILES = [
+      "Large Cities.gpx",
+      "Pokestop Clusters.gpx",
+      "Popular Spoofing Spots.gpx",
+    ];
+
+    // Load every waypoint file. Returns [{country, city, coords, coordStr}];
+    // coordStr preserves the file's exact lat/lon text for copying. A file that
+    // is missing or malformed is skipped so the others still load.
     async function loadCities() {
-      const res = await fetch(encodeURI("Large Cities.gpx"));
-      if (!res.ok) throw new Error(res.status + " " + res.statusText);
-      const doc = new DOMParser().parseFromString(await res.text(), "application/xml");
-      if (doc.querySelector("parsererror")) throw new Error("XML parse error");
       const cities = [];
-      for (const w of doc.getElementsByTagName("wpt")) {
-        const latStr = w.getAttribute("lat"), lonStr = w.getAttribute("lon");
-        const lat = parseFloat(latStr), lon = parseFloat(lonStr);
-        if (!Number.isFinite(lat) || !Number.isFinite(lon)) continue;
-        const nameEl = w.getElementsByTagName("name")[0];
-        const descEl = w.getElementsByTagName("desc")[0];
-        cities.push({
-          country: descEl ? descEl.textContent.trim() : "Other",
-          city: nameEl ? nameEl.textContent.trim() : `${lat}, ${lon}`,
-          coords: [lat, lon],
-          coordStr: `${latStr},${lonStr}`,
-        });
+      for (const file of WAYPOINT_FILES) {
+        try {
+          const res = await fetch(encodeURI(file));
+          if (!res.ok) throw new Error(res.status + " " + res.statusText);
+          const doc = new DOMParser().parseFromString(await res.text(), "application/xml");
+          if (doc.querySelector("parsererror")) throw new Error("XML parse error");
+          for (const w of doc.getElementsByTagName("wpt")) {
+            const latStr = w.getAttribute("lat"), lonStr = w.getAttribute("lon");
+            const lat = parseFloat(latStr), lon = parseFloat(lonStr);
+            if (!Number.isFinite(lat) || !Number.isFinite(lon)) continue;
+            const nameEl = w.getElementsByTagName("name")[0];
+            const descEl = w.getElementsByTagName("desc")[0];
+            cities.push({
+              country: descEl ? descEl.textContent.trim() : "Other",
+              city: nameEl ? nameEl.textContent.trim() : `${lat}, ${lon}`,
+              coords: [lat, lon],
+              coordStr: `${latStr},${lonStr}`,
+            });
+          }
+        } catch (e) { /* skip this waypoint file */ }
       }
       return cities;
     }

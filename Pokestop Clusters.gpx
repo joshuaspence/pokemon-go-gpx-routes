@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx xmlns="http://www.topografix.com/GPX/1/1" version="1.1">
+  <wpt lat="-23.550572" lon="-46.657470">
+    <name>São Paulo</name>
+    <desc>Brazil</desc>
+  </wpt>
+  <wpt lat="28.12976" lon="-15.45106">
+    <name>Gran Canaria</name>
+    <desc>Canary Islands</desc>
+  </wpt>
+  <wpt lat="-2.102919" lon="-79.907980">
+    <name>Guayas</name>
+    <desc>Ecuador</desc>
+  </wpt>
+  <wpt lat="47.529972" lon="19.051153">
+    <name>Budapest</name>
+    <desc>Hungary</desc>
+  </wpt>
+  <wpt lat="-11.562937" lon="-77.270209">
+    <name>Lima</name>
+    <desc>Peru</desc>
+  </wpt>
+  <wpt lat="38.699629" lon="-9.300969">
+    <name>Oeiras</name>
+    <desc>Portugal</desc>
+  </wpt>
+  <wpt lat="41.661130" lon="-0.893750">
+    <name>Zaragoza</name>
+    <desc>Spain</desc>
+  </wpt>
+  <wpt lat="25.076303" lon="55.132383">
+    <name>Dubai</name>
+    <desc>United Arab Emirates</desc>
+  </wpt>
+</gpx>
