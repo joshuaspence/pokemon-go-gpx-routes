@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx xmlns="http://www.topografix.com/GPX/1/1" version="1.1">
+  <wpt lat="39.916980" lon="127.538993">
+    <name>Hamhung</name>
+    <desc>North Korea</desc>
+  </wpt>
+  <wpt lat="-77.846134" lon="166.660818">
+    <name>McMurdo Station</name>
+    <desc>Antarctica</desc>
+  </wpt>
+  <wpt lat="56.731467" lon="-111.372691">
+    <name>Fort McMurray, Alberta</name>
+    <desc>Canada</desc>
+  </wpt>
+  <wpt lat="78.656387" lon="16.316109">
+    <name>Svalbard</name>
+    <desc>Norway</desc>
+  </wpt>
+  <wpt lat="0.8070" lon="-176.6175">
+    <name>Howland Island</name>
+    <desc>United States</desc>
+  </wpt>
+</gpx>

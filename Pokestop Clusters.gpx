@@ -32,4 +32,8 @@
     <name>Dubai</name>
     <desc>United Arab Emirates</desc>
   </wpt>
+  <wpt lat="44.859873" lon="-93.618821">
+    <name>Minnesota Landscape Arboretum</name>
+    <desc>United States</desc>
+  </wpt>
 </gpx>
