@@ -635,10 +635,11 @@
 
       const byCountry = {};
       for (const r of ROUTES) {
-        (byCountry[r.country] ||= []).push({ name: r.name, build: () => buildRouteRow(r, r.country) });
+        const e = store.find((s) => s.file === r.file);
+        (byCountry[r.country] ||= []).push({ name: r.name, dist: e ? e.distance : Infinity, build: () => buildRouteRow(r, r.country) });
       }
       for (const c of cityStore) {
-        (byCountry[c.country] ||= []).push({ name: c.city, build: () => buildCityRow(c, c.country) });
+        (byCountry[c.country] ||= []).push({ name: c.city, dist: 0, build: () => buildCityRow(c, c.country) });
       }
 
       const byContinent = {};
@@ -678,7 +679,7 @@
           group.appendChild(head);
           const items = document.createElement("div");
           items.className = "country-items";
-          for (const item of byCountry[country].sort((a, b) => a.name.localeCompare(b.name))) {
+          for (const item of byCountry[country].sort((a, b) => a.name.localeCompare(b.name) || a.dist - b.dist)) {
             items.appendChild(item.build());
           }
           group.appendChild(items);
