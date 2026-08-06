@@ -108,6 +108,26 @@
     }
     .country-group.collapsed .country .chev { transform: rotate(-90deg); }
     .country-group.collapsed .country-items { display: none; }
+    .continent {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 12px 18px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      color: var(--text);
+      cursor: pointer;
+      user-select: none;
+    }
+    .continent:hover { color: var(--accent); }
+    .continent .chev { font-size: 9px; transition: transform 0.15s; }
+    .continent-group.collapsed .continent .chev { transform: rotate(-90deg); }
+    .continent-group.collapsed .continent-items { display: none; }
+    .continent-group.hidden { display: none; }
+    /* indent the nested levels */
+    .continent-items .country { padding-left: 32px; }
+    .continent-items .country-items .route { padding-left: 44px; }
     .route {
       display: flex;
       align-items: baseline;
@@ -405,6 +425,23 @@
       "Remote Locations.gpx",
     ];
 
+    // Continent for each country, used to group the sidebar. Unlisted countries
+    // fall back to "Other".
+    const CONTINENTS = {
+      "Canary Islands": "Africa",
+      "Antarctica": "Antarctica",
+      "India": "Asia", "Japan": "Asia", "North Korea": "Asia", "Singapore": "Asia",
+      "South Korea": "Asia", "Taiwan": "Asia", "United Arab Emirates": "Asia",
+      "Austria": "Europe", "Belgium": "Europe", "Czechia": "Europe", "Denmark": "Europe",
+      "England": "Europe", "France": "Europe", "Germany": "Europe", "Hungary": "Europe",
+      "Ireland": "Europe", "Italy": "Europe", "Netherlands": "Europe", "Norway": "Europe",
+      "Portugal": "Europe", "Romania": "Europe", "Russia": "Europe", "Spain": "Europe",
+      "Canada": "North America", "Mexico": "North America", "United States": "North America",
+      "Australia": "Oceania", "New Zealand": "Oceania",
+      "Argentina": "South America", "Brazil": "South America", "Ecuador": "South America",
+      "Peru": "South America",
+    };
+
     // Load every waypoint file. Returns [{country, city, coords, coordStr}];
     // coordStr preserves the file's exact lat/lon text for copying. A file that
     // is missing or malformed is skipped so the others still load.
@@ -477,6 +514,7 @@
         entry.line.openPopup();
       }
       entry.el.closest(".country-group")?.classList.remove("collapsed");
+      entry.el.closest(".continent-group")?.classList.remove("collapsed");
       entry.el.scrollIntoView({ block: "nearest" });
     }
 
@@ -520,6 +558,7 @@
         c.marker.openPopup();
       }
       c.el.closest(".country-group")?.classList.remove("collapsed");
+      c.el.closest(".continent-group")?.classList.remove("collapsed");
       c.el.scrollIntoView({ block: "nearest" });
     }
 
@@ -594,35 +633,60 @@
         ? `${store.length} tracks \u00b7 ${cityStore.length} waypoints`
         : `${store.length} tracks across ${new Set(ROUTES.map((r) => r.country)).size} countries`;
 
-      const countries = {};
+      const byCountry = {};
       for (const r of ROUTES) {
-        (countries[r.country] ||= []).push({ name: r.name, build: () => buildRouteRow(r, r.country) });
+        (byCountry[r.country] ||= []).push({ name: r.name, build: () => buildRouteRow(r, r.country) });
       }
       for (const c of cityStore) {
-        (countries[c.country] ||= []).push({ name: c.city, build: () => buildCityRow(c, c.country) });
+        (byCountry[c.country] ||= []).push({ name: c.city, build: () => buildCityRow(c, c.country) });
       }
 
-      for (const country of Object.keys(countries).sort()) {
-        const group = document.createElement("div");
-        group.className = "country-group collapsed";   // collapsed by default
-        const head = document.createElement("div");
-        head.className = "country";
-        head.dataset.country = country;
-        const chev = document.createElement("span");
-        chev.className = "chev";
-        chev.textContent = "▾";
-        const label = document.createElement("span");
-        label.textContent = country;
-        head.append(chev, label);
-        head.addEventListener("click", () => group.classList.toggle("collapsed"));
-        group.appendChild(head);
-        const items = document.createElement("div");
-        items.className = "country-items";
-        for (const item of countries[country].sort((a, b) => a.name.localeCompare(b.name))) {
-          items.appendChild(item.build());
+      const byContinent = {};
+      for (const country of Object.keys(byCountry)) {
+        (byContinent[CONTINENTS[country] || "Other"] ||= []).push(country);
+      }
+
+      for (const continent of Object.keys(byContinent).sort()) {
+        const cg = document.createElement("div");
+        cg.className = "continent-group collapsed";   // collapsed by default
+        const chead = document.createElement("div");
+        chead.className = "continent";
+        const cchev = document.createElement("span");
+        cchev.className = "chev";
+        cchev.textContent = "▾";
+        const clabel = document.createElement("span");
+        clabel.textContent = continent;
+        chead.append(cchev, clabel);
+        chead.addEventListener("click", () => cg.classList.toggle("collapsed"));
+        cg.appendChild(chead);
+        const citems = document.createElement("div");
+        citems.className = "continent-items";
+
+        for (const country of byContinent[continent].sort()) {
+          const group = document.createElement("div");
+          group.className = "country-group collapsed";
+          const head = document.createElement("div");
+          head.className = "country";
+          head.dataset.country = country;
+          const chev = document.createElement("span");
+          chev.className = "chev";
+          chev.textContent = "▾";
+          const label = document.createElement("span");
+          label.textContent = country;
+          head.append(chev, label);
+          head.addEventListener("click", () => group.classList.toggle("collapsed"));
+          group.appendChild(head);
+          const items = document.createElement("div");
+          items.className = "country-items";
+          for (const item of byCountry[country].sort((a, b) => a.name.localeCompare(b.name))) {
+            items.appendChild(item.build());
+          }
+          group.appendChild(items);
+          citems.appendChild(group);
         }
-        group.appendChild(items);
-        listEl.appendChild(group);
+
+        cg.appendChild(citems);
+        listEl.appendChild(cg);
       }
     }
 
@@ -632,12 +696,17 @@
         const hit = !q || el.dataset.name.includes(q) || el.dataset.country.toLowerCase().includes(q);
         el.classList.toggle("hidden", !hit);
       });
-      // Hide countries with no matches; while searching, auto-expand those that
-      // have matches so the results are visible. With no query, collapse all.
+      // Hide groups with no matches; while searching, auto-expand those that have
+      // matches so the results are visible. With no query, collapse everything.
       document.querySelectorAll(".country-group").forEach((group) => {
         const anyVisible = [...group.querySelectorAll(".route")].some((r) => !r.classList.contains("hidden"));
         group.classList.toggle("hidden", !anyVisible);
         group.classList.toggle("collapsed", q ? !anyVisible : true);
+      });
+      document.querySelectorAll(".continent-group").forEach((cg) => {
+        const anyVisible = [...cg.querySelectorAll(".country-group")].some((g) => !g.classList.contains("hidden"));
+        cg.classList.toggle("hidden", !anyVisible);
+        cg.classList.toggle("collapsed", q ? !anyVisible : true);
       });
     });
 
