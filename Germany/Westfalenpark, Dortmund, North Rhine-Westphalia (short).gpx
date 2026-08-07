@@ -3,6 +3,7 @@
   <trk>
     <name>Westfalenpark, Dortmund, North Rhine-Westphalia</name>
     <desc>Germany</desc>
+    <type>short</type>
     <trkseg>
       <trkpt lat="51.496666" lon="7.469666"/>
       <trkpt lat="51.496976" lon="7.475556"/>

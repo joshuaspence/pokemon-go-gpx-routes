@@ -3,6 +3,7 @@
   <trk>
     <name>Ibirapuera Park, São Paulo</name>
     <desc>Brazil</desc>
+    <type>short</type>
     <trkseg>
       <trkpt lat="-23.585856" lon="-46.655580"/>
       <trkpt lat="-23.585843" lon="-46.655591"/>

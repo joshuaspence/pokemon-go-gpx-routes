@@ -259,9 +259,11 @@
   ></script>
   <script>
     // Route files, relative to this page. Static hosting cannot list a directory,
-    // so the paths live here, but each route's name and country are read from the
-    // GPX metadata (<trk><name> and <trk><desc>) when it loads — the GPX files are
-    // the source of truth. When you add or remove a route, update this list.
+    // so the paths live here, but each route's name, country and variant are read
+    // from the GPX metadata (<trk><name>, <trk><desc> and <trk><type>) when it
+    // loads — the GPX files are the source of truth. Variant is "short"/"long"
+    // for routes that come as a pair, and empty otherwise. When you add or remove
+    // a route, update this list.
     const ROUTE_FILES = [
       "Australia/Kings Park, Perth, Western Australia.gpx",
       "Australia/Melbourne Zoo, Melbourne, Victoria.gpx",
@@ -331,7 +333,7 @@
     const bannerEl = document.getElementById("banner");
     const toastEl = document.getElementById("toast");
 
-    const store = []; // { name, country, file, gpx, latlngs, line, el, markers, distance }
+    const store = []; // { name, country, variant, file, gpx, latlngs, line, el, markers, distance }
     const cityStore = []; // { city, country, coords:[lat,lon], coordStr, marker, el }
     let active = null;
     let activeCity = null;
@@ -412,9 +414,11 @@
       }
       const nameEl = doc.querySelector("trk > name");
       const descEl = doc.querySelector("trk > desc");
+      const typeEl = doc.querySelector("trk > type");
       const name = nameEl ? nameEl.textContent.trim() : "";
       const desc = descEl ? descEl.textContent.trim() : "";
-      return { latlngs, text, name, desc };
+      const variant = typeEl ? typeEl.textContent.trim() : "";
+      return { latlngs, text, name, desc, variant };
     }
 
     // Waypoint files: each holds points of interest as named GPX waypoints
@@ -722,7 +726,7 @@
       results.forEach((res, i) => {
         const r = flat[i];
         if (res.status === "fulfilled" && res.value.latlngs.length > 1) {
-          const { latlngs, text, name, desc } = res.value;
+          const { latlngs, text, name, desc, variant } = res.value;
           // Prefer the GPX metadata; fall back to the path-derived values.
           if (name) r.name = name;
           if (desc) r.country = desc;
@@ -730,7 +734,7 @@
             color: cssVar("--track"), weight: 2, opacity: 0.55,
           }).addTo(map);
           const entry = {
-            name: r.name, country: r.country, file: r.file, gpx: text,
+            name: r.name, country: r.country, variant, file: r.file, gpx: text,
             latlngs, line, markers: null, distance: routeDistance(latlngs),
           };
           line.on("click", () => selectRoute(entry, { pan: false }));

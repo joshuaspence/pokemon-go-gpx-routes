@@ -3,6 +3,7 @@
   <trk>
     <name>Royal Botanic Gardens, Sydney, New South Wales</name>
     <desc>Australia</desc>
+    <type>short</type>
     <trkseg>
       <trkpt lat="-33.866319" lon="151.216784"/>
       <trkpt lat="-33.867018" lon="151.217565"/>
