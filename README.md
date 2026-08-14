@@ -17,13 +17,11 @@ python3 -m http.server
 
 ## Import into PGSharp
 
-The map's **PGSharp backup** panel (in the sidebar) writes every route and
-waypoint here straight into a PGSharp backup, so they show up as favourites in
-the app. Export `PGSDataExport.dat` from PGSharp, choose it in the panel, and it
-downloads an updated backup to import back, replacing the backup's favourites
-with these. Optional checkboxes also reset the on-screen control positions
-(floating control, fast-snipe buttons, cooldown indicator) to a known-good
-layout, and strip the licence/auth info (including the account email) or the
-cooldown history out of the backup. Everything runs in the browser; the backup
-is never uploaded anywhere. This is a client-side port of
+The map's **PGSharp backup** panel (in the sidebar) builds a *partial*
+`PGSData.dat` containing only every route and waypoint here — plus, if ticked, a
+fixed control layout (floating control, fast-snipe buttons, cooldown indicator).
+No existing backup is needed: click **Generate & download**, then import the file
+into PGSharp to add them as favourites. Because the file holds only those keys,
+importing it leaves the rest of your PGSharp profile as it was. Everything runs
+in the browser. The favourite encoding is a client-side port of
 [`pgsedit`](https://github.com/joshuaspence/pgsedit).

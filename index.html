@@ -259,11 +259,6 @@
       color: var(--text);
     }
     .backup p { margin: 0; color: var(--muted); line-height: 1.45; }
-    .backup input[type="file"] {
-      font-size: 12px;
-      color: var(--text);
-      max-width: 100%;
-    }
     .backup .group { display: flex; flex-direction: column; gap: 5px; }
     .backup .group-title {
       font-size: 11px;
@@ -305,24 +300,18 @@
       <summary>PGSharp backup</summary>
       <div class="body">
         <p>
-          Replace your PGSharp backup's favourites with every route and waypoint
-          on this map. Export <code>PGSDataExport.dat</code> from PGSharp, choose
-          it below, then import the file this downloads back into PGSharp.
+          Build a partial PGSharp backup holding every route and waypoint on this
+          map (and, if ticked, a fixed control layout) — nothing else. Import the
+          downloaded file into PGSharp; your other settings are left untouched.
         </p>
-        <input id="backupFile" type="file" accept=".dat,application/octet-stream" />
         <div class="group">
-          <div class="group-title">Reset control positions</div>
+          <div class="group-title">Include control positions</div>
           <label class="opt"><input type="checkbox" id="resetIcon" checked /> Floating control</label>
           <label class="opt"><input type="checkbox" id="resetSnipe1" checked /> Fast-snipe button</label>
           <label class="opt"><input type="checkbox" id="resetSnipe2" checked /> Second fast-snipe button</label>
           <label class="opt"><input type="checkbox" id="resetCdpos" checked /> Cooldown indicator</label>
         </div>
-        <div class="group">
-          <div class="group-title">Strip data</div>
-          <label class="opt"><input type="checkbox" id="stripAuth" /> Licence &amp; auth info (incl. account email)</label>
-          <label class="opt"><input type="checkbox" id="stripCdhist" /> Cooldown history</label>
-        </div>
-        <button id="backupRun" class="run" type="button" disabled>Update &amp; download</button>
+        <button id="backupRun" class="run" type="button">Generate &amp; download</button>
         <div class="status" id="backupStatus"></div>
       </div>
     </details>
@@ -1222,25 +1211,13 @@
     }
 
     // On-screen control positions, taken verbatim from a known-good backup.
-    // Each checkbox restores one control's x/y to these fixed Java Float values;
-    // the values are not user-editable.
+    // Each checkbox includes one control's x/y in the synthesized backup, set to
+    // these fixed Java Float values; the values are not user-editable.
     const CONTROL_RESETS = [
       { id: "resetIcon",   keys: { iconX: 0.0, iconY: 554.353515625 } },
       { id: "resetSnipe1", keys: { hlfastsnipex: 816.33203125, hlfastsnipey: 785.09375 } },
       { id: "resetSnipe2", keys: { hlfastsnipe2x: 916.2529296875, hlfastsnipe2y: 786.2392578125 } },
       { id: "resetCdpos",  keys: { hlcdposx: 0.0, hlcdposy: 237.6494140625 } },
-    ];
-
-    // "Strip" checkboxes remove keys outright. A plain name is removed as-is; a
-    // name ending in "-" is a prefix, since those keys carry a per-account hash
-    // suffix. The licence/auth keys are exactly the ones that appear once a
-    // licence is activated (hllicense, hlprod, hlauthresponse); hllicense and
-    // hlauthresponse embed the account email, so this also drops that. The
-    // account hash in the hlwalk-/hlpgslog- key names is left alone — it is
-    // present in an unlicensed backup too.
-    const STRIP_GROUPS = [
-      { id: "stripAuth", label: "licence & auth", keys: ["hllicense", "hlprod", "hlauthresponse"] },
-      { id: "stripCdhist", label: "cooldown history", keys: ["hlcdhist-"] },
     ];
 
     // The text of a direct child <tag>, or null. Read from the element itself,
@@ -1351,7 +1328,6 @@
     // ------------------------------------------------------------------
     // UI wiring.
     // ------------------------------------------------------------------
-    const backupFileEl = document.getElementById("backupFile");
     const backupRunEl = document.getElementById("backupRun");
     const backupStatusEl = document.getElementById("backupStatus");
 
@@ -1372,82 +1348,48 @@
       setTimeout(() => URL.revokeObjectURL(url), 1000);
     }
 
-    backupFileEl.addEventListener("change", () => {
-      backupRunEl.disabled = !backupFileEl.files.length;
-      backupStatus("");
-    });
-
+    // Synthesize a partial PGSData.dat from scratch — a HashMap holding only the
+    // keys we set (the favourites, plus whichever control positions are ticked).
+    // Nothing is read from an existing backup; every other preference is omitted,
+    // so importing this leaves the rest of the profile as PGSharp had it.
     backupRunEl.addEventListener("click", async () => {
-      const file = backupFileEl.files[0];
-      if (!file) return;
       backupRunEl.disabled = true;
-      backupStatus("Reading backup…");
-
-      let root;
-      try {
-        root = JavaSer.loads(new Uint8Array(await file.arrayBuffer()));
-      } catch (e) {
-        backupStatus(`Could not read backup: ${e.message}`, "err");
-        backupRunEl.disabled = false;
-        return;
-      }
-      if (!(root instanceof Map)) {
-        backupStatus("This file isn't a PGSharp backup (no HashMap at its root).", "err");
-        backupRunEl.disabled = false;
-        return;
-      }
-
+      backupStatus("Building backup…");
       try {
         const repo = await buildRepoFavourites();
         const notes = [];
 
-        // The backup's favourites are always replaced with this map's. Names must
-        // be unique within a kind (PGSharp lists and deletes by name), so drop any
-        // repeat in the repo set.
+        // Names must be unique within a kind (PGSharp lists and deletes by name),
+        // so drop any repeat, then alphabetise within each kind like `reorder`.
         const p = dedupeByName(repo.points);
         const r = dedupeByName(repo.routes);
         const points = p.out, routes = r.out;
         if (p.dropped) notes.push(`${p.dropped} duplicate waypoint name(s) skipped`);
         if (r.dropped) notes.push(`${r.dropped} duplicate route name(s) skipped`);
-
-        // Alphabetise within each kind, like `reorder`.
         points.sort(byName);
         routes.sort(byName);
 
+        const root = new Map();
         root.set(POINTS_KEY, encodePoints(points));
         root.set(ROUTES_KEY, encodeRoutes(routes));
 
-        // Optionally reset control positions to fixed values (not customisable).
-        let reset = 0;
+        // Include whichever control positions are ticked, set to fixed values.
+        let positions = 0;
         for (const { id, keys } of CONTROL_RESETS) {
           if (!document.getElementById(id).checked) continue;
           for (const [k, v] of Object.entries(keys)) root.set(k, JavaSer.box("F", v));
-          reset++;
+          positions++;
         }
-        if (reset) notes.push(`${reset} control position(s) reset`);
-
-        // Optionally strip whole key groups out of the backup.
-        for (const { id, label, keys } of STRIP_GROUPS) {
-          if (!document.getElementById(id).checked) continue;
-          let removed = 0;
-          for (const target of keys) {
-            if (target.endsWith("-")) {
-              for (const k of [...root.keys()]) if (k.startsWith(target)) { root.delete(k); removed++; }
-            } else if (root.delete(target)) {
-              removed++;
-            }
-          }
-          if (removed) notes.push(`stripped ${label}`);
-        }
+        if (positions) notes.push(`${positions} control position(s)`);
 
         const outBytes = JavaSer.dumps(root);
         JavaSer.loads(outBytes); // re-parse our own output before offering it
 
-        downloadBytes(outBytes, file.name || "PGSData.dat");
+        downloadBytes(outBytes, "PGSData.dat");
         const detail = notes.length ? ` (${notes.join("; ")})` : "";
         backupStatus(
-          `Done — ${points.length} waypoint(s) and ${routes.length} route(s) written${detail}. ` +
-          "Import the downloaded file back into PGSharp.", "ok");
+          `Built a partial backup — ${points.length} waypoint(s) and ${routes.length} route(s)${detail}. ` +
+          "Import it into PGSharp.", "ok");
       } catch (e) {
         backupStatus(`Failed to build backup: ${e.message}`, "err");
       } finally {
