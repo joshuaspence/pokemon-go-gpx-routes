@@ -230,6 +230,8 @@
          after the list stay reachable instead of being clipped below the fold. */
       #sidebar { border-right: none; border-bottom: 1px solid var(--border); overflow-y: auto; }
       #list { flex: none; overflow: visible; }
+      /* The +/- buttons crowd the small map; pinch-to-zoom covers it here. */
+      .leaflet-control-zoom { display: none; }
     }
     /* PGSharp backup panel */
     .backup {
