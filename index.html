@@ -265,6 +265,14 @@
       max-width: 100%;
     }
     .backup .modes { display: flex; flex-direction: column; gap: 5px; }
+    .backup .group { display: flex; flex-direction: column; gap: 5px; }
+    .backup .group-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+    }
     .backup label.opt { display: flex; align-items: center; gap: 7px; cursor: pointer; }
     .backup button.run {
       padding: 8px 10px;
@@ -313,10 +321,18 @@
             Add to existing favourites
           </label>
         </div>
-        <label class="opt">
-          <input type="checkbox" id="resetIcon" checked />
-          Reset the floating control position
-        </label>
+        <div class="group">
+          <div class="group-title">Reset control positions</div>
+          <label class="opt"><input type="checkbox" id="resetIcon" checked /> Floating control</label>
+          <label class="opt"><input type="checkbox" id="resetSnipe1" checked /> Fast-snipe button</label>
+          <label class="opt"><input type="checkbox" id="resetSnipe2" checked /> Second fast-snipe button</label>
+          <label class="opt"><input type="checkbox" id="resetCdpos" checked /> Cooldown indicator</label>
+        </div>
+        <div class="group">
+          <div class="group-title">Strip data</div>
+          <label class="opt"><input type="checkbox" id="stripAuth" /> Licence &amp; auth info (incl. account email)</label>
+          <label class="opt"><input type="checkbox" id="stripCdhist" /> Cooldown history</label>
+        </div>
         <button id="backupRun" class="run" type="button" disabled>Update &amp; download</button>
         <div class="status" id="backupStatus"></div>
       </div>
@@ -1216,10 +1232,24 @@
       return escSlashes(JSON.stringify(arr));
     }
 
-    // The floating control's on-screen position (iconX/iconY), taken verbatim
-    // from a known-good backup. Both are stored as Java Float. These values are
-    // fixed, not user-editable — the "reset" option writes exactly these.
-    const ICON_RESET = { iconX: 0.0, iconY: 554.353515625 };
+    // On-screen control positions, taken verbatim from a known-good backup.
+    // Each checkbox restores one control's x/y to these fixed Java Float values;
+    // the values are not user-editable.
+    const CONTROL_RESETS = [
+      { id: "resetIcon",   keys: { iconX: 0.0, iconY: 554.353515625 } },
+      { id: "resetSnipe1", keys: { hlfastsnipex: 816.33203125, hlfastsnipey: 785.09375 } },
+      { id: "resetSnipe2", keys: { hlfastsnipe2x: 916.2529296875, hlfastsnipe2y: 786.2392578125 } },
+      { id: "resetCdpos",  keys: { hlcdposx: 0.0, hlcdposy: 237.6494140625 } },
+    ];
+
+    // "Strip" checkboxes remove keys outright. A plain name is removed as-is; a
+    // name ending in "-" is a prefix, since those keys carry a per-account hash
+    // suffix. Stripping licence/auth also drops the account email embedded in
+    // hllicense and hlauthresponse.
+    const STRIP_GROUPS = [
+      { id: "stripAuth", label: "licence & auth", keys: ["hllicense", "hlprod", "hlauthresponse", "hlauthtm"] },
+      { id: "stripCdhist", label: "cooldown history", keys: ["hlcdhist-"] },
+    ];
 
     function loadKind(root, key) {
       const raw = root.get(key);
@@ -1342,7 +1372,6 @@
     const backupFileEl = document.getElementById("backupFile");
     const backupRunEl = document.getElementById("backupRun");
     const backupStatusEl = document.getElementById("backupStatus");
-    const resetIconEl = document.getElementById("resetIcon");
 
     function backupStatus(msg, kind) {
       backupStatusEl.textContent = msg;
@@ -1415,12 +1444,27 @@
         root.set(POINTS_KEY, encodePoints(points));
         root.set(ROUTES_KEY, encodeRoutes(routes));
 
-        // Optionally reset the floating control to a fixed position. Both keys
-        // are Java Floats; the values are not customisable.
-        if (resetIconEl.checked) {
-          root.set("iconX", JavaSer.box("F", ICON_RESET.iconX));
-          root.set("iconY", JavaSer.box("F", ICON_RESET.iconY));
-          notes.push("control position reset");
+        // Optionally reset control positions to fixed values (not customisable).
+        let reset = 0;
+        for (const { id, keys } of CONTROL_RESETS) {
+          if (!document.getElementById(id).checked) continue;
+          for (const [k, v] of Object.entries(keys)) root.set(k, JavaSer.box("F", v));
+          reset++;
+        }
+        if (reset) notes.push(`${reset} control position(s) reset`);
+
+        // Optionally strip whole key groups out of the backup.
+        for (const { id, label, keys } of STRIP_GROUPS) {
+          if (!document.getElementById(id).checked) continue;
+          let removed = 0;
+          for (const target of keys) {
+            if (target.endsWith("-")) {
+              for (const k of [...root.keys()]) if (k.startsWith(target)) { root.delete(k); removed++; }
+            } else if (root.delete(target)) {
+              removed++;
+            }
+          }
+          if (removed) notes.push(`stripped ${label}`);
         }
 
         const outBytes = JavaSer.dumps(root);
