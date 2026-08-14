@@ -263,13 +263,24 @@
     }
     .backup p { margin: 0; color: var(--muted); line-height: 1.45; }
     .backup .group { display: flex; flex-direction: column; gap: 5px; }
-    .backup .group-title {
+    .backup details.subgroup > summary {
+      cursor: pointer;
+      user-select: none;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
       font-size: 11px;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.05em;
       color: var(--muted);
     }
+    .backup details.subgroup > summary:hover { color: var(--text); }
+    .backup details.subgroup > summary::-webkit-details-marker { display: none; }
+    .backup details.subgroup > summary::before { content: "▸"; font-size: 9px; }
+    .backup details.subgroup[open] > summary::before { content: "▾"; }
+    .backup details.subgroup[open] .group { margin-top: 8px; }
     .backup label.opt { display: flex; align-items: center; gap: 7px; cursor: pointer; }
     .backup button.run {
       padding: 8px 10px;
@@ -307,14 +318,16 @@
           map (and, if ticked, a fixed control layout) — nothing else. Import the
           downloaded file into PGSharp; your other settings are left untouched.
         </p>
-        <div class="group">
-          <div class="group-title">Include control positions</div>
-          <label class="opt"><input type="checkbox" id="resetIcon" checked /> Floating control</label>
-          <label class="opt"><input type="checkbox" id="resetSnipe1" checked /> Fast-snipe button</label>
-          <label class="opt"><input type="checkbox" id="resetSnipe2" checked /> Second fast-snipe button</label>
-          <label class="opt"><input type="checkbox" id="resetCdpos" checked /> Cooldown indicator</label>
-          <label class="opt"><input type="checkbox" id="resetScan" checked /> Nearby radar</label>
-        </div>
+        <details class="subgroup">
+          <summary>Include control positions</summary>
+          <div class="group">
+            <label class="opt"><input type="checkbox" id="resetIcon" checked /> Floating control</label>
+            <label class="opt"><input type="checkbox" id="resetSnipe1" checked /> Fast-snipe button</label>
+            <label class="opt"><input type="checkbox" id="resetSnipe2" checked /> Second fast-snipe button</label>
+            <label class="opt"><input type="checkbox" id="resetCdpos" checked /> Cooldown indicator</label>
+            <label class="opt"><input type="checkbox" id="resetScan" checked /> Nearby radar</label>
+          </div>
+        </details>
         <button id="backupRun" class="run" type="button">Generate &amp; download</button>
         <div class="status" id="backupStatus"></div>
       </div>
