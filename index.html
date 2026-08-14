@@ -1244,10 +1244,13 @@
 
     // "Strip" checkboxes remove keys outright. A plain name is removed as-is; a
     // name ending in "-" is a prefix, since those keys carry a per-account hash
-    // suffix. Stripping licence/auth also drops the account email embedded in
-    // hllicense and hlauthresponse.
+    // suffix. The licence/auth keys are exactly the ones that appear once a
+    // licence is activated (hllicense, hlprod, hlauthresponse); hllicense and
+    // hlauthresponse embed the account email, so this also drops that. The
+    // account hash in the hlwalk-/hlpgslog- key names is left alone — it is
+    // present in an unlicensed backup too.
     const STRIP_GROUPS = [
-      { id: "stripAuth", label: "licence & auth", keys: ["hllicense", "hlprod", "hlauthresponse", "hlauthtm"] },
+      { id: "stripAuth", label: "licence & auth", keys: ["hllicense", "hlprod", "hlauthresponse"] },
       { id: "stripCdhist", label: "cooldown history", keys: ["hlcdhist-"] },
     ];
 
