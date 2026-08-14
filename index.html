@@ -264,7 +264,6 @@
       color: var(--text);
       max-width: 100%;
     }
-    .backup .modes { display: flex; flex-direction: column; gap: 5px; }
     .backup .group { display: flex; flex-direction: column; gap: 5px; }
     .backup .group-title {
       font-size: 11px;
@@ -306,21 +305,11 @@
       <summary>PGSharp backup</summary>
       <div class="body">
         <p>
-          Write every route and waypoint on this map into your PGSharp backup.
-          Export <code>PGSDataExport.dat</code> from PGSharp, choose it below,
-          then import the file this downloads back into PGSharp.
+          Replace your PGSharp backup's favourites with every route and waypoint
+          on this map. Export <code>PGSDataExport.dat</code> from PGSharp, choose
+          it below, then import the file this downloads back into PGSharp.
         </p>
         <input id="backupFile" type="file" accept=".dat,application/octet-stream" />
-        <div class="modes">
-          <label class="opt">
-            <input type="radio" name="pgsmode" value="replace" checked />
-            Replace all favourites
-          </label>
-          <label class="opt">
-            <input type="radio" name="pgsmode" value="append" />
-            Add to existing favourites
-          </label>
-        </div>
         <div class="group">
           <div class="group-title">Reset control positions</div>
           <label class="opt"><input type="checkbox" id="resetIcon" checked /> Floating control</label>
@@ -1254,16 +1243,6 @@
       { id: "stripCdhist", label: "cooldown history", keys: ["hlcdhist-"] },
     ];
 
-    function loadKind(root, key) {
-      const raw = root.get(key);
-      if (typeof raw !== "string" || !raw.trim()) return [];
-      let arr;
-      try { arr = JSON.parse(raw); }
-      catch (e) { throw new Error(`${key} is not valid JSON`); }
-      if (!Array.isArray(arr)) throw new Error(`${key} is not a JSON array`);
-      return arr;
-    }
-
     // The text of a direct child <tag>, or null. Read from the element itself,
     // not its descendants, so a gpx.studio file's <metadata><author><name> is
     // never mistaken for a favourite's name.
@@ -1342,12 +1321,12 @@
     }
 
     // Names must be unique within a kind (PGSharp lists and deletes by name), so
-    // drop any repeat — those already in `existing`, then any within `incoming`.
-    function mergeUnique(existing, incoming) {
-      const seen = new Set(existing.map((e) => e.name));
-      const out = existing.slice();
+    // drop any repeated name, keeping the first.
+    function dedupeByName(entries) {
+      const seen = new Set();
+      const out = [];
       let dropped = 0;
-      for (const e of incoming) {
+      for (const e of entries) {
         if (seen.has(e.name)) { dropped++; continue; }
         seen.add(e.name);
         out.push(e);
@@ -1419,28 +1398,19 @@
       }
 
       try {
-        const mode = document.querySelector('input[name="pgsmode"]:checked').value;
         const repo = await buildRepoFavourites();
         const notes = [];
-        let points, routes;
 
-        if (mode === "append") {
-          const p = mergeUnique(loadKind(root, POINTS_KEY), repo.points);
-          const r = mergeUnique(loadKind(root, ROUTES_KEY), repo.routes);
-          points = p.out; routes = r.out;
-          if (p.dropped) notes.push(`${p.dropped} waypoint(s) already present`);
-          if (r.dropped) notes.push(`${r.dropped} route(s) already present`);
-        } else {
-          const p = mergeUnique([], repo.points);
-          const r = mergeUnique([], repo.routes);
-          points = p.out; routes = r.out;
-          if (p.dropped) notes.push(`${p.dropped} duplicate waypoint name(s) skipped`);
-          if (r.dropped) notes.push(`${r.dropped} duplicate route name(s) skipped`);
-        }
+        // The backup's favourites are always replaced with this map's. Names must
+        // be unique within a kind (PGSharp lists and deletes by name), so drop any
+        // repeat in the repo set.
+        const p = dedupeByName(repo.points);
+        const r = dedupeByName(repo.routes);
+        const points = p.out, routes = r.out;
+        if (p.dropped) notes.push(`${p.dropped} duplicate waypoint name(s) skipped`);
+        if (r.dropped) notes.push(`${r.dropped} duplicate route name(s) skipped`);
 
-        // Alphabetise within each kind, like `reorder`. In append mode this also
-        // tidies any favourites that were already in the backup, so the result
-        // is one sorted list rather than the old entries followed by new ones.
+        // Alphabetise within each kind, like `reorder`.
         points.sort(byName);
         routes.sort(byName);
 
