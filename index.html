@@ -226,7 +226,10 @@
     .leaflet-popup-content b { font-size: 14px; }
     @media (max-width: 720px) {
       body { grid-template-columns: 1fr; grid-template-rows: 45% 55%; }
-      #sidebar { border-right: none; border-bottom: 1px solid var(--border); }
+      /* Scroll the whole sidebar as one column so the backup panel and footer
+         after the list stay reachable instead of being clipped below the fold. */
+      #sidebar { border-right: none; border-bottom: 1px solid var(--border); overflow-y: auto; }
+      #list { flex: none; overflow: visible; }
     }
     /* PGSharp backup panel */
     .backup {
