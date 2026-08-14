@@ -1257,6 +1257,20 @@
       return { out, dropped };
     }
 
+    // Order favourites the way pgsedit's `reorder` does: fold accents (decompose
+    // with NFKD, then drop the combining marks) and case, so "São Paulo" files
+    // under S rather than after every ASCII name. A tie on the folded key falls
+    // back to the exact spelling, so names differing only by accent still order
+    // deterministically. Each kind is sorted within itself, as PGSharp lists them
+    // separately.
+    const sortKey = (name) => (name || "").normalize("NFKD").replace(/\p{M}/gu, "").toLowerCase();
+    function byName(a, b) {
+      const ka = sortKey(a.name), kb = sortKey(b.name);
+      if (ka !== kb) return ka < kb ? -1 : 1;
+      if (a.name !== b.name) return a.name < b.name ? -1 : 1;
+      return 0;
+    }
+
     // ------------------------------------------------------------------
     // UI wiring.
     // ------------------------------------------------------------------
@@ -1329,6 +1343,12 @@
           if (p.dropped) notes.push(`${p.dropped} duplicate waypoint name(s) skipped`);
           if (r.dropped) notes.push(`${r.dropped} duplicate route name(s) skipped`);
         }
+
+        // Alphabetise within each kind, like `reorder`. In append mode this also
+        // tidies any favourites that were already in the backup, so the result
+        // is one sorted list rather than the old entries followed by new ones.
+        points.sort(byName);
+        routes.sort(byName);
 
         root.set(POINTS_KEY, encodePoints(points));
         root.set(ROUTES_KEY, encodeRoutes(routes));
