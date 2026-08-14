@@ -21,5 +21,6 @@ The map's **PGSharp backup** panel (in the sidebar) writes every route and
 waypoint here straight into a PGSharp backup, so they show up as favourites in
 the app. Export `PGSDataExport.dat` from PGSharp, choose it in the panel, and it
 downloads an updated backup to import back — either replacing your favourites or
-adding to them. Everything runs in the browser; the backup is never uploaded
+adding to them. An optional checkbox also resets the floating control to a fixed
+on-screen position. Everything runs in the browser; the backup is never uploaded
 anywhere. This is a client-side port of [`pgsedit`](https://github.com/joshuaspence/pgsedit).

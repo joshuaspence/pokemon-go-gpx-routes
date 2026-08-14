@@ -313,6 +313,10 @@
             Add to existing favourites
           </label>
         </div>
+        <label class="opt">
+          <input type="checkbox" id="resetIcon" />
+          Reset the floating control position
+        </label>
         <button id="backupRun" class="run" type="button" disabled>Update &amp; download</button>
         <div class="status" id="backupStatus"></div>
       </div>
@@ -1212,6 +1216,11 @@
       return escSlashes(JSON.stringify(arr));
     }
 
+    // The floating control's on-screen position (iconX/iconY), taken verbatim
+    // from a known-good backup. Both are stored as Java Float. These values are
+    // fixed, not user-editable — the "reset" option writes exactly these.
+    const ICON_RESET = { iconX: 0.0, iconY: 554.353515625 };
+
     function loadKind(root, key) {
       const raw = root.get(key);
       if (typeof raw !== "string" || !raw.trim()) return [];
@@ -1333,6 +1342,7 @@
     const backupFileEl = document.getElementById("backupFile");
     const backupRunEl = document.getElementById("backupRun");
     const backupStatusEl = document.getElementById("backupStatus");
+    const resetIconEl = document.getElementById("resetIcon");
 
     function backupStatus(msg, kind) {
       backupStatusEl.textContent = msg;
@@ -1404,6 +1414,14 @@
 
         root.set(POINTS_KEY, encodePoints(points));
         root.set(ROUTES_KEY, encodeRoutes(routes));
+
+        // Optionally reset the floating control to a fixed position. Both keys
+        // are Java Floats; the values are not customisable.
+        if (resetIconEl.checked) {
+          root.set("iconX", JavaSer.box("F", ICON_RESET.iconX));
+          root.set("iconY", JavaSer.box("F", ICON_RESET.iconY));
+          notes.push("control position reset");
+        }
 
         const outBytes = JavaSer.dumps(root);
         JavaSer.loads(outBytes); // re-parse our own output before offering it
