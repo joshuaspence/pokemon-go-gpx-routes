@@ -1222,24 +1222,80 @@
       return arr;
     }
 
-    // Build the favourite lists from what's already loaded on the map: each
-    // waypoint (cityStore) is a Point, each track (store) is a Route keeping its
-    // whole line. Names follow pgsedit's "<name>, <desc> (<type>)".
-    function buildRepoFavourites() {
-      const points = cityStore.map((c) => ({
-        name: c.country ? `${c.city}, ${c.country}` : c.city,
-        lat: c.coords[0],
-        lng: c.coords[1],
+    // The text of a direct child <tag>, or null. Read from the element itself,
+    // not its descendants, so a gpx.studio file's <metadata><author><name> is
+    // never mistaken for a favourite's name.
+    function childText(el, tag) {
+      for (const child of el.children) {
+        if (child.localName === tag && child.textContent && child.textContent.trim())
+          return child.textContent.trim();
+      }
+      return null;
+    }
+
+    // A favourite's name, built from an element's own <name>/<desc>/<type> as
+    // "<name>, <desc> (<type>)", dropping either trailing part when absent. A
+    // <name> is required: a nameless element is a defect in the file worth
+    // reporting, not something to guess a name for from the path — this mirrors
+    // pgsedit's entry_name.
+    function entryName(el, path) {
+      const name = childText(el, "name");
+      if (!name) throw new Error(`${path}: <${el.localName}> has no <name>`);
+      const desc = childText(el, "desc");
+      const type = childText(el, "type");
+      const label = desc ? `${name}, ${desc}` : name;
+      return type ? `${label} (${type})` : label;
+    }
+
+    function coord(el, path) {
+      const lat = parseFloat(el.getAttribute("lat"));
+      const lng = parseFloat(el.getAttribute("lon"));
+      if (!Number.isFinite(lat) || !Number.isFinite(lng))
+        throw new Error(`${path}: <${el.localName}> has an unparseable coordinate`);
+      return [lat, lng];
+    }
+
+    // Split one GPX file into Points and Routes by element, not by filename: a
+    // <wpt> is one coordinate (a Point), a <trk> is a path (a Route keeping all
+    // of its <trkpt>). A file may hold either or both. Mirrors pgsedit's
+    // parse_gpx — an empty <trk> is skipped (gpx.studio writes one for a cleared
+    // track) rather than treated as a route.
+    function parseGpxFavourites(text, path) {
+      const doc = new DOMParser().parseFromString(text, "application/xml");
+      if (doc.querySelector("parsererror")) throw new Error(`${path}: not valid XML`);
+      const points = [], routes = [];
+      for (const wpt of doc.getElementsByTagName("wpt")) {
+        const [lat, lng] = coord(wpt, path);
+        points.push({ name: entryName(wpt, path), lat, lng });
+      }
+      for (const trk of doc.getElementsByTagName("trk")) {
+        const trkpts = trk.getElementsByTagName("trkpt");
+        if (trkpts.length === 0) continue;
+        const pts = [];
+        for (const p of trkpts) { const [lat, lng] = coord(p, path); pts.push([lat, lng, ROUTE_POINT_FLAG]); }
+        routes.push({ name: entryName(trk, path), points: pts, mode: ROUTE_MODE, state: newRouteState() });
+      }
+      return { points, routes };
+    }
+
+    // Build the favourite lists by re-parsing every GPX file, so the result is
+    // decided by each file's own elements and metadata rather than by how the
+    // map viewer happened to load them. Every file is fetched and parsed before
+    // the backup is touched, so a bad or nameless file aborts with a clear
+    // message instead of writing a half-built backup.
+    async function buildRepoFavourites() {
+      const files = [...ROUTE_FILES, ...WAYPOINT_FILES];
+      const texts = await Promise.all(files.map(async (file) => {
+        const res = await fetch(encodeURI(file));
+        if (!res.ok) throw new Error(`${file}: ${res.status} ${res.statusText}`);
+        return [file, await res.text()];
       }));
-      const routes = store.map((s) => {
-        const label = s.country ? `${s.name}, ${s.country}` : s.name;
-        return {
-          name: s.variant ? `${label} (${s.variant})` : label,
-          points: s.latlngs.map(([la, ln]) => [la, ln, ROUTE_POINT_FLAG]),
-          mode: ROUTE_MODE,
-          state: newRouteState(),
-        };
-      });
+      const points = [], routes = [];
+      for (const [file, text] of texts) {
+        const parsed = parseGpxFavourites(text, file);
+        points.push(...parsed.points);
+        routes.push(...parsed.routes);
+      }
       return { points, routes };
     }
 
@@ -1303,10 +1359,6 @@
     backupRunEl.addEventListener("click", async () => {
       const file = backupFileEl.files[0];
       if (!file) return;
-      if (!store.length && !cityStore.length) {
-        backupStatus("Routes are still loading — try again in a moment.", "err");
-        return;
-      }
       backupRunEl.disabled = true;
       backupStatus("Reading backup…");
 
@@ -1326,7 +1378,7 @@
 
       try {
         const mode = document.querySelector('input[name="pgsmode"]:checked').value;
-        const repo = buildRepoFavourites();
+        const repo = await buildRepoFavourites();
         const notes = [];
         let points, routes;
 
