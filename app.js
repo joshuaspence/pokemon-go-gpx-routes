@@ -894,7 +894,7 @@ const CONTROL_RESETS = [
   { id: "resetIcon",   keys: { iconX: 0.0, iconY: CONTROL_ROW_Y } },
   { id: "resetSnipe1", keys: { hlfastsnipex: 816.33203125, hlfastsnipey: CONTROL_ROW_Y } },
   { id: "resetSnipe2", keys: { hlfastsnipe2x: SNIPE2.x, hlfastsnipe2y: SNIPE2.y } },
-  { id: "resetCdpos",  keys: { hlcdposx: 0.0, hlcdposy: 191.875 } },
+  { id: "resetCdpos",  keys: { hlcdposx: 0.0, hlcdposy: 306.25 } },
   // The radar button shares fast-snipe button 2's position; hlscan is its filter.
   { id: "resetScan",   keys: { hlscanx: SNIPE2.x, hlscany: SNIPE2.y, hlscan: SCAN_CONFIG } },
 ];
