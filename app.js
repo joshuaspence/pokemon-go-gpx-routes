@@ -394,7 +394,7 @@ function buildSidebar() {
 
   for (const continent of Object.keys(byContinent).sort()) {
     const cg = document.createElement("div");
-    cg.className = "continent-group collapsed";   // collapsed by default
+    cg.className = "continent-group collapsed";
     const chead = document.createElement("div");
     chead.className = "continent";
     const cchev = document.createElement("span");
@@ -484,7 +484,6 @@ async function init() {
     }
   });
 
-  // Load large cities from Large Cities.gpx and drop a marker for each.
   try {
     const cities = await loadCities();
     for (const c of cities) {
@@ -598,7 +597,6 @@ const JavaSer = (() => {
     return s;
   }
 
-  // --- reader ---
   class Reader {
     constructor(bytes) {
       this.b = bytes;
@@ -733,7 +731,6 @@ const JavaSer = (() => {
     return root;
   }
 
-  // --- writer ---
   class Writer {
     constructor() {
       this.out = [];
@@ -1000,9 +997,6 @@ function byName(a, b) {
   return 0;
 }
 
-// ------------------------------------------------------------------
-// UI wiring.
-// ------------------------------------------------------------------
 const backupRunEl = document.getElementById("backupRun");
 const backupStatusEl = document.getElementById("backupStatus");
 

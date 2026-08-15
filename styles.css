@@ -112,7 +112,6 @@ header .sub {
 .continent-group.collapsed .continent .chev { transform: rotate(-90deg); }
 .continent-group.collapsed .continent-items { display: none; }
 .continent-group.hidden { display: none; }
-/* indent the nested levels */
 .continent-items .country { padding-left: 32px; }
 .continent-items .country-items .route { padding-left: 44px; }
 .route {
