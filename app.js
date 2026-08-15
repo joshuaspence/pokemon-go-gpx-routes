@@ -976,6 +976,28 @@ async function buildRepoFavourites() {
   return { points, routes };
 }
 
+// Fill in each Point's IANA timezone from its coordinates, mirroring pgsedit's
+// apply_timezones. The name is a property of a boundary polygon rather than
+// anything a formula can derive from a coordinate — Melbourne and Sydney share
+// a UTC offset but not a zone name, and Missouri is America/Chicago, not
+// America/New_York — so it comes from the boundary data tz-lookup carries.
+// Routes have no tz field, so nothing is looked up for them. A point whose zone
+// cannot be found is left without one, which is how a missing script or an
+// unlocatable coordinate looks; the count is returned so the caller can say so
+// once rather than per point. PGSharp accepts entries with no tz.
+function applyTimezones(points) {
+  let unknown = 0;
+  for (const p of points) {
+    let tz = null;
+    if (typeof tzlookup === "function") {
+      try { tz = tzlookup(p.lat, p.lng); } catch (e) { tz = null; }
+    }
+    if (tz) p.tz = tz;
+    else unknown++;
+  }
+  return unknown;
+}
+
 // Names must be unique within a kind (PGSharp lists and deletes by name), so
 // drop any repeated name, keeping the first.
 function dedupeByName(entries) {
@@ -1044,6 +1066,9 @@ backupRunEl.addEventListener("click", async () => {
     if (r.dropped) notes.push(`${r.dropped} duplicate route name(s) skipped`);
     points.sort(byName);
     routes.sort(byName);
+
+    const noTz = applyTimezones(points);
+    if (noTz) notes.push(`${noTz} waypoint(s) without a timezone`);
 
     const root = new Map();
     root.set(POINTS_KEY, encodePoints(points));
