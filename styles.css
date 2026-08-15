@@ -193,6 +193,9 @@ footer a { color: var(--track); }
   top: 12px; left: 50%;
   transform: translateX(-50%);
   max-width: 620px;
+  /* A rejected-file list can run long; keep it inside the map. */
+  max-height: calc(100% - 24px);
+  overflow-y: auto;
   background: var(--accent-soft);
   color: var(--text);
   border: 1px solid var(--accent);
@@ -207,6 +210,8 @@ footer a { color: var(--track); }
   padding: 1px 5px; border-radius: 4px;
   font-size: 12px;
 }
+#banner ul { margin: 6px 0 0; padding-left: 20px; }
+#banner li { margin-top: 3px; }
 .map-wrap { position: relative; min-width: 0; }
 .leaflet-popup-content { font-size: 13px; }
 .leaflet-popup-content b { font-size: 14px; }

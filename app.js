@@ -1,7 +1,9 @@
 // Route files, relative to this page. Static hosting cannot list a directory,
-// so the paths live here, but each route's name, country and variant are read
-// from the GPX metadata (<trk><name>, <trk><desc> and <trk><type>) when it
-// loads — the GPX files are the source of truth. Variant is "short"/"long"
+// so the paths live here, but nothing else is inferred from them: a route's
+// name, country and variant are read from the GPX metadata (<trk><name>,
+// <trk><desc> and <trk><type>), which is the source of truth. A file missing
+// its <name> or <desc> is reported rather than named after its path, so the
+// defect surfaces instead of being papered over. Variant is "short"/"long"
 // for routes that come as a pair, and empty otherwise. When you add or remove
 // a route, update this list.
 const ROUTE_FILES = [
@@ -50,14 +52,6 @@ const ROUTE_FILES = [
   "United States/River Park, New York City, New York.gpx",
   "United States/Slater Memorial Park, Pawtucket, Rhode Island.gpx",
 ];
-
-// Path-derived fallback for each file — used only when a route is missing
-// its <trk><name>/<desc> metadata or fails to load. Real values come from
-// the GPX metadata and overwrite these in init().
-const ROUTES = ROUTE_FILES.map((file) => {
-  const slash = file.lastIndexOf("/");
-  return { file, country: file.slice(0, slash), name: file.slice(slash + 1).replace(/\.gpx$/i, "") };
-});
 
 const cssVar = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 
@@ -139,26 +133,35 @@ function fmtDist(m) {
   return m >= 1000 ? (m / 1000).toFixed(2) + " km" : Math.round(m) + " m";
 }
 
-async function loadGpx(route) {
-  const res = await fetch(encodeURI(route.file));
-  if (!res.ok) throw new Error(res.status + " " + res.statusText);
+// The trimmed text of the first element matching `selector`, or "".
+const metaText = (root, selector) => {
+  const el = root.querySelector(selector);
+  return el ? el.textContent.trim() : "";
+};
+
+// Read one route. The name and country must come from the file's own
+// <trk><name>/<desc>; a file missing either is rejected rather than guessed
+// at, so the gap shows up in the banner instead of quietly reading back the
+// path. <type> stays optional — it is empty for a route with no short/long
+// counterpart.
+async function loadGpx(file) {
+  const res = await fetch(encodeURI(file));
+  if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
   const text = await res.text();
   const doc = new DOMParser().parseFromString(text, "application/xml");
-  if (doc.querySelector("parsererror")) throw new Error("XML parse error");
-  const pts = doc.getElementsByTagName("trkpt");
+  if (doc.querySelector("parsererror")) throw new Error("not valid XML");
   const latlngs = [];
-  for (const p of pts) {
+  for (const p of doc.getElementsByTagName("trkpt")) {
     const lat = parseFloat(p.getAttribute("lat"));
     const lon = parseFloat(p.getAttribute("lon"));
     if (Number.isFinite(lat) && Number.isFinite(lon)) latlngs.push([lat, lon]);
   }
-  const nameEl = doc.querySelector("trk > name");
-  const descEl = doc.querySelector("trk > desc");
-  const typeEl = doc.querySelector("trk > type");
-  const name = nameEl ? nameEl.textContent.trim() : "";
-  const desc = descEl ? descEl.textContent.trim() : "";
-  const variant = typeEl ? typeEl.textContent.trim() : "";
-  return { latlngs, text, name, desc, variant };
+  if (latlngs.length < 2) throw new Error("has fewer than two usable <trkpt>");
+  const name = metaText(doc, "trk > name");
+  if (!name) throw new Error("<trk> has no <name>");
+  const country = metaText(doc, "trk > desc");
+  if (!country) throw new Error("<trk> has no <desc> (the country)");
+  return { latlngs, text, name, country, variant: metaText(doc, "trk > type") };
 }
 
 // Waypoint files: each holds points of interest as named GPX waypoints
@@ -187,31 +190,29 @@ const CONTINENTS = {
   "Peru": "South America",
 };
 
-// Load every waypoint file. Returns [{country, city, coords, coordStr}];
-// coordStr preserves the file's exact lat/lon text for copying. A file that
-// is missing or malformed is skipped so the others still load.
-async function loadCities() {
+// Read one waypoint file. Returns [{country, city, coords, coordStr}];
+// coordStr preserves the file's exact lat/lon text for copying. As with
+// routes, every <wpt> must carry its own <name> and <desc> — a nameless or
+// countryless point is an error, not something to label with its
+// coordinates or file under "Other".
+async function loadWaypoints(file) {
+  const res = await fetch(encodeURI(file));
+  if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+  const doc = new DOMParser().parseFromString(await res.text(), "application/xml");
+  if (doc.querySelector("parsererror")) throw new Error("not valid XML");
   const cities = [];
-  for (const file of WAYPOINT_FILES) {
-    try {
-      const res = await fetch(encodeURI(file));
-      if (!res.ok) throw new Error(res.status + " " + res.statusText);
-      const doc = new DOMParser().parseFromString(await res.text(), "application/xml");
-      if (doc.querySelector("parsererror")) throw new Error("XML parse error");
-      for (const w of doc.getElementsByTagName("wpt")) {
-        const latStr = w.getAttribute("lat"), lonStr = w.getAttribute("lon");
-        const lat = parseFloat(latStr), lon = parseFloat(lonStr);
-        if (!Number.isFinite(lat) || !Number.isFinite(lon)) continue;
-        const nameEl = w.getElementsByTagName("name")[0];
-        const descEl = w.getElementsByTagName("desc")[0];
-        cities.push({
-          country: descEl ? descEl.textContent.trim() : "Other",
-          city: nameEl ? nameEl.textContent.trim() : `${lat}, ${lon}`,
-          coords: [lat, lon],
-          coordStr: `${latStr},${lonStr}`,
-        });
-      }
-    } catch (e) { /* skip this waypoint file */ }
+  for (const w of doc.getElementsByTagName("wpt")) {
+    const latStr = w.getAttribute("lat"), lonStr = w.getAttribute("lon");
+    const lat = parseFloat(latStr), lon = parseFloat(lonStr);
+    // Direct children only, so a <link><text> or similar can never stand in
+    // for the point's own name.
+    const city = metaText(w, ":scope > name");
+    if (!Number.isFinite(lat) || !Number.isFinite(lon))
+      throw new Error(`<wpt> "${city || "(unnamed)"}" has an unparseable coordinate`);
+    if (!city) throw new Error(`<wpt> at ${latStr},${lonStr} has no <name>`);
+    const country = metaText(w, ":scope > desc");
+    if (!country) throw new Error(`<wpt> "${city}" has no <desc> (the country)`);
+    cities.push({ country, city, coords: [lat, lon], coordStr: `${latStr},${lonStr}` });
   }
   return cities;
 }
@@ -318,19 +319,13 @@ async function copyCoords(c, btn) {
   toast(ok ? `Copied ${c.city} coordinates to clipboard` : "Copy failed");
 }
 
-function buildRouteRow(r, country) {
-  const entry = store.find((s) => s.file === r.file);
+function buildRouteRow(entry) {
   const el = document.createElement("div");
   el.className = "route";
-  el.dataset.country = country;
-  el.dataset.name = r.name.toLowerCase();
-  if (!entry) {
-    el.innerHTML = `<span>${r.name}</span><span class="meta">unavailable</span>`;
-    el.style.opacity = "0.5";
-    return el;
-  }
+  el.dataset.country = entry.country;
+  el.dataset.name = entry.name.toLowerCase();
   const label = document.createElement("span");
-  label.textContent = r.name;
+  label.textContent = entry.name;
   const end = document.createElement("span");
   end.className = "end";
   const meta = document.createElement("span");
@@ -376,12 +371,11 @@ function buildCityRow(c, country) {
 function buildSidebar() {
   countEl.textContent = cityStore.length
     ? `${store.length} tracks \u00b7 ${cityStore.length} waypoints`
-    : `${store.length} tracks across ${new Set(ROUTES.map((r) => r.country)).size} countries`;
+    : `${store.length} tracks across ${new Set(store.map((s) => s.country)).size} countries`;
 
   const byCountry = {};
-  for (const r of ROUTES) {
-    const e = store.find((s) => s.file === r.file);
-    (byCountry[r.country] ||= []).push({ name: r.name, dist: e ? e.distance : Infinity, build: () => buildRouteRow(r, r.country) });
+  for (const s of store) {
+    (byCountry[s.country] ||= []).push({ name: s.name, dist: s.distance, build: () => buildRouteRow(s) });
   }
   for (const c of cityStore) {
     (byCountry[c.country] ||= []).push({ name: c.city, dist: 0, build: () => buildCityRow(c, c.country) });
@@ -458,35 +452,50 @@ filterEl.addEventListener("input", () => {
 
 function showBanner(html) { bannerEl.innerHTML = html; bannerEl.style.display = "block"; }
 
-async function init() {
-  const flat = ROUTES;
-  const results = await Promise.allSettled(flat.map((r) => loadGpx(r)));
+// Name every file that could not be read, and why. The banner stays up: a
+// file whose metadata is missing is a defect to fix, not a transient hiccup
+// to time out, and the map now has no way to show a placeholder for it.
+function appendRejected(rejected) {
+  const head = document.createElement("b");
+  head.textContent = `${rejected.length} file(s) rejected — fix the GPX metadata:`;
+  const list = document.createElement("ul");
+  for (const { file, reason } of rejected) {
+    console.error(`${file}: ${reason}`);
+    const item = document.createElement("li");
+    const path = document.createElement("code");
+    path.textContent = file;
+    item.append(path, document.createTextNode(` — ${reason}`));
+    list.appendChild(item);
+  }
+  bannerEl.append(head, list);
+  bannerEl.style.display = "block";
+}
 
-  let failures = 0;
+async function init() {
+  const rejected = [];
+  const note = (file, e) => rejected.push({ file, reason: e.message });
+
+  const results = await Promise.allSettled(ROUTE_FILES.map((file) => loadGpx(file)));
   results.forEach((res, i) => {
-    const r = flat[i];
-    if (res.status === "fulfilled" && res.value.latlngs.length > 1) {
-      const { latlngs, text, name, desc, variant } = res.value;
-      // Prefer the GPX metadata; fall back to the path-derived values.
-      if (name) r.name = name;
-      if (desc) r.country = desc;
-      const line = L.polyline(latlngs, {
-        color: cssVar("--track"), weight: 2, opacity: 0.55,
-      }).addTo(map);
-      const entry = {
-        name: r.name, country: r.country, variant, file: r.file, gpx: text,
-        latlngs, line, markers: null, distance: routeDistance(latlngs),
-      };
-      line.on("click", () => selectRoute(entry, { pan: false }));
-      store.push(entry);
-    } else {
-      failures++;
-    }
+    const file = ROUTE_FILES[i];
+    if (res.status === "rejected") { note(file, res.reason); return; }
+    const { latlngs, text, name, country, variant } = res.value;
+    const line = L.polyline(latlngs, {
+      color: cssVar("--track"), weight: 2, opacity: 0.55,
+    }).addTo(map);
+    const entry = {
+      name, country, variant, file, gpx: text,
+      latlngs, line, markers: null, distance: routeDistance(latlngs),
+    };
+    line.on("click", () => selectRoute(entry, { pan: false }));
+    store.push(entry);
   });
 
-  try {
-    const cities = await loadCities();
-    for (const c of cities) {
+  // One bad waypoint file does not hide the others, but it is still reported.
+  const wpts = await Promise.allSettled(WAYPOINT_FILES.map((file) => loadWaypoints(file)));
+  wpts.forEach((res, i) => {
+    if (res.status === "rejected") { note(WAYPOINT_FILES[i], res.reason); return; }
+    for (const c of res.value) {
       const marker = L.circleMarker(c.coords, {
         radius: 5, color: "#fff", weight: 2,
         fillColor: cssVar("--city"), fillOpacity: 1,
@@ -496,7 +505,7 @@ async function init() {
       marker.on("click", () => selectCity(entry, { pan: false }));
       cityStore.push(entry);
     }
-  } catch (e) { /* cities are optional — routes still render */ }
+  });
 
   buildSidebar();
 
@@ -508,12 +517,10 @@ async function init() {
       "<code>python3 -m http.server</code> then open " +
       "<code>http://localhost:8000/</code> — or view it via GitHub Pages."
     );
+    if (rejected.length) appendRejected(rejected);
     return;
   }
-  if (failures > 0) {
-    showBanner(`<b>${failures} track(s) failed to load.</b> The rest are shown below.`);
-    setTimeout(() => { bannerEl.style.display = "none"; }, 6000);
-  }
+  if (rejected.length) appendRejected(rejected);
 
   const all = L.featureGroup([
     ...store.map((s) => s.line),
