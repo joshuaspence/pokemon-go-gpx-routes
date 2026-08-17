@@ -4,6 +4,11 @@
 // recommended set — the rules that catch a stylesheet saying something it does
 // not mean — with one left out, below.
 export default {
+  // Formatting is Prettier's here too, reported as an ordinary stylelint
+  // error so that `pnpm lint:css:fix` reformats. Nothing needs switching off
+  // alongside it: stylelint dropped its stylistic rules in v15, and the set
+  // below is all correctness.
+  extends: ["stylelint-prettier/recommended"],
   rules: {
     "annotation-no-unknown": true,
     "at-rule-no-unknown": true,

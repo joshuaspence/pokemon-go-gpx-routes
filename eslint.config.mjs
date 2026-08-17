@@ -4,6 +4,11 @@
 // without anyone deciding to; written out, the set only moves when someone
 // moves it, and the config is the answer to "why did CI fail".
 //
+// Formatting is Prettier's, not ESLint's: the plugin's recommended config
+// goes last so that eslint-config-prettier can switch off anything here that
+// would argue with it, and so `eslint --fix` reformats as it fixes.
+import prettierRecommended from "eslint-plugin-prettier/recommended";
+
 // One set of rules, applied to two kinds of file: app.js, the classic browser
 // script the page loads, and the .mjs files that are this repository's own
 // tooling — these configs and validate-gpx.mjs. They differ only in what is
@@ -50,7 +55,7 @@ const rules = {
   // is written in, and == coerces.
   "no-var": "error",
   "prefer-const": "error",
-  eqeqeq: ["error", "smart"],
+  "eqeqeq": ["error", "smart"],
 };
 
 export default [
@@ -95,4 +100,6 @@ export default [
     },
     rules,
   },
+
+  prettierRecommended,
 ];

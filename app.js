@@ -26,7 +26,8 @@ const cssVar = (n) => getComputedStyle(document.documentElement).getPropertyValu
 const map = L.map("map", { worldCopyJump: true }).setView([20, 0], 2);
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
   maxZoom: 19,
-  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  attribution:
+    '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
 }).addTo(map);
 
 const listEl = document.getElementById("list");
@@ -56,7 +57,9 @@ async function copyText(text) {
       await navigator.clipboard.writeText(text);
       return true;
     }
-  } catch (e) { /* fall through to legacy path */ }
+  } catch (e) {
+    /* fall through to legacy path */
+  }
   try {
     const ta = document.createElement("textarea");
     ta.value = text;
@@ -79,15 +82,21 @@ async function copyRoute(entry, btn) {
     const original = btn.textContent;
     btn.textContent = ok ? "Copied" : "Failed";
     btn.classList.add("done");
-    setTimeout(() => { btn.textContent = original; btn.classList.remove("done"); }, 1400);
+    setTimeout(() => {
+      btn.textContent = original;
+      btn.classList.remove("done");
+    }, 1400);
   }
   toast(ok ? `Copied “${entry.name}” GPX to clipboard` : "Copy failed");
 }
 
 function haversine(a, b) {
-  const R = 6371000, toRad = (d) => d * Math.PI / 180;
-  const dLat = toRad(b[0] - a[0]), dLon = toRad(b[1] - a[1]);
-  const s = Math.sin(dLat / 2) ** 2 +
+  const R = 6371000,
+    toRad = (d) => (d * Math.PI) / 180;
+  const dLat = toRad(b[0] - a[0]),
+    dLon = toRad(b[1] - a[1]);
+  const s =
+    Math.sin(dLat / 2) ** 2 +
     Math.cos(toRad(a[0])) * Math.cos(toRad(b[0])) * Math.sin(dLon / 2) ** 2;
   return 2 * R * Math.asin(Math.sqrt(s));
 }
@@ -191,20 +200,23 @@ async function loadGpxFile(file) {
   // coordStr preserves the file's exact lat/lon text for copying.
   const waypoints = [];
   for (const w of doc.getElementsByTagName("wpt")) {
-    const latStr = w.getAttribute("lat"), lonStr = w.getAttribute("lon");
-    const lat = parseFloat(latStr), lon = parseFloat(lonStr);
+    const latStr = w.getAttribute("lat"),
+      lonStr = w.getAttribute("lon");
+    const lat = parseFloat(latStr),
+      lon = parseFloat(lonStr);
     if (!Number.isFinite(lat) || !Number.isFinite(lon))
       throw new Error(`<wpt> at ${latStr},${lonStr} has an unparseable coordinate`);
     waypoints.push({
-      country: entryCountry(w), name: placeName(w),
-      coords: [lat, lon], coordStr: `${latStr},${lonStr}`,
+      country: entryCountry(w),
+      name: placeName(w),
+      coords: [lat, lon],
+      coordStr: `${latStr},${lonStr}`,
     });
   }
 
   // A listed file holding neither is a defect too: something is in gpx.json
   // that has nothing to show.
-  if (routes.length === 0 && waypoints.length === 0)
-    throw new Error("has no <trk> or <wpt>");
+  if (routes.length === 0 && waypoints.length === 0) throw new Error("has no <trk> or <wpt>");
 
   return { text, routes, waypoints };
 }
@@ -213,20 +225,45 @@ async function loadGpxFile(file) {
 const CONTINENTS = {
   "Canary Islands": "Africa",
   "Antarctica": "Antarctica",
-  "India": "Asia", "Japan": "Asia", "North Korea": "Asia", "Singapore": "Asia",
-  "South Korea": "Asia", "Taiwan": "Asia", "United Arab Emirates": "Asia",
-  "Austria": "Europe", "Belgium": "Europe", "Czechia": "Europe", "Denmark": "Europe",
-  "England": "Europe", "France": "Europe", "Germany": "Europe", "Hungary": "Europe",
-  "Ireland": "Europe", "Italy": "Europe", "Netherlands": "Europe", "Norway": "Europe",
-  "Portugal": "Europe", "Romania": "Europe", "Russia": "Europe", "Spain": "Europe",
-  "Canada": "North America", "Mexico": "North America", "United States": "North America",
-  "Australia": "Oceania", "New Zealand": "Oceania",
-  "Argentina": "South America", "Brazil": "South America", "Ecuador": "South America",
+  "India": "Asia",
+  "Japan": "Asia",
+  "North Korea": "Asia",
+  "Singapore": "Asia",
+  "South Korea": "Asia",
+  "Taiwan": "Asia",
+  "United Arab Emirates": "Asia",
+  "Austria": "Europe",
+  "Belgium": "Europe",
+  "Czechia": "Europe",
+  "Denmark": "Europe",
+  "England": "Europe",
+  "France": "Europe",
+  "Germany": "Europe",
+  "Hungary": "Europe",
+  "Ireland": "Europe",
+  "Italy": "Europe",
+  "Netherlands": "Europe",
+  "Norway": "Europe",
+  "Portugal": "Europe",
+  "Romania": "Europe",
+  "Russia": "Europe",
+  "Spain": "Europe",
+  "Canada": "North America",
+  "Mexico": "North America",
+  "United States": "North America",
+  "Australia": "Oceania",
+  "New Zealand": "Oceania",
+  "Argentina": "South America",
+  "Brazil": "South America",
+  "Ecuador": "South America",
   "Peru": "South America",
 };
 
 function clearMarkers(entry) {
-  if (entry.markers) { entry.markers.forEach((m) => map.removeLayer(m)); entry.markers = null; }
+  if (entry.markers) {
+    entry.markers.forEach((m) => map.removeLayer(m));
+    entry.markers = null;
+  }
 }
 
 function selectRoute(entry, { pan = true } = {}) {
@@ -243,10 +280,16 @@ function selectRoute(entry, { pan = true } = {}) {
   entry.line.bringToFront();
 
   clearMarkers(entry);
-  const a = entry.latlngs[0], b = entry.latlngs[entry.latlngs.length - 1];
-  const dot = (at, color, label) => L.circleMarker(at, {
-    radius: 6, color: "#fff", weight: 2, fillColor: color, fillOpacity: 1,
-  }).bindTooltip(label);
+  const a = entry.latlngs[0],
+    b = entry.latlngs[entry.latlngs.length - 1];
+  const dot = (at, color, label) =>
+    L.circleMarker(at, {
+      radius: 6,
+      color: "#fff",
+      weight: 2,
+      fillColor: color,
+      fillOpacity: 1,
+    }).bindTooltip(label);
   entry.markers = [
     dot(a, cssVar("--start"), "Start").addTo(map),
     dot(b, cssVar("--end"), "End").addTo(map),
@@ -323,7 +366,10 @@ async function copyCoords(c, btn) {
     const original = btn.textContent;
     btn.textContent = ok ? "Copied" : "Failed";
     btn.classList.add("done");
-    setTimeout(() => { btn.textContent = original; btn.classList.remove("done"); }, 1400);
+    setTimeout(() => {
+      btn.textContent = original;
+      btn.classList.remove("done");
+    }, 1400);
   }
   toast(ok ? `Copied ${c.name} coordinates to clipboard` : "Copy failed");
 }
@@ -345,7 +391,10 @@ function buildRouteRow(entry) {
   copyBtn.type = "button";
   copyBtn.textContent = "Copy";
   copyBtn.title = "Copy GPX file contents to clipboard";
-  copyBtn.addEventListener("click", (e) => { e.stopPropagation(); copyRoute(entry, copyBtn); });
+  copyBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    copyRoute(entry, copyBtn);
+  });
   end.append(meta, copyBtn);
   el.append(label, end);
   el.addEventListener("click", () => selectRoute(entry));
@@ -367,7 +416,10 @@ function buildCityRow(c, country) {
   copyBtn.type = "button";
   copyBtn.textContent = "Copy";
   copyBtn.title = "Copy coordinates to clipboard";
-  copyBtn.addEventListener("click", (e) => { e.stopPropagation(); copyCoords(c, copyBtn); });
+  copyBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    copyCoords(c, copyBtn);
+  });
   end.append(copyBtn);
   el.append(label, end);
   el.addEventListener("click", () => selectCity(c));
@@ -384,10 +436,18 @@ function buildSidebar() {
 
   const byCountry = {};
   for (const s of store) {
-    (byCountry[s.country] ||= []).push({ name: s.name, dist: s.distance, build: () => buildRouteRow(s) });
+    (byCountry[s.country] ||= []).push({
+      name: s.name,
+      dist: s.distance,
+      build: () => buildRouteRow(s),
+    });
   }
   for (const c of cityStore) {
-    (byCountry[c.country] ||= []).push({ name: c.name, dist: 0, build: () => buildCityRow(c, c.country) });
+    (byCountry[c.country] ||= []).push({
+      name: c.name,
+      dist: 0,
+      build: () => buildCityRow(c, c.country),
+    });
   }
 
   const byContinent = {};
@@ -427,7 +487,9 @@ function buildSidebar() {
       group.appendChild(head);
       const items = document.createElement("div");
       items.className = "country-items";
-      for (const item of byCountry[country].sort((a, b) => a.name.localeCompare(b.name) || a.dist - b.dist)) {
+      for (const item of byCountry[country].sort(
+        (a, b) => a.name.localeCompare(b.name) || a.dist - b.dist,
+      )) {
         items.appendChild(item.build());
       }
       group.appendChild(items);
@@ -449,21 +511,28 @@ filterEl.addEventListener("input", () => {
   // Hide groups with no matches; while searching, auto-expand those that have
   // matches so the results are visible. With no query, collapse everything.
   document.querySelectorAll(".country-group").forEach((group) => {
-    const anyVisible = [...group.querySelectorAll(".route")].some((r) => !r.classList.contains("hidden"));
+    const anyVisible = [...group.querySelectorAll(".route")].some(
+      (r) => !r.classList.contains("hidden"),
+    );
     group.classList.toggle("hidden", !anyVisible);
     group.classList.toggle("collapsed", q ? !anyVisible : true);
   });
 
   document.querySelectorAll(".continent-group").forEach((cg) => {
-    const anyVisible = [...cg.querySelectorAll(".country-group")].some((g) => !g.classList.contains("hidden"));
+    const anyVisible = [...cg.querySelectorAll(".country-group")].some(
+      (g) => !g.classList.contains("hidden"),
+    );
     cg.classList.toggle("hidden", !anyVisible);
     cg.classList.toggle("collapsed", q ? !anyVisible : true);
   });
 });
 
-function showBanner(html) { bannerEl.innerHTML = html; bannerEl.style.display = "block"; }
+function showBanner(html) {
+  bannerEl.innerHTML = html;
+  bannerEl.style.display = "block";
+}
 
-// Name every file that could not be read, and why. The banner stays up: a file whose metadata is missing is a defect to 
+// Name every file that could not be read, and why. The banner stays up: a file whose metadata is missing is a defect to
 // fix, not a transient hiccup to time out, and the map now has no way to show a placeholder for it.
 function appendRejected(rejected) {
   const head = document.createElement("b");
@@ -493,10 +562,10 @@ async function init() {
   } catch (e) {
     showBanner(
       `<b>Could not read <code>gpx.json</code> — ${e.message}.</b><br>` +
-      "This page reads the route list and the <code>.gpx</code> files over HTTP, " +
-      "so it needs to be served rather than opened directly from disk. Try:<br>" +
-      "<code>python3 -m http.server</code> then open " +
-      "<code>http://localhost:8000/</code> — or view it via GitHub Pages."
+        "This page reads the route list and the <code>.gpx</code> files over HTTP, " +
+        "so it needs to be served rather than opened directly from disk. Try:<br>" +
+        "<code>python3 -m http.server</code> then open " +
+        "<code>http://localhost:8000/</code> — or view it via GitHub Pages.",
     );
     return;
   }
@@ -505,16 +574,25 @@ async function init() {
   const results = await Promise.allSettled(files.map((file) => loadGpxFile(file)));
   results.forEach((res, i) => {
     const file = files[i];
-    if (res.status === "rejected") { note(file, res.reason); return; }
+    if (res.status === "rejected") {
+      note(file, res.reason);
+      return;
+    }
     const { text, routes, waypoints } = res.value;
 
     for (const route of routes) {
       const line = L.polyline(route.latlngs, {
-        color: cssVar("--track"), weight: 2, opacity: 0.55,
+        color: cssVar("--track"),
+        weight: 2,
+        opacity: 0.55,
       }).addTo(map);
       const entry = {
-        ...route, file, gpx: text,
-        line, markers: null, distance: routeDistance(route.latlngs),
+        ...route,
+        file,
+        gpx: text,
+        line,
+        markers: null,
+        distance: routeDistance(route.latlngs),
       };
       line.on("click", () => selectRoute(entry, { pan: false }));
       store.push(entry);
@@ -522,8 +600,11 @@ async function init() {
 
     for (const place of waypoints) {
       const marker = L.circleMarker(place.coords, {
-        radius: 5, color: "#fff", weight: 2,
-        fillColor: cssVar("--city"), fillOpacity: 1,
+        radius: 5,
+        color: "#fff",
+        weight: 2,
+        fillColor: cssVar("--city"),
+        fillOpacity: 1,
       }).addTo(map);
       marker.bindTooltip(place.name);
       const entry = { ...place, marker };
@@ -539,10 +620,7 @@ async function init() {
   // there is no layer to fit the map to.
   if (store.length === 0 && cityStore.length === 0) return;
 
-  const all = L.featureGroup([
-    ...store.map((s) => s.line),
-    ...cityStore.map((c) => c.marker),
-  ]);
+  const all = L.featureGroup([...store.map((s) => s.line), ...cityStore.map((c) => c.marker)]);
   map.fitBounds(all.getBounds(), { padding: [30, 30] });
 }
 
@@ -561,29 +639,39 @@ init();
 // ------------------------------------------------------------------
 const JavaSer = (() => {
   // ObjectStreamConstants.
-  const STREAM_MAGIC = 0xACED, STREAM_VERSION = 5;
-  const TC_NULL = 0x70, TC_REFERENCE = 0x71, TC_CLASSDESC = 0x72,
-        TC_OBJECT = 0x73, TC_STRING = 0x74, TC_ENDBLOCKDATA = 0x78,
-        TC_BLOCKDATA = 0x77, TC_BLOCKDATALONG = 0x7A, TC_LONGSTRING = 0x7C;
-  const BASE_HANDLE = 0x7E0000;
-  const SC_WRITE_METHOD = 0x01, SC_SERIALIZABLE = 0x02;
+  const STREAM_MAGIC = 0xaced,
+    STREAM_VERSION = 5;
+  const TC_NULL = 0x70,
+    TC_REFERENCE = 0x71,
+    TC_CLASSDESC = 0x72,
+    TC_OBJECT = 0x73,
+    TC_STRING = 0x74,
+    TC_ENDBLOCKDATA = 0x78,
+    TC_BLOCKDATA = 0x77,
+    TC_BLOCKDATALONG = 0x7a,
+    TC_LONGSTRING = 0x7c;
+  const BASE_HANDLE = 0x7e0000;
+  const SC_WRITE_METHOD = 0x01,
+    SC_SERIALIZABLE = 0x02;
 
   // Boxed primitives, keyed by JVM field-type code. The value carried is a
   // Number for I/F, a BigInt for J (a 64-bit long won't fit a JS number and
   // must round-trip exactly — PGSharp hides doubles inside longs), and a
   // boolean for Z.
   const BOX = {
-    I: { cls: "java.lang.Integer", uid: 0x12E2A0A4F7818738n },
-    J: { cls: "java.lang.Long",    uid: 0x3B8BE490CC8F23DFn },
-    F: { cls: "java.lang.Float",   uid: 0xDAEDC9A2DB3CF0ECn },
-    Z: { cls: "java.lang.Boolean", uid: 0xCD207280D59CFAEEn },
+    I: { cls: "java.lang.Integer", uid: 0x12e2a0a4f7818738n },
+    J: { cls: "java.lang.Long", uid: 0x3b8be490cc8f23dfn },
+    F: { cls: "java.lang.Float", uid: 0xdaedc9a2db3cf0ecn },
+    Z: { cls: "java.lang.Boolean", uid: 0xcd207280d59cfaeen },
   };
   const BOX_BY_CLASS = {
-    "java.lang.Integer": "I", "java.lang.Long": "J",
-    "java.lang.Float": "F", "java.lang.Boolean": "Z",
+    "java.lang.Integer": "I",
+    "java.lang.Long": "J",
+    "java.lang.Float": "F",
+    "java.lang.Boolean": "Z",
   };
-  const NUMBER = { name: "java.lang.Number", uid: 0x86AC951D0B94E08Bn };
-  const HASHMAP_UID = 0x0507DAC1C31660D1n;
+  const NUMBER = { name: "java.lang.Number", uid: 0x86ac951d0b94e08bn };
+  const HASHMAP_UID = 0x0507dac1c31660d1n;
 
   const err = (m) => new Error(m);
 
@@ -594,27 +682,31 @@ const JavaSer = (() => {
     const out = [];
     for (let i = 0; i < s.length; i++) {
       const c = s.charCodeAt(i);
-      if (c === 0) out.push(0xC0, 0x80);
+      if (c === 0) out.push(0xc0, 0x80);
       else if (c < 0x80) out.push(c);
-      else if (c < 0x800) out.push(0xC0 | (c >> 6), 0x80 | (c & 0x3F));
-      else out.push(0xE0 | (c >> 12), 0x80 | ((c >> 6) & 0x3F), 0x80 | (c & 0x3F));
+      else if (c < 0x800) out.push(0xc0 | (c >> 6), 0x80 | (c & 0x3f));
+      else out.push(0xe0 | (c >> 12), 0x80 | ((c >> 6) & 0x3f), 0x80 | (c & 0x3f));
     }
     return out;
   }
   function decodeMutf8(bytes) {
-    let s = "", i = 0;
+    let s = "",
+      i = 0;
     const n = bytes.length;
     while (i < n) {
       const c = bytes[i];
-      if (c < 0x80) { s += String.fromCharCode(c); i += 1; }
-      else if ((c & 0xE0) === 0xC0) {
+      if (c < 0x80) {
+        s += String.fromCharCode(c);
+        i += 1;
+      } else if ((c & 0xe0) === 0xc0) {
         if (i + 1 >= n) throw err("truncated modified UTF-8 sequence");
-        s += String.fromCharCode(((c & 0x1F) << 6) | (bytes[i + 1] & 0x3F));
+        s += String.fromCharCode(((c & 0x1f) << 6) | (bytes[i + 1] & 0x3f));
         i += 2;
-      } else if ((c & 0xF0) === 0xE0) {
+      } else if ((c & 0xf0) === 0xe0) {
         if (i + 2 >= n) throw err("truncated modified UTF-8 sequence");
         s += String.fromCharCode(
-          ((c & 0x0F) << 12) | ((bytes[i + 1] & 0x3F) << 6) | (bytes[i + 2] & 0x3F));
+          ((c & 0x0f) << 12) | ((bytes[i + 1] & 0x3f) << 6) | (bytes[i + 2] & 0x3f),
+        );
         i += 3;
       } else throw err(`invalid modified UTF-8 byte 0x${c.toString(16)}`);
     }
@@ -628,36 +720,76 @@ const JavaSer = (() => {
       this.p = 0;
       this.handles = [];
     }
-    u1() { if (this.p >= this.b.length) throw err("truncated stream"); return this.b[this.p++]; }
-    u2() { const v = this.dv.getUint16(this.p); this.p += 2; return v; }
-    i4() { const v = this.dv.getInt32(this.p); this.p += 4; return v; }
-    i8() { const v = this.dv.getBigInt64(this.p); this.p += 8; return v; }
-    f4() { const v = this.dv.getFloat32(this.p); this.p += 4; return v; }
-    f8() { const v = this.dv.getFloat64(this.p); this.p += 8; return v; }
+    u1() {
+      if (this.p >= this.b.length) throw err("truncated stream");
+      return this.b[this.p++];
+    }
+    u2() {
+      const v = this.dv.getUint16(this.p);
+      this.p += 2;
+      return v;
+    }
+    i4() {
+      const v = this.dv.getInt32(this.p);
+      this.p += 4;
+      return v;
+    }
+    i8() {
+      const v = this.dv.getBigInt64(this.p);
+      this.p += 8;
+      return v;
+    }
+    f4() {
+      const v = this.dv.getFloat32(this.p);
+      this.p += 4;
+      return v;
+    }
+    f8() {
+      const v = this.dv.getFloat64(this.p);
+      this.p += 8;
+      return v;
+    }
     raw(n) {
       const v = this.b.subarray(this.p, this.p + n);
       if (v.length !== n) throw err("truncated stream");
-      this.p += n; return v;
+      this.p += n;
+      return v;
     }
-    peek() { return this.b[this.p]; }
-    newHandle(obj) { this.handles.push(obj); return obj; }
+    peek() {
+      return this.b[this.p];
+    }
+    newHandle(obj) {
+      this.handles.push(obj);
+      return obj;
+    }
     // The JVM assigns an object's handle before its fields are read, so a
     // self-referential object can cite itself; reserve the slot, back-patch it.
-    claimHandle() { this.handles.push(null); return this.handles.length - 1; }
-    resolveHandle(slot, obj) { this.handles[slot] = obj; return obj; }
+    claimHandle() {
+      this.handles.push(null);
+      return this.handles.length - 1;
+    }
+    resolveHandle(slot, obj) {
+      this.handles[slot] = obj;
+      return obj;
+    }
     ref() {
       const h = this.i4() - BASE_HANDLE;
       if (h < 0 || h >= this.handles.length) throw err(`bad handle reference ${h}`);
       return this.handles[h];
     }
-    utf() { return decodeMutf8(this.raw(this.u2())); }
-    longUtf() { return decodeMutf8(this.raw(Number(this.i8()))); }
+    utf() {
+      return decodeMutf8(this.raw(this.u2()));
+    }
+    longUtf() {
+      return decodeMutf8(this.raw(Number(this.i8())));
+    }
 
     classDesc() {
       const tag = this.u1();
       if (tag === TC_NULL) return null;
       if (tag === TC_REFERENCE) return this.ref();
-      if (tag !== TC_CLASSDESC) throw err(`expected classdesc, got 0x${tag.toString(16)} at ${this.p - 1}`);
+      if (tag !== TC_CLASSDESC)
+        throw err(`expected classdesc, got 0x${tag.toString(16)} at ${this.p - 1}`);
       const name = this.utf();
       const uid = this.i8();
       const flags = this.u1();
@@ -675,21 +807,39 @@ const JavaSer = (() => {
     }
     skipAnnotation() {
       for (;;) {
-        if (this.peek() === TC_ENDBLOCKDATA) { this.p += 1; return; }
+        if (this.peek() === TC_ENDBLOCKDATA) {
+          this.p += 1;
+          return;
+        }
         this.content();
       }
     }
     readPrimitive(tcode) {
       switch (tcode) {
-        case "I": return this.i4();
-        case "J": return this.i8();
-        case "F": return this.f4();
-        case "D": return this.f8();
-        case "Z": return this.u1() !== 0;
-        case "B": return this.u1();
-        case "S": { const v = this.dv.getInt16(this.p); this.p += 2; return v; }
-        case "C": { const v = this.dv.getUint16(this.p); this.p += 2; return String.fromCharCode(v); }
-        default: throw err(`unsupported field type '${tcode}'`);
+        case "I":
+          return this.i4();
+        case "J":
+          return this.i8();
+        case "F":
+          return this.f4();
+        case "D":
+          return this.f8();
+        case "Z":
+          return this.u1() !== 0;
+        case "B":
+          return this.u1();
+        case "S": {
+          const v = this.dv.getInt16(this.p);
+          this.p += 2;
+          return v;
+        }
+        case "C": {
+          const v = this.dv.getUint16(this.p);
+          this.p += 2;
+          return String.fromCharCode(v);
+        }
+        default:
+          throw err(`unsupported field type '${tcode}'`);
       }
     }
     content() {
@@ -714,7 +864,8 @@ const JavaSer = (() => {
           d.values ||= {};
           // We only need HashMap's writeObject payload; a field's value is
           // read to advance the stream but not otherwise used here.
-          d.values[fname] = (tcode === "L" || tcode === "[") ? this.content() : this.readPrimitive(tcode);
+          d.values[fname] =
+            tcode === "L" || tcode === "[" ? this.content() : this.readPrimitive(tcode);
         }
         if (d.flags & SC_WRITE_METHOD) d.custom = this.customData(d.name);
       }
@@ -758,35 +909,61 @@ const JavaSer = (() => {
   class Writer {
     constructor() {
       this.out = [];
-      this.strHandles = new Map();   // value-keyed; a repeat becomes a back-reference
-      this.boxHandles = new Map();   // identity-keyed
+      this.strHandles = new Map(); // value-keyed; a repeat becomes a back-reference
+      this.boxHandles = new Map(); // identity-keyed
       this.classHandles = new Map(); // name-keyed
       this.next = 0;
     }
-    claim() { return this.next++; }
-    push(arr) { for (let i = 0; i < arr.length; i++) this.out.push(arr[i]); }
-    u1(v) { this.out.push(v & 0xFF); }
-    u2(v) { this.out.push((v >> 8) & 0xFF, v & 0xFF); }
-    i4(v) { this.out.push((v >>> 24) & 0xFF, (v >>> 16) & 0xFF, (v >>> 8) & 0xFF, v & 0xFF); }
+    claim() {
+      return this.next++;
+    }
+    push(arr) {
+      for (let i = 0; i < arr.length; i++) this.out.push(arr[i]);
+    }
+    u1(v) {
+      this.out.push(v & 0xff);
+    }
+    u2(v) {
+      this.out.push((v >> 8) & 0xff, v & 0xff);
+    }
+    i4(v) {
+      this.out.push((v >>> 24) & 0xff, (v >>> 16) & 0xff, (v >>> 8) & 0xff, v & 0xff);
+    }
     i8(v) {
       let x = BigInt.asUintN(64, BigInt(v));
       const bytes = new Array(8);
-      for (let i = 7; i >= 0; i--) { bytes[i] = Number(x & 0xFFn); x >>= 8n; }
+      for (let i = 7; i >= 0; i--) {
+        bytes[i] = Number(x & 0xffn);
+        x >>= 8n;
+      }
       this.push(bytes);
     }
-    f4(v) { const b = new Uint8Array(4); new DataView(b.buffer).setFloat32(0, v, false); this.push(b); }
+    f4(v) {
+      const b = new Uint8Array(4);
+      new DataView(b.buffer).setFloat32(0, v, false);
+      this.push(b);
+    }
     utf(s) {
       const b = encodeMutf8(s);
-      if (b.length > 0xFFFF) throw err("string too long for TC_STRING");
-      this.u2(b.length); this.push(b);
+      if (b.length > 0xffff) throw err("string too long for TC_STRING");
+      this.u2(b.length);
+      this.push(b);
     }
-    ref(h) { this.u1(TC_REFERENCE); this.i4(BASE_HANDLE + h); }
+    ref(h) {
+      this.u1(TC_REFERENCE);
+      this.i4(BASE_HANDLE + h);
+    }
     string(s) {
       const h = this.strHandles.get(s);
       if (h !== undefined) return this.ref(h);
       const b = encodeMutf8(s);
-      if (b.length <= 0xFFFF) { this.u1(TC_STRING); this.u2(b.length); }
-      else { this.u1(TC_LONGSTRING); this.i8(BigInt(b.length)); }
+      if (b.length <= 0xffff) {
+        this.u1(TC_STRING);
+        this.u2(b.length);
+      } else {
+        this.u1(TC_LONGSTRING);
+        this.i8(BigInt(b.length));
+      }
       this.push(b);
       this.strHandles.set(s, this.claim());
     }
@@ -798,7 +975,10 @@ const JavaSer = (() => {
       this.i8(uid);
       this.u1(flags);
       this.u2(fields.length);
-      for (const [tc, fn] of fields) { this.u1(tc.charCodeAt(0)); this.utf(fn); }
+      for (const [tc, fn] of fields) {
+        this.u1(tc.charCodeAt(0));
+        this.utf(fn);
+      }
       this.u1(TC_ENDBLOCKDATA); // empty classAnnotation
       this.classHandles.set(name, this.claim());
       if (superName == null) this.u1(TC_NULL);
@@ -807,10 +987,16 @@ const JavaSer = (() => {
     box(b) {
       const info = BOX[b.box];
       this.u1(TC_OBJECT);
-      if (b.box === "Z")
-        this.classDesc(info.cls, info.uid, SC_SERIALIZABLE, [["Z", "value"]]);
+      if (b.box === "Z") this.classDesc(info.cls, info.uid, SC_SERIALIZABLE, [["Z", "value"]]);
       else
-        this.classDesc(info.cls, info.uid, SC_SERIALIZABLE, [[b.box, "value"]], NUMBER.name, NUMBER.uid);
+        this.classDesc(
+          info.cls,
+          info.uid,
+          SC_SERIALIZABLE,
+          [[b.box, "value"]],
+          NUMBER.name,
+          NUMBER.uid,
+        );
       this.boxHandles.set(b, this.claim());
       if (b.box === "Z") this.u1(b.value ? 1 : 0);
       else if (b.box === "I") this.i4(b.value);
@@ -820,22 +1006,31 @@ const JavaSer = (() => {
     value(v) {
       if (v === null || v === undefined) this.u1(TC_NULL);
       else if (typeof v === "string") this.string(v);
-      else if (v.box) { const h = this.boxHandles.get(v); h !== undefined ? this.ref(h) : this.box(v); }
-      else if (v instanceof Map) this.hashmap(v);
+      else if (v.box) {
+        const h = this.boxHandles.get(v);
+        h !== undefined ? this.ref(h) : this.box(v);
+      } else if (v instanceof Map) this.hashmap(v);
       else throw err(`cannot serialize ${typeof v}`);
     }
     hashmap(m) {
       this.u1(TC_OBJECT);
-      this.classDesc("java.util.HashMap", HASHMAP_UID, SC_WRITE_METHOD | SC_SERIALIZABLE,
-        [["F", "loadFactor"], ["I", "threshold"]]);
+      this.classDesc("java.util.HashMap", HASHMAP_UID, SC_WRITE_METHOD | SC_SERIALIZABLE, [
+        ["F", "loadFactor"],
+        ["I", "threshold"],
+      ]);
       this.claim(); // the map's own handle
       const loadFactor = 0.75;
       const capacity = tableSizeFor(m.size, loadFactor);
       this.f4(loadFactor);
       this.i4(Math.trunc(capacity * loadFactor));
-      this.u1(TC_BLOCKDATA); this.u1(8);
-      this.i4(capacity); this.i4(m.size);
-      for (const [k, val] of m) { this.value(k); this.value(val); }
+      this.u1(TC_BLOCKDATA);
+      this.u1(8);
+      this.i4(capacity);
+      this.i4(m.size);
+      for (const [k, val] of m) {
+        this.value(k);
+        this.value(val);
+      }
       this.u1(TC_ENDBLOCKDATA);
     }
   }
@@ -868,7 +1063,12 @@ const ROUTES_KEY = "hlfavorRoute";
 const ROUTE_POINT_FLAG = 65536;
 const ROUTE_MODE = 2;
 const newRouteState = () => ({
-  direction: 1, nextNodePos: 0, preNodePos: -1, loopcount: 0, lat: 0, lng: 0,
+  direction: 1,
+  nextNodePos: 0,
+  preNodePos: -1,
+  loopcount: 0,
+  lat: 0,
+  lng: 0,
 });
 
 // Gson's JSON spelling: no spaces, forward slashes escaped. Points escape
@@ -909,14 +1109,15 @@ function encodeRoutes(entries) {
 // 535.75); naming the row's Y once keeps them level.
 const CONTROL_ROW_Y = 785.09375;
 const SNIPE2 = { x: 916.2529296875, y: CONTROL_ROW_Y }; // fast-snipe button 2
-const SCAN_CONFIG = '{"shiny":true,"minlv":1,"maxlv":36,"miniv":0,"maxiv":100,"checkAll":true,"onlyShiny":true,"name":"Nearby Radar","birds":true,"attrMode":0,"minatk":0,"maxatk":15,"mindef":0,"maxdef":15,"minsta":0,"maxsta":15,"showShinyOnly":false,"loadShiny":true,"notify":true,"stop":true,"pgp":true}';
+const SCAN_CONFIG =
+  '{"shiny":true,"minlv":1,"maxlv":36,"miniv":0,"maxiv":100,"checkAll":true,"onlyShiny":true,"name":"Nearby Radar","birds":true,"attrMode":0,"minatk":0,"maxatk":15,"mindef":0,"maxdef":15,"minsta":0,"maxsta":15,"showShinyOnly":false,"loadShiny":true,"notify":true,"stop":true,"pgp":true}';
 const CONTROL_RESETS = [
-  { id: "resetIcon",   keys: { iconX: 0.0, iconY: CONTROL_ROW_Y } },
+  { id: "resetIcon", keys: { iconX: 0.0, iconY: CONTROL_ROW_Y } },
   { id: "resetSnipe1", keys: { hlfastsnipex: 816.33203125, hlfastsnipey: CONTROL_ROW_Y } },
   { id: "resetSnipe2", keys: { hlfastsnipe2x: SNIPE2.x, hlfastsnipe2y: SNIPE2.y } },
-  { id: "resetCdpos",  keys: { hlcdposx: 0.0, hlcdposy: 306.25 } },
+  { id: "resetCdpos", keys: { hlcdposx: 0.0, hlcdposy: 306.25 } },
   // The radar button shares fast-snipe button 2's position; hlscan is its filter.
-  { id: "resetScan",   keys: { hlscanx: SNIPE2.x, hlscany: SNIPE2.y, hlscan: SCAN_CONFIG } },
+  { id: "resetScan", keys: { hlscanx: SNIPE2.x, hlscany: SNIPE2.y, hlscan: SCAN_CONFIG } },
 ];
 
 // A favourite's whole name — the sidebar's "<name>, <locality>" plus the
@@ -943,27 +1144,55 @@ function entryName(el) {
 // flags are not. England is a subdivision rather than a country, and carries
 // the "GB-ENG" tag sequence Unicode gives it instead of a pair of indicators.
 const COUNTRY_CODES = {
-  "Antarctica": "AQ", "Argentina": "AR", "Australia": "AU", "Austria": "AT",
-  "Belgium": "BE", "Brazil": "BR", "Canada": "CA", "Canary Islands": "IC",
-  "Czechia": "CZ", "Denmark": "DK", "Ecuador": "EC", "England": "GB-ENG",
-  "France": "FR", "Germany": "DE", "Hungary": "HU", "India": "IN",
-  "Ireland": "IE", "Italy": "IT", "Japan": "JP", "Mexico": "MX",
-  "Netherlands": "NL", "New Zealand": "NZ", "North Korea": "KP",
-  "Norway": "NO", "Peru": "PE", "Portugal": "PT", "Romania": "RO",
-  "Russia": "RU", "Singapore": "SG", "South Korea": "KR", "Spain": "ES",
-  "Taiwan": "TW", "United Arab Emirates": "AE", "United States": "US",
+  "Antarctica": "AQ",
+  "Argentina": "AR",
+  "Australia": "AU",
+  "Austria": "AT",
+  "Belgium": "BE",
+  "Brazil": "BR",
+  "Canada": "CA",
+  "Canary Islands": "IC",
+  "Czechia": "CZ",
+  "Denmark": "DK",
+  "Ecuador": "EC",
+  "England": "GB-ENG",
+  "France": "FR",
+  "Germany": "DE",
+  "Hungary": "HU",
+  "India": "IN",
+  "Ireland": "IE",
+  "Italy": "IT",
+  "Japan": "JP",
+  "Mexico": "MX",
+  "Netherlands": "NL",
+  "New Zealand": "NZ",
+  "North Korea": "KP",
+  "Norway": "NO",
+  "Peru": "PE",
+  "Portugal": "PT",
+  "Romania": "RO",
+  "Russia": "RU",
+  "Singapore": "SG",
+  "South Korea": "KR",
+  "Spain": "ES",
+  "Taiwan": "TW",
+  "United Arab Emirates": "AE",
+  "United States": "US",
 };
 // A subdivision flag is a black flag, the region and subdivision letters as
 // tag characters (ASCII shifted into the tag block), then the cancel tag.
-const REGIONAL_INDICATOR_A = 0x1F1E6, TAG_BLOCK = 0xE0000, CANCEL_TAG = 0xE007F;
+const REGIONAL_INDICATOR_A = 0x1f1e6,
+  TAG_BLOCK = 0xe0000,
+  CANCEL_TAG = 0xe007f;
 const BLACK_FLAG = "\u{1F3F4}";
 
 function countryFlag(country) {
   const code = COUNTRY_CODES[country];
   if (!code) throw new Error(`no flag for "${country}" — add it to COUNTRY_CODES`);
   if (code.includes("-")) {
-    const tags = [...code.replace("-", "").toLowerCase()]
-      .map((c) => String.fromCodePoint(TAG_BLOCK + c.charCodeAt(0)));
+    const tags = [...code.replace("-", "").toLowerCase()].map((c) =>
+      String.fromCodePoint(TAG_BLOCK + c.charCodeAt(0)),
+    );
     return BLACK_FLAG + tags.join("") + String.fromCodePoint(CANCEL_TAG);
   }
   return [...code]
@@ -993,7 +1222,8 @@ function coord(el) {
 function parseGpxFavourites(text) {
   const doc = new DOMParser().parseFromString(text, "application/xml");
   if (doc.querySelector("parsererror")) throw new Error("not valid XML");
-  const points = [], routes = [];
+  const points = [],
+    routes = [];
   for (const wpt of doc.getElementsByTagName("wpt")) {
     const [lat, lng] = coord(wpt);
     points.push({ name: flaggedName(wpt), lat, lng });
@@ -1002,7 +1232,10 @@ function parseGpxFavourites(text) {
     const trkpts = trk.getElementsByTagName("trkpt");
     if (trkpts.length === 0) continue;
     const pts = [];
-    for (const p of trkpts) { const [lat, lng] = coord(p); pts.push([lat, lng, ROUTE_POINT_FLAG]); }
+    for (const p of trkpts) {
+      const [lat, lng] = coord(p);
+      pts.push([lat, lng, ROUTE_POINT_FLAG]);
+    }
     routes.push({ name: flaggedName(trk), points: pts, mode: ROUTE_MODE, state: newRouteState() });
   }
   return { points, routes };
@@ -1019,18 +1252,27 @@ async function buildRepoFavourites() {
   // Read the list again rather than reuse what the map loaded, so a backup is
   // built from every file the repository has, not only the ones that drew.
   let files;
-  try { files = await loadManifest(); }
-  catch (e) { throw new Error(`gpx.json: ${e.message}`); }
-  const texts = await Promise.all(files.map(async (file) => {
-    const res = await fetch(encodeURI(file));
-    if (!res.ok) throw new Error(`${file}: ${res.status} ${res.statusText}`);
-    return [file, await res.text()];
-  }));
-  const points = [], routes = [];
+  try {
+    files = await loadManifest();
+  } catch (e) {
+    throw new Error(`gpx.json: ${e.message}`);
+  }
+  const texts = await Promise.all(
+    files.map(async (file) => {
+      const res = await fetch(encodeURI(file));
+      if (!res.ok) throw new Error(`${file}: ${res.status} ${res.statusText}`);
+      return [file, await res.text()];
+    }),
+  );
+  const points = [],
+    routes = [];
   for (const [file, text] of texts) {
     let parsed;
-    try { parsed = parseGpxFavourites(text); }
-    catch (e) { throw new Error(`${file}: ${e.message}`); }
+    try {
+      parsed = parseGpxFavourites(text);
+    } catch (e) {
+      throw new Error(`${file}: ${e.message}`);
+    }
     points.push(...parsed.points);
     routes.push(...parsed.routes);
   }
@@ -1051,7 +1293,11 @@ function applyTimezones(points) {
   for (const p of points) {
     let tz = null;
     if (typeof tzlookup === "function") {
-      try { tz = tzlookup(p.lat, p.lng); } catch (e) { tz = null; }
+      try {
+        tz = tzlookup(p.lat, p.lng);
+      } catch (e) {
+        tz = null;
+      }
     }
     if (tz) p.tz = tz;
     else unknown++;
@@ -1066,7 +1312,10 @@ function dedupeByName(entries) {
   const out = [];
   let dropped = 0;
   for (const e of entries) {
-    if (seen.has(e.name)) { dropped++; continue; }
+    if (seen.has(e.name)) {
+      dropped++;
+      continue;
+    }
     seen.add(e.name);
     out.push(e);
   }
@@ -1082,9 +1331,14 @@ function dedupeByName(entries) {
 // the list reads, so it is folded out too — otherwise every place would sort by
 // its country's regional-indicator code instead of by name.
 const sortKey = (name) =>
-  (name || "").replace(/^[^\p{L}\p{N}]+/u, "").normalize("NFKD").replace(/\p{M}/gu, "").toLowerCase();
+  (name || "")
+    .replace(/^[^\p{L}\p{N}]+/u, "")
+    .normalize("NFKD")
+    .replace(/\p{M}/gu, "")
+    .toLowerCase();
 function byName(a, b) {
-  const ka = sortKey(a.name), kb = sortKey(b.name);
+  const ka = sortKey(a.name),
+    kb = sortKey(b.name);
   if (ka !== kb) return ka < kb ? -1 : 1;
   if (a.name !== b.name) return a.name < b.name ? -1 : 1;
   return 0;
@@ -1125,7 +1379,8 @@ backupRunEl.addEventListener("click", async () => {
     // so drop any repeat, then alphabetise within each kind like `reorder`.
     const p = dedupeByName(repo.points);
     const r = dedupeByName(repo.routes);
-    const points = p.out, routes = r.out;
+    const points = p.out,
+      routes = r.out;
     if (p.dropped) notes.push(`${p.dropped} duplicate waypoint name(s) skipped`);
     if (r.dropped) notes.push(`${r.dropped} duplicate route name(s) skipped`);
     points.sort(byName);
@@ -1156,7 +1411,9 @@ backupRunEl.addEventListener("click", async () => {
     const detail = notes.length ? ` (${notes.join("; ")})` : "";
     backupStatus(
       `Built a partial backup — ${points.length} waypoint(s) and ${routes.length} route(s)${detail}. ` +
-      "Import it into PGSharp.", "ok");
+        "Import it into PGSharp.",
+      "ok",
+    );
   } catch (e) {
     backupStatus(`Failed to build backup: ${e.message}`, "err");
   } finally {

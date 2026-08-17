@@ -73,7 +73,7 @@ added again.
 
 ## Import into PGSharp
 
-The map's **PGSharp backup** panel (in the sidebar) builds a *partial*
+The map's **PGSharp backup** panel (in the sidebar) builds a _partial_
 `PGSData.dat` containing only every route and waypoint here — plus, if ticked, a
 fixed control layout (floating control, fast-snipe buttons, cooldown indicator,
 nearby radar).
