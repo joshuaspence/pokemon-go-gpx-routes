@@ -1,38 +1,38 @@
 ---
-name: 'Lint'
+name: "Lint"
 
 on:
   push:
-    branches: ['master']
+    branches: ["master"]
   pull_request: {}
 
 permissions:
-  contents: 'read'
+  contents: "read"
 
 jobs:
   lint:
-    runs-on: 'ubuntu-latest'
+    runs-on: "ubuntu-latest"
     steps:
-      - uses: 'actions/checkout@v7'
-      - uses: 'pnpm/setup@v2'
+      - uses: "actions/checkout@v7"
+      - uses: "pnpm/setup@v2"
         with:
           cache: true
 
-      - name: 'JavaScript'
-        run: 'pnpm lint:js'
+      - name: "JavaScript"
+        run: "pnpm lint:js"
 
-      - name: 'CSS'
+      - name: "CSS"
         if: ${{ !cancelled() }}
-        run: 'pnpm lint:css'
+        run: "pnpm lint:css"
 
-      - name: 'HTML'
+      - name: "HTML"
         if: ${{ !cancelled() }}
-        run: 'pnpm lint:html'
+        run: "pnpm lint:html"
 
-      - name: 'XML'
+      - name: "XML"
         if: ${{ !cancelled() }}
-        run: 'pnpm lint:xml'
+        run: "pnpm lint:xml"
 
-      - name: 'Prettier'
+      - name: "Prettier"
         if: ${{ !cancelled() }}
-        run: 'pnpm lint:prettier'
+        run: "pnpm lint:prettier"
