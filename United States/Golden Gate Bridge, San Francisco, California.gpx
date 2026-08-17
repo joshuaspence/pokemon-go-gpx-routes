@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<gpx xmlns="http://www.topografix.com/GPX/1/1" version="1.1">
+<gpx xmlns="http://www.topografix.com/GPX/1/1"
+     xmlns:pgr="https://joshuaspence.github.io/pokemon-go-gpx-routes/gpx/1"
+     version="1.1">
   <trk>
-    <name>Golden Gate Bridge, San Francisco, California</name>
-    <desc>United States</desc>
+    <name>Golden Gate Bridge</name>
+    <extensions>
+      <pgr:city>San Francisco, California</pgr:city>
+      <pgr:country>United States</pgr:country>
+    </extensions>
     <trkseg>
       <trkpt lat="37.810665" lon="-122.477646"/>
       <trkpt lat="37.810712" lon="-122.477078"/>

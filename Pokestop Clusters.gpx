@@ -1,39 +1,59 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<gpx xmlns="http://www.topografix.com/GPX/1/1" version="1.1">
+<gpx xmlns="http://www.topografix.com/GPX/1/1"
+     xmlns:pgr="https://joshuaspence.github.io/pokemon-go-gpx-routes/gpx/1"
+     version="1.1">
   <wpt lat="-23.550572" lon="-46.657470">
     <name>São Paulo</name>
-    <desc>Brazil</desc>
+    <extensions>
+      <pgr:country>Brazil</pgr:country>
+    </extensions>
   </wpt>
   <wpt lat="28.129760" lon="-15.451060">
     <name>Gran Canaria</name>
-    <desc>Canary Islands</desc>
+    <extensions>
+      <pgr:country>Canary Islands</pgr:country>
+    </extensions>
   </wpt>
   <wpt lat="-2.102919" lon="-79.907980">
     <name>Guayas</name>
-    <desc>Ecuador</desc>
+    <extensions>
+      <pgr:country>Ecuador</pgr:country>
+    </extensions>
   </wpt>
   <wpt lat="47.529972" lon="19.051153">
     <name>Budapest</name>
-    <desc>Hungary</desc>
+    <extensions>
+      <pgr:country>Hungary</pgr:country>
+    </extensions>
   </wpt>
   <wpt lat="-11.562937" lon="-77.270209">
     <name>Lima</name>
-    <desc>Peru</desc>
+    <extensions>
+      <pgr:country>Peru</pgr:country>
+    </extensions>
   </wpt>
   <wpt lat="38.699629" lon="-9.300969">
     <name>Oeiras</name>
-    <desc>Portugal</desc>
+    <extensions>
+      <pgr:country>Portugal</pgr:country>
+    </extensions>
   </wpt>
   <wpt lat="41.661130" lon="-0.893750">
     <name>Zaragoza</name>
-    <desc>Spain</desc>
+    <extensions>
+      <pgr:country>Spain</pgr:country>
+    </extensions>
   </wpt>
   <wpt lat="25.076303" lon="55.132383">
     <name>Dubai</name>
-    <desc>United Arab Emirates</desc>
+    <extensions>
+      <pgr:country>United Arab Emirates</pgr:country>
+    </extensions>
   </wpt>
   <wpt lat="44.859873" lon="-93.618821">
     <name>Minnesota Landscape Arboretum</name>
-    <desc>United States</desc>
+    <extensions>
+      <pgr:country>United States</pgr:country>
+    </extensions>
   </wpt>
 </gpx>

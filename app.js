@@ -1,8 +1,11 @@
-// Route files, relative to this page. Static hosting cannot list a directory, so the paths live here, but nothing else
-// is inferred from them: a route's name, country and variant are read from the GPX metadata (`<trk><name>`,
-// `<trk><desc>` and `<trk><type>`), which is the source of truth. A file missing its `<name>` or `<desc>` is reported
-// rather than named after its path, so the defect surfaces instead of being papered over. Variant is "short"/"long"
-// for routes that come as a pair, and empty otherwise. When you add or remove a route, update this list.
+// Route files, relative to this page. Static hosting cannot list a directory,
+// so the paths live here, but nothing else is inferred from them: a route's
+// name, locality, country and variant are read from the GPX metadata
+// (<trk><name> and the <pgr:*> fields in its <extensions>), which is the
+// source of truth. A file missing its <name> or <pgr:country> is reported
+// rather than named after its path, so the defect surfaces instead of being
+// papered over. Variant is "short"/"long" for routes that come as a pair, and
+// absent otherwise. When you add or remove a route, update this list.
 const ROUTE_FILES = [
   "Australia/Kings Park, Perth, Western Australia.gpx",
   "Australia/Melbourne Zoo, Melbourne, Victoria.gpx",
@@ -65,7 +68,7 @@ const bannerEl = document.getElementById("banner");
 const toastEl = document.getElementById("toast");
 
 const store = []; // { name, country, variant, file, gpx, latlngs, line, el, markers, distance }
-const cityStore = []; // { city, country, coords:[lat,lon], coordStr, marker, el }
+const cityStore = []; // { name, country, coords:[lat,lon], coordStr, marker, el }
 let active = null;
 let activeCity = null;
 let toastTimer = null;
@@ -129,15 +132,58 @@ function fmtDist(m) {
   return m >= 1000 ? (m / 1000).toFixed(2) + " km" : Math.round(m) + " m";
 }
 
-// The trimmed text of the first element matching `selector`, or "".
-const metaText = (root, selector) => {
-  const el = root.querySelector(selector);
-  return el ? el.textContent.trim() : "";
-};
+// The text of a direct child <tag>, or null. Read from the element itself, not
+// its descendants, so a gpx.studio file's <metadata><author><name> is never
+// mistaken for an entry's name.
+function childText(el, tag) {
+  for (const child of el.children) {
+    if (child.localName === tag && child.textContent && child.textContent.trim())
+      return child.textContent.trim();
+  }
+  return null;
+}
 
-// Read one route. The name and country must come from the file's own `<trk><name>/<desc>`; a file missing either is
-// rejected rather than guessed at, so the gap shows up in the banner instead of quietly reading back the path.
-// `<type>` stays optional — it is empty for a route with no short/long counterpart.
+// The text of a <pgr:*> field in this element's own <extensions>, or null.
+// GPX 1.1 has no element for a locality, a country or a short/long variant, so
+// each is its own extension field rather than parts packed into one <name>.
+// Matching on local name leaves the prefix a file's own business.
+//
+// Worth knowing when editing: an editor that does not model foreign extensions
+// drops the whole block on export — gpx.studio is one — so a round trip
+// through such a tool loses these fields, and the viewer will say so rather
+// than fall back to the path.
+function extText(el, tag) {
+  const ext = [...el.children].find((child) => child.localName === "extensions");
+  return ext ? childText(ext, tag) : null;
+}
+
+// An entry's name with the locality it sits in — "Kings Park, Perth, Western
+// Australia". The country is left out: it is the sidebar's own grouping, and
+// entryName adds it where a favourite needs the whole thing.
+//
+// These readers say what is wrong with the element without naming the file;
+// each caller already knows which file it is reading, and says so once.
+function placeName(el) {
+  const name = childText(el, "name");
+  if (!name) throw new Error(`<${el.localName}> has no <name>`);
+  const city = extText(el, "city");
+  return city ? `${name}, ${city}` : name;
+}
+
+// The country a <trk> or <wpt> is in. Required: a countryless entry cannot be
+// grouped, flagged or named, and guessing one from the path is the papering
+// over this file format exists to avoid.
+function entryCountry(el) {
+  const country = extText(el, "country");
+  if (!country) throw new Error(`<${el.localName}> has no <pgr:country>`);
+  return country;
+}
+
+// Read one route. Name, locality, country and variant all come from the file's
+// own metadata; a file missing what it needs is rejected rather than guessed
+// at, so the gap shows up in the banner instead of quietly reading back the
+// path. The variant stays optional — it is empty for a route with no
+// short/long counterpart.
 async function loadGpx(file) {
   const res = await fetch(encodeURI(file));
   if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
@@ -151,15 +197,18 @@ async function loadGpx(file) {
     if (Number.isFinite(lat) && Number.isFinite(lon)) latlngs.push([lat, lon]);
   }
   if (latlngs.length < 2) throw new Error("has fewer than two usable <trkpt>");
-  const name = metaText(doc, "trk > name");
-  if (!name) throw new Error("<trk> has no <name>");
-  const country = metaText(doc, "trk > desc");
-  if (!country) throw new Error("<trk> has no <desc> (the country)");
-  return { latlngs, text, name, country, variant: metaText(doc, "trk > type") };
+  const trk = doc.getElementsByTagName("trk")[0];
+  if (!trk) throw new Error("has no <trk>");
+  return {
+    latlngs, text,
+    name: placeName(trk),
+    country: entryCountry(trk),
+    variant: extText(trk, "variant") || "",
+  };
 }
 
-// Waypoint files: each holds points of interest as named GPX waypoints (`<wpt>` with `<name>` = place and
-// `<desc>` = country).
+// Waypoint files: each holds points of interest as named GPX waypoints
+// (<wpt> with <name> = place, and the locality and country in <extensions>).
 const WAYPOINT_FILES = [
   "Large Cities.gpx",
   "Pokestop Clusters.gpx",
@@ -183,29 +232,26 @@ const CONTINENTS = {
   "Peru": "South America",
 };
 
-// Read one waypoint file. Returns [{country, city, coords, coordStr}]; `coordStr` preserves the file's exact lat/lon
-// text for copying. As with routes, every `<wpt>` must carry its own `<name>` and `<desc>` — a nameless or countryless
-// point is an error, not something to label with its coordinates or file under "Other".
+// Read one waypoint file. Returns [{country, name, coords, coordStr}];
+// coordStr preserves the file's exact lat/lon text for copying. As with
+// routes, every <wpt> must carry its own <name> and <pgr:country> — a nameless
+// or countryless point is an error, not something to label with its
+// coordinates or file under "Other".
 async function loadWaypoints(file) {
   const res = await fetch(encodeURI(file));
   if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
   const doc = new DOMParser().parseFromString(await res.text(), "application/xml");
   if (doc.querySelector("parsererror")) throw new Error("not valid XML");
-  const cities = [];
+  const places = [];
   for (const w of doc.getElementsByTagName("wpt")) {
     const latStr = w.getAttribute("lat"), lonStr = w.getAttribute("lon");
     const lat = parseFloat(latStr), lon = parseFloat(lonStr);
-    // Direct children only, so a <link><text> or similar can never stand in
-    // for the point's own name.
-    const city = metaText(w, ":scope > name");
     if (!Number.isFinite(lat) || !Number.isFinite(lon))
-      throw new Error(`<wpt> "${city || "(unnamed)"}" has an unparseable coordinate`);
-    if (!city) throw new Error(`<wpt> at ${latStr},${lonStr} has no <name>`);
-    const country = metaText(w, ":scope > desc");
-    if (!country) throw new Error(`<wpt> "${city}" has no <desc> (the country)`);
-    cities.push({ country, city, coords: [lat, lon], coordStr: `${latStr},${lonStr}` });
+      throw new Error(`<wpt> at ${latStr},${lonStr} has an unparseable coordinate`);
+    const name = placeName(w);
+    places.push({ country: entryCountry(w), name, coords: [lat, lon], coordStr: `${latStr},${lonStr}` });
   }
-  return cities;
+  return places;
 }
 
 function clearMarkers(entry) {
@@ -279,7 +325,7 @@ function selectCity(c, { pan = true } = {}) {
 
   const popup = document.createElement("div");
   const title = document.createElement("b");
-  title.textContent = c.city;
+  title.textContent = c.name;
   const info = document.createElement("div");
   info.textContent = `${c.country} · ${c.coordStr}`;
   const btn = document.createElement("button");
@@ -307,7 +353,7 @@ async function copyCoords(c, btn) {
     btn.classList.add("done");
     setTimeout(() => { btn.textContent = original; btn.classList.remove("done"); }, 1400);
   }
-  toast(ok ? `Copied ${c.city} coordinates to clipboard` : "Copy failed");
+  toast(ok ? `Copied ${c.name} coordinates to clipboard` : "Copy failed");
 }
 
 function buildRouteRow(entry) {
@@ -339,9 +385,9 @@ function buildCityRow(c, country) {
   const el = document.createElement("div");
   el.className = "route city";
   el.dataset.country = country;
-  el.dataset.name = c.city.toLowerCase();
+  el.dataset.name = c.name.toLowerCase();
   const label = document.createElement("span");
-  label.textContent = c.city;
+  label.textContent = c.name;
   const end = document.createElement("span");
   end.className = "end";
   const copyBtn = document.createElement("button");
@@ -369,7 +415,7 @@ function buildSidebar() {
     (byCountry[s.country] ||= []).push({ name: s.name, dist: s.distance, build: () => buildRouteRow(s) });
   }
   for (const c of cityStore) {
-    (byCountry[c.country] ||= []).push({ name: c.city, dist: 0, build: () => buildCityRow(c, c.country) });
+    (byCountry[c.country] ||= []).push({ name: c.name, dist: 0, build: () => buildCityRow(c, c.country) });
   }
 
   const byContinent = {};
@@ -492,7 +538,7 @@ async function init() {
         radius: 5, color: "#fff", weight: 2,
         fillColor: cssVar("--city"), fillOpacity: 1,
       }).addTo(map);
-      marker.bindTooltip(c.city);
+      marker.bindTooltip(c.name);
       const entry = { ...c, marker };
       marker.on("click", () => selectCity(entry, { pan: false }));
       cityStore.push(entry);
@@ -894,29 +940,16 @@ const CONTROL_RESETS = [
   { id: "resetScan",   keys: { hlscanx: SNIPE2.x, hlscany: SNIPE2.y, hlscan: SCAN_CONFIG } },
 ];
 
-// The text of a direct child <tag>, or null. Read from the element itself,
-// not its descendants, so a gpx.studio file's <metadata><author><name> is
-// never mistaken for a favourite's name.
-function childText(el, tag) {
-  for (const child of el.children) {
-    if (child.localName === tag && child.textContent && child.textContent.trim())
-      return child.textContent.trim();
-  }
-  return null;
-}
-
-// A favourite's name, built from an element's own <name>/<desc>/<type> as
-// "<name>, <desc> (<type>)", dropping either trailing part when absent. A
-// <name> is required: a nameless element is a defect in the file worth
-// reporting, not something to guess a name for from the path — this mirrors
-// pgsedit's entry_name.
-function entryName(el, path) {
-  const name = childText(el, "name");
-  if (!name) throw new Error(`${path}: <${el.localName}> has no <name>`);
-  const desc = childText(el, "desc");
-  const type = childText(el, "type");
-  const label = desc ? `${name}, ${desc}` : name;
-  return type ? `${label} (${type})` : label;
+// A favourite's whole name — the sidebar's "<name>, <locality>" plus the
+// country and, for one of a short/long pair, the variant: "Kings Park, Perth,
+// Western Australia, Australia (long)". PGSharp lists and deletes favourites
+// by name, so this is the only identity a favourite has, which is why every
+// part of it comes from the file rather than the path — this mirrors pgsedit's
+// entry_name.
+function entryName(el) {
+  const label = `${placeName(el)}, ${entryCountry(el)}`;
+  const variant = extText(el, "variant");
+  return variant ? `${label} (${variant})` : label;
 }
 
 // PGSharp's own hot places carry a country flag at the front of the name —
@@ -924,8 +957,8 @@ function entryName(el, path) {
 // waypoints use. The format has no icon field, so the flag is simply the first
 // characters of the name, and both favourite kinds here follow that convention.
 //
-// The key is a <desc>, which is always the country, so this list has to name
-// every country the GPX files use; a new one errors rather than importing
+// The key is a <pgr:country>, so this list has to name every country the GPX
+// files use; a new one errors rather than importing
 // without a flag. Codes are ISO 3166-1 alpha-2, which the emoji is derived
 // from rather than pasted in, since "AU" is legible in a diff and two similar
 // flags are not. England is a subdivision rather than a country, and carries
@@ -946,9 +979,9 @@ const COUNTRY_CODES = {
 const REGIONAL_INDICATOR_A = 0x1F1E6, TAG_BLOCK = 0xE0000, CANCEL_TAG = 0xE007F;
 const BLACK_FLAG = "\u{1F3F4}";
 
-function countryFlag(country, path) {
+function countryFlag(country) {
   const code = COUNTRY_CODES[country];
-  if (!code) throw new Error(`${path}: no flag for "${country}" — add it to COUNTRY_CODES`);
+  if (!code) throw new Error(`no flag for "${country}" — add it to COUNTRY_CODES`);
   if (code.includes("-")) {
     const tags = [...code.replace("-", "").toLowerCase()]
       .map((c) => String.fromCodePoint(TAG_BLOCK + c.charCodeAt(0)));
@@ -959,20 +992,16 @@ function countryFlag(country, path) {
     .join("");
 }
 
-// A favourite's name with its country's flag in front. The country is the
-// <desc>, which entryName has already put in the label, so an element without
-// one keeps a bare name rather than being flagged from somewhere else.
-function flaggedName(el, path) {
-  const name = entryName(el, path);
-  const country = childText(el, "desc");
-  return country ? `${countryFlag(country, path)} ${name}` : name;
+// A favourite's name with its country's flag in front.
+function flaggedName(el) {
+  return `${countryFlag(entryCountry(el))} ${entryName(el)}`;
 }
 
-function coord(el, path) {
+function coord(el) {
   const lat = parseFloat(el.getAttribute("lat"));
   const lng = parseFloat(el.getAttribute("lon"));
   if (!Number.isFinite(lat) || !Number.isFinite(lng))
-    throw new Error(`${path}: <${el.localName}> has an unparseable coordinate`);
+    throw new Error(`<${el.localName}> has an unparseable coordinate`);
   return [lat, lng];
 }
 
@@ -982,20 +1011,20 @@ function coord(el, path) {
 // parse_gpx — an empty <trk> is skipped (gpx.studio writes one for a cleared
 // track) rather than treated as a route. Both kinds are flagged, so the two
 // lists read alike in the app even though PGSharp shows them on separate tabs.
-function parseGpxFavourites(text, path) {
+function parseGpxFavourites(text) {
   const doc = new DOMParser().parseFromString(text, "application/xml");
-  if (doc.querySelector("parsererror")) throw new Error(`${path}: not valid XML`);
+  if (doc.querySelector("parsererror")) throw new Error("not valid XML");
   const points = [], routes = [];
   for (const wpt of doc.getElementsByTagName("wpt")) {
-    const [lat, lng] = coord(wpt, path);
-    points.push({ name: flaggedName(wpt, path), lat, lng });
+    const [lat, lng] = coord(wpt);
+    points.push({ name: flaggedName(wpt), lat, lng });
   }
   for (const trk of doc.getElementsByTagName("trk")) {
     const trkpts = trk.getElementsByTagName("trkpt");
     if (trkpts.length === 0) continue;
     const pts = [];
-    for (const p of trkpts) { const [lat, lng] = coord(p, path); pts.push([lat, lng, ROUTE_POINT_FLAG]); }
-    routes.push({ name: flaggedName(trk, path), points: pts, mode: ROUTE_MODE, state: newRouteState() });
+    for (const p of trkpts) { const [lat, lng] = coord(p); pts.push([lat, lng, ROUTE_POINT_FLAG]); }
+    routes.push({ name: flaggedName(trk), points: pts, mode: ROUTE_MODE, state: newRouteState() });
   }
   return { points, routes };
 }
@@ -1004,7 +1033,9 @@ function parseGpxFavourites(text, path) {
 // decided by each file's own elements and metadata rather than by how the
 // map viewer happened to load them. Every file is fetched and parsed before
 // the backup is touched, so a bad or nameless file aborts with a clear
-// message instead of writing a half-built backup.
+// message instead of writing a half-built backup. The readers name the element
+// at fault; the file is added here, where it is known, so a failure reads as
+// "England/West End, London.gpx: <trk> has no <pgr:country>".
 async function buildRepoFavourites() {
   const files = [...ROUTE_FILES, ...WAYPOINT_FILES];
   const texts = await Promise.all(files.map(async (file) => {
@@ -1014,7 +1045,9 @@ async function buildRepoFavourites() {
   }));
   const points = [], routes = [];
   for (const [file, text] of texts) {
-    const parsed = parseGpxFavourites(text, file);
+    let parsed;
+    try { parsed = parseGpxFavourites(text); }
+    catch (e) { throw new Error(`${file}: ${e.message}`); }
     points.push(...parsed.points);
     routes.push(...parsed.routes);
   }

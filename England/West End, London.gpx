@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<gpx xmlns="http://www.topografix.com/GPX/1/1" version="1.1">
+<gpx xmlns="http://www.topografix.com/GPX/1/1"
+     xmlns:pgr="https://joshuaspence.github.io/pokemon-go-gpx-routes/gpx/1"
+     version="1.1">
   <trk>
-    <name>West End, London</name>
-    <desc>England</desc>
+    <name>West End</name>
+    <extensions>
+      <pgr:city>London</pgr:city>
+      <pgr:country>England</pgr:country>
+    </extensions>
     <trkseg>
       <trkpt lat="51.510000" lon="-0.128310"/>
       <trkpt lat="51.509920" lon="-0.127950"/>

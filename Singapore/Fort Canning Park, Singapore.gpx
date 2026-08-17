@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<gpx xmlns="http://www.topografix.com/GPX/1/1" version="1.1">
+<gpx xmlns="http://www.topografix.com/GPX/1/1"
+     xmlns:pgr="https://joshuaspence.github.io/pokemon-go-gpx-routes/gpx/1"
+     version="1.1">
   <trk>
-    <name>Fort Canning Park, Singapore</name>
-    <desc>Singapore</desc>
+    <name>Fort Canning Park</name>
+    <extensions>
+      <pgr:city>Singapore</pgr:city>
+      <pgr:country>Singapore</pgr:country>
+    </extensions>
     <trkseg>
       <trkpt lat="1.297059" lon="103.845638"/>
       <trkpt lat="1.296233" lon="103.845927"/>

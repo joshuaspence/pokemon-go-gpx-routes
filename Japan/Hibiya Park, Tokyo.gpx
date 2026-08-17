@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<gpx xmlns="http://www.topografix.com/GPX/1/1" version="1.1">
+<gpx xmlns="http://www.topografix.com/GPX/1/1"
+     xmlns:pgr="https://joshuaspence.github.io/pokemon-go-gpx-routes/gpx/1"
+     version="1.1">
   <trk>
-    <name>Hibiya Park, Tokyo</name>
-    <desc>Japan</desc>
+    <name>Hibiya Park</name>
+    <extensions>
+      <pgr:city>Tokyo</pgr:city>
+      <pgr:country>Japan</pgr:country>
+    </extensions>
     <trkseg>
       <trkpt lat="35.673837" lon="139.755936"/>
       <trkpt lat="35.673703" lon="139.756503"/>

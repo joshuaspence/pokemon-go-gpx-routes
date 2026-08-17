@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<gpx xmlns="http://www.topografix.com/GPX/1/1" version="1.1">
+<gpx xmlns="http://www.topografix.com/GPX/1/1"
+     xmlns:pgr="https://joshuaspence.github.io/pokemon-go-gpx-routes/gpx/1"
+     version="1.1">
   <trk>
-    <name>Assiniboine Park Zoo, Winnipeg, Manitoba</name>
-    <desc>Canada</desc>
+    <name>Assiniboine Park Zoo</name>
+    <extensions>
+      <pgr:city>Winnipeg, Manitoba</pgr:city>
+      <pgr:country>Canada</pgr:country>
+    </extensions>
     <trkseg>
       <trkpt lat="49.871538" lon="-97.238943"/>
       <trkpt lat="49.871238" lon="-97.238570"/>

@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<gpx xmlns="http://www.topografix.com/GPX/1/1" version="1.1">
+<gpx xmlns="http://www.topografix.com/GPX/1/1"
+     xmlns:pgr="https://joshuaspence.github.io/pokemon-go-gpx-routes/gpx/1"
+     version="1.1">
   <trk>
-    <name>City of London, London</name>
-    <desc>England</desc>
+    <name>City of London</name>
+    <extensions>
+      <pgr:city>London</pgr:city>
+      <pgr:country>England</pgr:country>
+    </extensions>
     <trkseg>
       <trkpt lat="51.512210" lon="-0.091490"/>
       <trkpt lat="51.512550" lon="-0.091230"/>

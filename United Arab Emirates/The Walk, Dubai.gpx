@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<gpx xmlns="http://www.topografix.com/GPX/1/1" version="1.1">
+<gpx xmlns="http://www.topografix.com/GPX/1/1"
+     xmlns:pgr="https://joshuaspence.github.io/pokemon-go-gpx-routes/gpx/1"
+     version="1.1">
   <trk>
-    <name>The Walk, Dubai</name>
-    <desc>United Arab Emirates</desc>
+    <name>The Walk</name>
+    <extensions>
+      <pgr:city>Dubai</pgr:city>
+      <pgr:country>United Arab Emirates</pgr:country>
+    </extensions>
     <trkseg>
       <trkpt lat="25.077867" lon="55.133697"/>
       <trkpt lat="25.077928" lon="55.134128"/>

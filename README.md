@@ -15,6 +15,35 @@ python3 -m http.server
 # then open http://localhost:8000/
 ```
 
+## File format
+
+Each entry keeps its place name in `<name>` and everything else in separate
+fields, so nothing has to be split back out of a label:
+
+```xml
+<trk>
+  <name>Westfalenpark</name>
+  <extensions>
+    <pgr:city>Dortmund, North Rhine-Westphalia</pgr:city>
+    <pgr:country>Germany</pgr:country>
+    <pgr:variant>long</pgr:variant>
+  </extensions>
+</trk>
+```
+
+GPX 1.1 has no element for a locality, a country or a short/long variant, so
+those three live in the `pgr` namespace declared on `<gpx>`. `<pgr:city>` is the
+locality the place sits in, including its region — it is absent when the name is
+itself the place (`Melbourne`, `Boston, MA`). `<pgr:variant>` is `short`/`long`,
+and only for routes that come as a pair. `<name>` and `<pgr:country>` are
+required; the viewer names any file missing either instead of guessing from the
+path.
+
+One caveat: an editor that does not model foreign extensions drops the whole
+`<extensions>` block when it exports. gpx.studio is one, so a route re-exported
+from there comes back without its city, country and variant, and needs them
+added again.
+
 ## Import into PGSharp
 
 The map's **PGSharp backup** panel (in the sidebar) builds a *partial*

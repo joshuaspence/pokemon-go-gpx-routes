@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<gpx xmlns="http://www.topografix.com/GPX/1/1" version="1.1">
+<gpx xmlns="http://www.topografix.com/GPX/1/1"
+     xmlns:pgr="https://joshuaspence.github.io/pokemon-go-gpx-routes/gpx/1"
+     version="1.1">
   <trk>
-    <name>Botanic Garden, Wellington</name>
-    <desc>New Zealand</desc>
+    <name>Botanic Garden</name>
+    <extensions>
+      <pgr:city>Wellington</pgr:city>
+      <pgr:country>New Zealand</pgr:country>
+    </extensions>
     <trkseg>
       <trkpt lat="-41.284912" lon="174.766660"/>
       <trkpt lat="-41.284977" lon="174.767644"/>

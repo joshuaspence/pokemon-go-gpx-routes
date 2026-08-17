@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<gpx xmlns="http://www.topografix.com/GPX/1/1" version="1.1">
+<gpx xmlns="http://www.topografix.com/GPX/1/1"
+     xmlns:pgr="https://joshuaspence.github.io/pokemon-go-gpx-routes/gpx/1"
+     version="1.1">
   <trk>
-    <name>Ibirapuera Park, São Paulo</name>
-    <desc>Brazil</desc>
-    <type>long</type>
+    <name>Ibirapuera Park</name>
+    <extensions>
+      <pgr:city>São Paulo</pgr:city>
+      <pgr:country>Brazil</pgr:country>
+      <pgr:variant>long</pgr:variant>
+    </extensions>
     <trkseg>
       <trkpt lat="-23.585856" lon="-46.655580"/>
       <trkpt lat="-23.585843" lon="-46.655591"/>

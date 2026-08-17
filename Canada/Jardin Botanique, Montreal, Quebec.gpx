@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<gpx xmlns="http://www.topografix.com/GPX/1/1" version="1.1">
+<gpx xmlns="http://www.topografix.com/GPX/1/1"
+     xmlns:pgr="https://joshuaspence.github.io/pokemon-go-gpx-routes/gpx/1"
+     version="1.1">
   <trk>
-    <name>Jardin Botanique, Montreal, Quebec</name>
-    <desc>Canada</desc>
+    <name>Jardin Botanique</name>
+    <extensions>
+      <pgr:city>Montreal, Quebec</pgr:city>
+      <pgr:country>Canada</pgr:country>
+    </extensions>
     <trkseg>
       <trkpt lat="45.564485" lon="-73.570347"/>
       <trkpt lat="45.564221" lon="-73.569195"/>

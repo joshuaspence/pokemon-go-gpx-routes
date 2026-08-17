@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<gpx xmlns="http://www.topografix.com/GPX/1/1" version="1.1">
+<gpx xmlns="http://www.topografix.com/GPX/1/1"
+     xmlns:pgr="https://joshuaspence.github.io/pokemon-go-gpx-routes/gpx/1"
+     version="1.1">
   <trk>
-    <name>Westfalenpark, Dortmund, North Rhine-Westphalia</name>
-    <desc>Germany</desc>
-    <type>long</type>
+    <name>Westfalenpark</name>
+    <extensions>
+      <pgr:city>Dortmund, North Rhine-Westphalia</pgr:city>
+      <pgr:country>Germany</pgr:country>
+      <pgr:variant>long</pgr:variant>
+    </extensions>
     <trkseg>
       <trkpt lat="51.496644" lon="7.469652"/>
       <trkpt lat="51.496447" lon="7.470392"/>

@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<gpx xmlns="http://www.topografix.com/GPX/1/1" version="1.1">
+<gpx xmlns="http://www.topografix.com/GPX/1/1"
+     xmlns:pgr="https://joshuaspence.github.io/pokemon-go-gpx-routes/gpx/1"
+     version="1.1">
   <trk>
-    <name>River Park, New York City, New York</name>
-    <desc>United States</desc>
+    <name>River Park</name>
+    <extensions>
+      <pgr:city>New York City, New York</pgr:city>
+      <pgr:country>United States</pgr:country>
+    </extensions>
     <trkseg>
       <trkpt lat="40.844200" lon="-73.877263"/>
       <trkpt lat="40.844863" lon="-73.877808"/>

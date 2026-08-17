@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<gpx xmlns="http://www.topografix.com/GPX/1/1" version="1.1">
+<gpx xmlns="http://www.topografix.com/GPX/1/1"
+     xmlns:pgr="https://joshuaspence.github.io/pokemon-go-gpx-routes/gpx/1"
+     version="1.1">
   <trk>
-    <name>City Centre, Dortmund, North Rhine-Westphalia</name>
-    <desc>Germany</desc>
+    <name>City Centre</name>
+    <extensions>
+      <pgr:city>Dortmund, North Rhine-Westphalia</pgr:city>
+      <pgr:country>Germany</pgr:country>
+    </extensions>
     <trkseg>
       <trkpt lat="51.513690" lon="7.455983"/>
       <trkpt lat="51.513911" lon="7.457314"/>

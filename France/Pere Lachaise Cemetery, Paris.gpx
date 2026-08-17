@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<gpx xmlns="http://www.topografix.com/GPX/1/1" version="1.1">
+<gpx xmlns="http://www.topografix.com/GPX/1/1"
+     xmlns:pgr="https://joshuaspence.github.io/pokemon-go-gpx-routes/gpx/1"
+     version="1.1">
   <trk>
-    <name>Pere Lachaise Cemetery, Paris</name>
-    <desc>France</desc>
+    <name>Pere Lachaise Cemetery</name>
+    <extensions>
+      <pgr:city>Paris</pgr:city>
+      <pgr:country>France</pgr:country>
+    </extensions>
     <trkseg>
       <trkpt lat="48.859241" lon="2.393809"/>
       <trkpt lat="48.858891" lon="2.394004"/>

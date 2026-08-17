@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<gpx xmlns="http://www.topografix.com/GPX/1/1" version="1.1">
+<gpx xmlns="http://www.topografix.com/GPX/1/1"
+     xmlns:pgr="https://joshuaspence.github.io/pokemon-go-gpx-routes/gpx/1"
+     version="1.1">
   <trk>
-    <name>Parque San Pablo, Zaragoza, Aragon</name>
-    <desc>Spain</desc>
+    <name>Parque San Pablo</name>
+    <extensions>
+      <pgr:city>Zaragoza, Aragon</pgr:city>
+      <pgr:country>Spain</pgr:country>
+    </extensions>
     <trkseg>
       <trkpt lat="41.662319" lon="-0.894207"/>
       <trkpt lat="41.662058" lon="-0.893725"/>

@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<gpx xmlns="http://www.topografix.com/GPX/1/1" version="1.1">
+<gpx xmlns="http://www.topografix.com/GPX/1/1"
+     xmlns:pgr="https://joshuaspence.github.io/pokemon-go-gpx-routes/gpx/1"
+     version="1.1">
   <trk>
-    <name>Melbourne Zoo, Melbourne, Victoria</name>
-    <desc>Australia</desc>
+    <name>Melbourne Zoo</name>
+    <extensions>
+      <pgr:city>Melbourne, Victoria</pgr:city>
+      <pgr:country>Australia</pgr:country>
+    </extensions>
     <trkseg>
       <trkpt lat="-37.785519" lon="144.949761"/>
       <trkpt lat="-37.785073" lon="144.949484"/>

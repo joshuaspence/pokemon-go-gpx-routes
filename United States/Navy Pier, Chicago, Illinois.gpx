@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<gpx xmlns="http://www.topografix.com/GPX/1/1" version="1.1">
+<gpx xmlns="http://www.topografix.com/GPX/1/1"
+     xmlns:pgr="https://joshuaspence.github.io/pokemon-go-gpx-routes/gpx/1"
+     version="1.1">
   <trk>
-    <name>Navy Pier, Chicago, Illinois</name>
-    <desc>United States</desc>
+    <name>Navy Pier</name>
+    <extensions>
+      <pgr:city>Chicago, Illinois</pgr:city>
+      <pgr:country>United States</pgr:country>
+    </extensions>
     <trkseg>
       <trkpt lat="41.892207" lon="-87.598934"/>
       <trkpt lat="41.891847" lon="-87.598637"/>

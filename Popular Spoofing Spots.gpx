@@ -1,35 +1,58 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<gpx xmlns="http://www.topografix.com/GPX/1/1" version="1.1">
+<gpx xmlns="http://www.topografix.com/GPX/1/1"
+     xmlns:pgr="https://joshuaspence.github.io/pokemon-go-gpx-routes/gpx/1"
+     version="1.1">
   <wpt lat="35.542978" lon="134.223962">
-    <name>Tottori Dunes, Tottori</name>
-    <desc>Japan</desc>
+    <name>Tottori Dunes</name>
+    <extensions>
+      <pgr:city>Tottori</pgr:city>
+      <pgr:country>Japan</pgr:country>
+    </extensions>
   </wpt>
   <wpt lat="19.427393" lon="-99.193284">
     <name>Mexico City</name>
-    <desc>Mexico</desc>
+    <extensions>
+      <pgr:country>Mexico</pgr:country>
+    </extensions>
   </wpt>
   <wpt lat="44.456930" lon="26.082360">
     <name>Bucharest</name>
-    <desc>Romania</desc>
+    <extensions>
+      <pgr:country>Romania</pgr:country>
+    </extensions>
   </wpt>
   <wpt lat="35.153662" lon="129.060283">
     <name>Busan</name>
-    <desc>South Korea</desc>
+    <extensions>
+      <pgr:country>South Korea</pgr:country>
+    </extensions>
   </wpt>
   <wpt lat="37.518103" lon="127.124086">
-    <name>Olympic Park, Seoul</name>
-    <desc>South Korea</desc>
+    <name>Olympic Park</name>
+    <extensions>
+      <pgr:city>Seoul</pgr:city>
+      <pgr:country>South Korea</pgr:country>
+    </extensions>
   </wpt>
   <wpt lat="32.735302" lon="-117.155184">
-    <name>San Diego Zoo, San Diego, CA</name>
-    <desc>United States</desc>
+    <name>San Diego Zoo</name>
+    <extensions>
+      <pgr:city>San Diego, CA</pgr:city>
+      <pgr:country>United States</pgr:country>
+    </extensions>
   </wpt>
   <wpt lat="37.808864" lon="-122.409786">
-    <name>Pier 39, San Francisco, CA</name>
-    <desc>United States</desc>
+    <name>Pier 39</name>
+    <extensions>
+      <pgr:city>San Francisco, CA</pgr:city>
+      <pgr:country>United States</pgr:country>
+    </extensions>
   </wpt>
   <wpt lat="34.008976" lon="-118.497452">
-    <name>Santa Monica Pier, Santa Monica, CA</name>
-    <desc>United States</desc>
+    <name>Santa Monica Pier</name>
+    <extensions>
+      <pgr:city>Santa Monica, CA</pgr:city>
+      <pgr:country>United States</pgr:country>
+    </extensions>
   </wpt>
 </gpx>

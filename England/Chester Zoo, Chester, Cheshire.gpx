@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<gpx xmlns="http://www.topografix.com/GPX/1/1" version="1.1">
+<gpx xmlns="http://www.topografix.com/GPX/1/1"
+     xmlns:pgr="https://joshuaspence.github.io/pokemon-go-gpx-routes/gpx/1"
+     version="1.1">
   <trk>
-    <name>Chester Zoo, Chester, Cheshire</name>
-    <desc>England</desc>
+    <name>Chester Zoo</name>
+    <extensions>
+      <pgr:city>Chester, Cheshire</pgr:city>
+      <pgr:country>England</pgr:country>
+    </extensions>
     <trkseg>
       <trkpt lat="53.226575" lon="-2.887075"/>
       <trkpt lat="53.226077" lon="-2.886551"/>

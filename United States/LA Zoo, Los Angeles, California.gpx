@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<gpx xmlns="http://www.topografix.com/GPX/1/1" version="1.1">
+<gpx xmlns="http://www.topografix.com/GPX/1/1"
+     xmlns:pgr="https://joshuaspence.github.io/pokemon-go-gpx-routes/gpx/1"
+     version="1.1">
   <trk>
-    <name>LA Zoo, Los Angeles, California</name>
-    <desc>United States</desc>
+    <name>LA Zoo</name>
+    <extensions>
+      <pgr:city>Los Angeles, California</pgr:city>
+      <pgr:country>United States</pgr:country>
+    </extensions>
     <trkseg>
       <trkpt lat="34.149008" lon="-118.281283"/>
       <trkpt lat="34.148520" lon="-118.280885"/>
