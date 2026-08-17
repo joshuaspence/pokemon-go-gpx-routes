@@ -50,9 +50,9 @@ jobs:
         if: ${{ !cancelled() }}
         run: pnpm lint:html
 
-      # Checks every GPX file is well-formed and really is GPX 1.1, against the
-      # schema vendored at gpx.xsd. See validate-gpx.mjs for what it does not
-      # reach.
+      # Checks every GPX file is well-formed and really is GPX 1.1, against
+      # the schema vendored at resources/gpx.xsd. See validate-gpx.mjs for
+      # what the check does not reach.
       - name: XML
         if: ${{ !cancelled() }}
         run: pnpm lint:xml

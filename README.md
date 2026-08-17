@@ -47,7 +47,7 @@ pair. `<name>` and `<pgr:country>` are required; the viewer names any file missi
 path.
 
 Every file is real GPX 1.1 and is checked against the schema on each push, using the copy of it vendored at
-[`gpx.xsd`](gpx.xsd). That check, and the HTML, CSS and JavaScript linters, run together:
+[`resources/gpx.xsd`](resources/gpx.xsd). That check, and the HTML, CSS and JavaScript linters, run together:
 
 ```sh
 pnpm install
