@@ -55,7 +55,7 @@ async function copyText(text) {
       await navigator.clipboard.writeText(text);
       return true;
     }
-  } catch (e) {
+  } catch {
     /* fall through to legacy path */
   }
   try {
@@ -69,7 +69,7 @@ async function copyText(text) {
     const ok = document.execCommand("copy");
     document.body.removeChild(ta);
     return ok;
-  } catch (e) {
+  } catch {
     return false;
   }
 }
@@ -937,7 +937,10 @@ const JavaSer = (() => {
     }
     string(s) {
       const h = this.strHandles.get(s);
-      if (h !== undefined) return this.ref(h);
+      if (h !== undefined) {
+        this.ref(h);
+        return;
+      }
       const b = encodeMutf8(s);
       if (b.length <= 0xffff) {
         this.u1(TC_STRING);
@@ -951,7 +954,10 @@ const JavaSer = (() => {
     }
     classDesc(name, uid, flags, fields, superName, superUid) {
       const h = this.classHandles.get(name);
-      if (h !== undefined) return this.ref(h);
+      if (h !== undefined) {
+        this.ref(h);
+        return;
+      }
       this.u1(TC_CLASSDESC);
       this.utf(name);
       this.i8(uid);
@@ -982,7 +988,8 @@ const JavaSer = (() => {
       else if (typeof v === "string") this.string(v);
       else if (v.box) {
         const h = this.boxHandles.get(v);
-        h !== undefined ? this.ref(h) : this.box(v);
+        if (h !== undefined) this.ref(h);
+        else this.box(v);
       } else if (v instanceof Map) this.hashmap(v);
       else throw err(`cannot serialize ${typeof v}`);
     }
@@ -1224,7 +1231,7 @@ async function buildRepoFavourites() {
   try {
     files = await loadManifest();
   } catch (e) {
-    throw new Error(`gpx.json: ${e.message}`);
+    throw new Error(`gpx.json: ${e.message}`, { cause: e });
   }
   const texts = await Promise.all(
     files.map(async (file) => {
@@ -1240,7 +1247,7 @@ async function buildRepoFavourites() {
     try {
       parsed = parseGpxFavourites(text);
     } catch (e) {
-      throw new Error(`${file}: ${e.message}`);
+      throw new Error(`${file}: ${e.message}`, { cause: e });
     }
     points.push(...parsed.points);
     routes.push(...parsed.routes);
@@ -1264,7 +1271,7 @@ function applyTimezones(points) {
     if (typeof tzlookup === "function") {
       try {
         tz = tzlookup(p.lat, p.lng);
-      } catch (e) {
+      } catch {
         tz = null;
       }
     }
