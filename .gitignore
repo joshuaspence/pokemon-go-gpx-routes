@@ -1,4 +1,1 @@
-# Nothing here is built — the site is served as it sits in the repository.
-# package.json holds the linters and nothing else, so this is all that an
-# install leaves behind.
-node_modules/
+/node_modules/
