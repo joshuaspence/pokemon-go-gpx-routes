@@ -11,10 +11,14 @@
  */
 
 import { execFileSync } from 'node:child_process';
-import { globSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { validateXML } from 'xmllint-wasm';
 
-const files = globSync('**/*.gpx', { exclude: ['node_modules/**'] });
+// One list, asked of git, used for both of the checks below. It is git rather than a glob because gpx.json is generated
+// from git ls-files (see the README) and is committed: a glob would offer up untracked scratch files, which belong in
+// neither the manifest nor a comparison against it. Anything ignored — node_modules included — is absent for free,
+// since git does not list what it does not track.
+const files = execFileSync('git', ['ls-files', '-z', '*.gpx'], { encoding: 'utf8' }).split('\0').filter(Boolean);
 const problems = [];
 
 if (files.length === 0) {
@@ -37,17 +41,13 @@ if (valid) {
   }
 }
 
-// Static hosting cannot list a directory, so the viewer is handed its paths in `gpx.json`. Nothing else notices when 
+// Static hosting cannot list a directory, so the viewer is handed its paths in `gpx.json`. Nothing else notices when
 // that file falls out of step with the repository, and the failure is silent in the worst way: a route that is
 // perfectly good GPX, and that this script has just validated, simply never appears on the map.
-//
-// The comparison is against git rather than the glob above, because that is what generates gpx.json (see the README).
-// Comparing it to the glob would report every scratch file as drift, and regenerating would not resolve it.
-const tracked = execFileSync('git', ['ls-files', '-z', '*.gpx'], { encoding: 'utf8' }).split('\0').filter(Boolean);
 const listed = JSON.parse(readFileSync('gpx.json', 'utf8'));
 
-const unlisted = tracked.filter((file) => !listed.includes(file));
-const phantom = listed.filter((file) => !tracked.includes(file));
+const unlisted = files.filter((file) => !listed.includes(file));
+const phantom = listed.filter((file) => !files.includes(file));
 
 for (const file of unlisted) problems.push(`${file}: tracked but missing from gpx.json — the map will not show it`);
 for (const file of phantom)
