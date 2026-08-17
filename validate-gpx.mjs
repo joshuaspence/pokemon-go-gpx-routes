@@ -21,9 +21,7 @@ import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { validateXML } from "xmllint-wasm";
 
-const files = execFileSync("git", ["ls-files", "-z", "*.gpx"], { encoding: "utf8" })
-  .split("\0")
-  .filter(Boolean);
+const files = execFileSync("git", ["ls-files", "-z", "*.gpx"], { encoding: "utf8" }).split("\0").filter(Boolean);
 
 // An empty list would otherwise pass silently, which is the one result that
 // means the check did not happen rather than that nothing is wrong.

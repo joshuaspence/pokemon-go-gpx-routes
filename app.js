@@ -16,8 +16,7 @@ async function loadManifest() {
   const res = await fetch("gpx.json");
   if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
   const files = await res.json();
-  if (!Array.isArray(files) || files.some((f) => typeof f !== "string"))
-    throw new Error("is not a list of paths");
+  if (!Array.isArray(files) || files.some((f) => typeof f !== "string")) throw new Error("is not a list of paths");
   return files;
 }
 
@@ -26,8 +25,7 @@ const cssVar = (n) => getComputedStyle(document.documentElement).getPropertyValu
 const map = L.map("map", { worldCopyJump: true }).setView([20, 0], 2);
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
   maxZoom: 19,
-  attribution:
-    '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
 }).addTo(map);
 
 const listEl = document.getElementById("list");
@@ -95,9 +93,7 @@ function haversine(a, b) {
     toRad = (d) => (d * Math.PI) / 180;
   const dLat = toRad(b[0] - a[0]),
     dLon = toRad(b[1] - a[1]);
-  const s =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(toRad(a[0])) * Math.cos(toRad(b[0])) * Math.sin(dLon / 2) ** 2;
+  const s = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(a[0])) * Math.cos(toRad(b[0])) * Math.sin(dLon / 2) ** 2;
   return 2 * R * Math.asin(Math.sqrt(s));
 }
 function routeDistance(latlngs) {
@@ -114,8 +110,7 @@ function fmtDist(m) {
 // mistaken for an entry's name.
 function childText(el, tag) {
   for (const child of el.children) {
-    if (child.localName === tag && child.textContent && child.textContent.trim())
-      return child.textContent.trim();
+    if (child.localName === tag && child.textContent && child.textContent.trim()) return child.textContent.trim();
   }
   return null;
 }
@@ -290,10 +285,7 @@ function selectRoute(entry, { pan = true } = {}) {
       fillColor: color,
       fillOpacity: 1,
     }).bindTooltip(label);
-  entry.markers = [
-    dot(a, cssVar("--start"), "Start").addTo(map),
-    dot(b, cssVar("--end"), "End").addTo(map),
-  ];
+  entry.markers = [dot(a, cssVar("--start"), "Start").addTo(map), dot(b, cssVar("--end"), "End").addTo(map)];
 
   const popup = document.createElement("div");
   const title = document.createElement("b");
@@ -487,9 +479,7 @@ function buildSidebar() {
       group.appendChild(head);
       const items = document.createElement("div");
       items.className = "country-items";
-      for (const item of byCountry[country].sort(
-        (a, b) => a.name.localeCompare(b.name) || a.dist - b.dist,
-      )) {
+      for (const item of byCountry[country].sort((a, b) => a.name.localeCompare(b.name) || a.dist - b.dist)) {
         items.appendChild(item.build());
       }
       group.appendChild(items);
@@ -511,17 +501,13 @@ filterEl.addEventListener("input", () => {
   // Hide groups with no matches; while searching, auto-expand those that have
   // matches so the results are visible. With no query, collapse everything.
   document.querySelectorAll(".country-group").forEach((group) => {
-    const anyVisible = [...group.querySelectorAll(".route")].some(
-      (r) => !r.classList.contains("hidden"),
-    );
+    const anyVisible = [...group.querySelectorAll(".route")].some((r) => !r.classList.contains("hidden"));
     group.classList.toggle("hidden", !anyVisible);
     group.classList.toggle("collapsed", q ? !anyVisible : true);
   });
 
   document.querySelectorAll(".continent-group").forEach((cg) => {
-    const anyVisible = [...cg.querySelectorAll(".country-group")].some(
-      (g) => !g.classList.contains("hidden"),
-    );
+    const anyVisible = [...cg.querySelectorAll(".country-group")].some((g) => !g.classList.contains("hidden"));
     cg.classList.toggle("hidden", !anyVisible);
     cg.classList.toggle("collapsed", q ? !anyVisible : true);
   });
@@ -704,9 +690,7 @@ const JavaSer = (() => {
         i += 2;
       } else if ((c & 0xf0) === 0xe0) {
         if (i + 2 >= n) throw err("truncated modified UTF-8 sequence");
-        s += String.fromCharCode(
-          ((c & 0x0f) << 12) | ((bytes[i + 1] & 0x3f) << 6) | (bytes[i + 2] & 0x3f),
-        );
+        s += String.fromCharCode(((c & 0x0f) << 12) | ((bytes[i + 1] & 0x3f) << 6) | (bytes[i + 2] & 0x3f));
         i += 3;
       } else throw err(`invalid modified UTF-8 byte 0x${c.toString(16)}`);
     }
@@ -788,8 +772,7 @@ const JavaSer = (() => {
       const tag = this.u1();
       if (tag === TC_NULL) return null;
       if (tag === TC_REFERENCE) return this.ref();
-      if (tag !== TC_CLASSDESC)
-        throw err(`expected classdesc, got 0x${tag.toString(16)} at ${this.p - 1}`);
+      if (tag !== TC_CLASSDESC) throw err(`expected classdesc, got 0x${tag.toString(16)} at ${this.p - 1}`);
       const name = this.utf();
       const uid = this.i8();
       const flags = this.u1();
@@ -864,8 +847,7 @@ const JavaSer = (() => {
           d.values ||= {};
           // We only need HashMap's writeObject payload; a field's value is
           // read to advance the stream but not otherwise used here.
-          d.values[fname] =
-            tcode === "L" || tcode === "[" ? this.content() : this.readPrimitive(tcode);
+          d.values[fname] = tcode === "L" || tcode === "[" ? this.content() : this.readPrimitive(tcode);
         }
         if (d.flags & SC_WRITE_METHOD) d.custom = this.customData(d.name);
       }
@@ -988,15 +970,7 @@ const JavaSer = (() => {
       const info = BOX[b.box];
       this.u1(TC_OBJECT);
       if (b.box === "Z") this.classDesc(info.cls, info.uid, SC_SERIALIZABLE, [["Z", "value"]]);
-      else
-        this.classDesc(
-          info.cls,
-          info.uid,
-          SC_SERIALIZABLE,
-          [[b.box, "value"]],
-          NUMBER.name,
-          NUMBER.uid,
-        );
+      else this.classDesc(info.cls, info.uid, SC_SERIALIZABLE, [[b.box, "value"]], NUMBER.name, NUMBER.uid);
       this.boxHandles.set(b, this.claim());
       if (b.box === "Z") this.u1(b.value ? 1 : 0);
       else if (b.box === "I") this.i4(b.value);
@@ -1078,8 +1052,7 @@ const newRouteState = () => ({
 // and leaving the Route stream to write the surrogates as Java's modified
 // UTF-8 does.
 const escSlashes = (s) => s.replace(/\//g, "\\/");
-const asciiEscape = (s) =>
-  s.replace(/[\u0080-\uFFFF]/g, (c) => "\\u" + c.charCodeAt(0).toString(16).padStart(4, "0"));
+const asciiEscape = (s) => s.replace(/[\u0080-\uFFFF]/g, (c) => "\\u" + c.charCodeAt(0).toString(16).padStart(4, "0"));
 
 function encodePoints(entries) {
   const arr = entries.map((e) => {
@@ -1190,14 +1163,10 @@ function countryFlag(country) {
   const code = COUNTRY_CODES[country];
   if (!code) throw new Error(`no flag for "${country}" — add it to COUNTRY_CODES`);
   if (code.includes("-")) {
-    const tags = [...code.replace("-", "").toLowerCase()].map((c) =>
-      String.fromCodePoint(TAG_BLOCK + c.charCodeAt(0)),
-    );
+    const tags = [...code.replace("-", "").toLowerCase()].map((c) => String.fromCodePoint(TAG_BLOCK + c.charCodeAt(0)));
     return BLACK_FLAG + tags.join("") + String.fromCodePoint(CANCEL_TAG);
   }
-  return [...code]
-    .map((c) => String.fromCodePoint(REGIONAL_INDICATOR_A + c.charCodeAt(0) - 65))
-    .join("");
+  return [...code].map((c) => String.fromCodePoint(REGIONAL_INDICATOR_A + c.charCodeAt(0) - 65)).join("");
 }
 
 // A favourite's name with its country's flag in front.
@@ -1398,8 +1367,7 @@ backupRunEl.addEventListener("click", async () => {
     let positions = 0;
     for (const { id, keys } of CONTROL_RESETS) {
       if (!document.getElementById(id).checked) continue;
-      for (const [k, v] of Object.entries(keys))
-        root.set(k, typeof v === "string" ? v : JavaSer.box("F", v));
+      for (const [k, v] of Object.entries(keys)) root.set(k, typeof v === "string" ? v : JavaSer.box("F", v));
       positions++;
     }
     if (positions) notes.push(`${positions} control(s)`);

@@ -19,40 +19,24 @@
         <div class="sub" id="count">Loading routes…</div>
       </header>
       <div class="search">
-        <input
-          id="filter"
-          type="search"
-          placeholder="Filter tracks & waypoints…"
-          autocomplete="off"
-        />
+        <input id="filter" type="search" placeholder="Filter tracks & waypoints…" autocomplete="off" />
       </div>
       <div id="list"></div>
       <details class="backup" id="backup">
         <summary>PGSharp backup</summary>
         <div class="body">
           <p>
-            Build a partial PGSharp backup holding every route and waypoint on this map (and, if
-            ticked, a fixed control layout) — nothing else. Import the downloaded file into PGSharp;
-            your other settings are left untouched.
+            Build a partial PGSharp backup holding every route and waypoint on this map (and, if ticked, a fixed control
+            layout) — nothing else. Import the downloaded file into PGSharp; your other settings are left untouched.
           </p>
           <details class="subgroup">
             <summary>Include control positions</summary>
             <div class="group">
-              <label class="opt"
-                ><input type="checkbox" id="resetIcon" checked /> Floating control</label
-              >
-              <label class="opt"
-                ><input type="checkbox" id="resetSnipe1" checked /> Fast-snipe button</label
-              >
-              <label class="opt"
-                ><input type="checkbox" id="resetSnipe2" checked /> Second fast-snipe button</label
-              >
-              <label class="opt"
-                ><input type="checkbox" id="resetCdpos" checked /> Cooldown indicator</label
-              >
-              <label class="opt"
-                ><input type="checkbox" id="resetScan" checked /> Nearby radar</label
-              >
+              <label class="opt"><input type="checkbox" id="resetIcon" checked /> Floating control</label>
+              <label class="opt"><input type="checkbox" id="resetSnipe1" checked /> Fast-snipe button</label>
+              <label class="opt"><input type="checkbox" id="resetSnipe2" checked /> Second fast-snipe button</label>
+              <label class="opt"><input type="checkbox" id="resetCdpos" checked /> Cooldown indicator</label>
+              <label class="opt"><input type="checkbox" id="resetScan" checked /> Nearby radar</label>
             </div>
           </details>
           <button id="backupRun" class="run" type="button">Generate &amp; download</button>
@@ -61,9 +45,7 @@
       </details>
       <footer>
         Map data ©
-        <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener"
-          >OpenStreetMap</a
-        >
+        <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>
         contributors. Click a track or waypoint to zoom.
       </footer>
     </aside>
