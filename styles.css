@@ -1,6 +1,6 @@
 :root {
   --bg: #f7f8fa;
-  --panel: #ffffff;
+  --panel: #fff;
   --border: #e2e5ea;
   --text: #1c1f26;
   --muted: #6b7280;
@@ -11,6 +11,7 @@
   --end: #e3350d;
   --city: #d97706;
 }
+
 @media (prefers-color-scheme: dark) {
   :root {
     --bg: #12141a;
@@ -26,14 +27,17 @@
     --city: #f59e0b;
   }
 }
+
 * {
   box-sizing: border-box;
 }
+
 html,
 body {
   height: 100%;
   margin: 0;
 }
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   color: var(--text);
@@ -44,6 +48,7 @@ body {
   height: 100vh;
   overflow: hidden;
 }
+
 #sidebar {
   background: var(--panel);
   border-right: 1px solid var(--border);
@@ -51,24 +56,29 @@ body {
   flex-direction: column;
   min-height: 0;
 }
+
 header {
   padding: 16px 18px 12px;
   border-bottom: 1px solid var(--border);
 }
+
 header h1 {
   margin: 0;
   font-size: 17px;
   letter-spacing: -0.01em;
 }
+
 header .sub {
   margin-top: 3px;
   font-size: 12px;
   color: var(--muted);
 }
+
 .search {
   padding: 10px 14px;
   border-bottom: 1px solid var(--border);
 }
+
 .search input {
   width: 100%;
   padding: 8px 10px;
@@ -78,16 +88,19 @@ header .sub {
   color: var(--text);
   font-size: 13px;
 }
+
 .search input:focus {
   outline: 2px solid var(--track);
   outline-offset: -1px;
 }
+
 #list {
   overflow-y: auto;
   flex: 1;
   padding: 6px 0 14px;
   min-height: 0;
 }
+
 .country {
   display: flex;
   align-items: center;
@@ -101,20 +114,25 @@ header .sub {
   cursor: pointer;
   user-select: none;
 }
+
 .country:hover {
   color: var(--text);
 }
+
 .country .chev {
   font-size: 9px;
   transition: transform 0.15s;
   transform: none;
 }
+
 .country-group.collapsed .country .chev {
   transform: rotate(-90deg);
 }
+
 .country-group.collapsed .country-items {
   display: none;
 }
+
 .continent {
   display: flex;
   align-items: center;
@@ -127,28 +145,36 @@ header .sub {
   cursor: pointer;
   user-select: none;
 }
+
 .continent:hover {
   color: var(--accent);
 }
+
 .continent .chev {
   font-size: 9px;
   transition: transform 0.15s;
 }
+
 .continent-group.collapsed .continent .chev {
   transform: rotate(-90deg);
 }
+
 .continent-group.collapsed .continent-items {
   display: none;
 }
+
 .continent-group.hidden {
   display: none;
 }
+
 .continent-items .country {
   padding-left: 32px;
 }
+
 .continent-items .country-items .route {
   padding-left: 44px;
 }
+
 .route {
   display: flex;
   align-items: baseline;
@@ -159,24 +185,29 @@ header .sub {
   font-size: 13px;
   border-left: 3px solid transparent;
 }
+
 .route:hover {
   background: var(--bg);
 }
+
 .route.active {
   background: var(--accent-soft);
   border-left-color: var(--accent);
   font-weight: 600;
 }
+
 .route .end {
   display: flex;
   align-items: center;
   gap: 6px;
   white-space: nowrap;
 }
+
 .route .meta {
   font-size: 11px;
   color: var(--muted);
 }
+
 .route .copy {
   border: 1px solid var(--border);
   background: var(--panel);
@@ -189,32 +220,39 @@ header .sub {
   opacity: 0;
   transition: opacity 0.12s;
 }
+
 .route:hover .copy,
 .route.active .copy,
 .route .copy:focus-visible {
   opacity: 1;
 }
+
 /* Touch devices have no hover — always show the copy button there. */
 @media (hover: none) {
   .route .copy {
     opacity: 1;
   }
 }
+
 .route .copy:hover {
   border-color: var(--accent);
   color: var(--accent);
 }
+
 .route .copy.done {
   border-color: var(--start);
   color: var(--start);
   opacity: 1;
 }
+
 .route.hidden {
   display: none;
 }
+
 .country-group.hidden {
   display: none;
 }
+
 .popup-copy {
   margin-top: 8px;
   border: 1px solid var(--border);
@@ -225,14 +263,17 @@ header .sub {
   font-size: 12px;
   cursor: pointer;
 }
+
 .popup-copy:hover {
   border-color: var(--accent);
   color: var(--accent);
 }
+
 .popup-copy.done {
   border-color: var(--start);
   color: var(--start);
 }
+
 #toast {
   position: absolute;
   z-index: 1200;
@@ -250,24 +291,29 @@ header .sub {
     opacity 0.18s,
     transform 0.18s;
 }
+
 #toast.show {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
 }
+
 #map {
   height: 100%;
   width: 100%;
   background: var(--bg);
 }
+
 footer {
   padding: 10px 18px;
   border-top: 1px solid var(--border);
   font-size: 11px;
   color: var(--muted);
 }
+
 footer a {
   color: var(--track);
 }
+
 #banner {
   display: none;
   position: absolute;
@@ -276,6 +322,7 @@ footer a {
   left: 50%;
   transform: translateX(-50%);
   max-width: 620px;
+
   /* A rejected-file list can run long; keep it inside the map. */
   max-height: calc(100% - 24px);
   overflow-y: auto;
@@ -286,36 +333,44 @@ footer a {
   padding: 12px 16px;
   font-size: 13px;
   line-height: 1.5;
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 6px 24px rgb(0 0 0 / 15%);
 }
+
 #banner code {
-  background: rgba(127, 127, 127, 0.18);
+  background: rgb(127 127 127 / 18%);
   padding: 1px 5px;
   border-radius: 4px;
   font-size: 12px;
 }
+
 #banner ul {
   margin: 6px 0 0;
   padding-left: 20px;
 }
+
 #banner li {
   margin-top: 3px;
 }
+
 .map-wrap {
   position: relative;
   min-width: 0;
 }
+
 .leaflet-popup-content {
   font-size: 13px;
 }
+
 .leaflet-popup-content b {
   font-size: 14px;
 }
-@media (max-width: 720px) {
+
+@media (width <= 720px) {
   body {
     grid-template-columns: 1fr;
     grid-template-rows: 45% 55%;
   }
+
   /* Scroll the whole sidebar as one column so the backup panel and footer
      after the list stay reachable instead of being clipped below the fold. */
   #sidebar {
@@ -323,21 +378,25 @@ footer a {
     border-bottom: 1px solid var(--border);
     overflow-y: auto;
   }
+
   #list {
     flex: none;
     overflow: visible;
   }
+
   /* The +/- buttons crowd the small map; pinch-to-zoom covers it here. */
   .leaflet-control-zoom {
     display: none;
   }
 }
+
 /* PGSharp backup panel */
 .backup {
   border-top: 1px solid var(--border);
   padding: 10px 14px;
   font-size: 12px;
 }
+
 .backup > summary {
   cursor: pointer;
   user-select: none;
@@ -351,19 +410,24 @@ footer a {
   letter-spacing: 0.06em;
   color: var(--muted);
 }
+
 .backup > summary:hover {
   color: var(--text);
 }
+
 .backup > summary::-webkit-details-marker {
   display: none;
 }
+
 .backup > summary::before {
   content: "▸";
   font-size: 9px;
 }
+
 .backup[open] > summary::before {
   content: "▾";
 }
+
 .backup .body {
   margin-top: 10px;
   display: flex;
@@ -371,16 +435,19 @@ footer a {
   gap: 9px;
   color: var(--text);
 }
+
 .backup p {
   margin: 0;
   color: var(--muted);
   line-height: 1.45;
 }
+
 .backup .group {
   display: flex;
   flex-direction: column;
   gap: 5px;
 }
+
 .backup details.subgroup > summary {
   cursor: pointer;
   user-select: none;
@@ -394,28 +461,35 @@ footer a {
   letter-spacing: 0.05em;
   color: var(--muted);
 }
+
 .backup details.subgroup > summary:hover {
   color: var(--text);
 }
+
 .backup details.subgroup > summary::-webkit-details-marker {
   display: none;
 }
+
 .backup details.subgroup > summary::before {
   content: "▸";
   font-size: 9px;
 }
+
 .backup details.subgroup[open] > summary::before {
   content: "▾";
 }
+
 .backup details.subgroup[open] .group {
   margin-top: 8px;
 }
+
 .backup label.opt {
   display: flex;
   align-items: center;
   gap: 7px;
   cursor: pointer;
 }
+
 .backup button.run {
   padding: 8px 10px;
   border: 1px solid var(--accent);
@@ -426,24 +500,30 @@ footer a {
   font-weight: 600;
   cursor: pointer;
 }
+
 .backup button.run:hover:not(:disabled) {
   filter: brightness(1.05);
 }
+
 .backup button.run:disabled {
   opacity: 0.5;
   cursor: default;
 }
+
 .backup .status {
   font-size: 12px;
   line-height: 1.45;
   color: var(--muted);
 }
+
 .backup .status.ok {
   color: var(--start);
 }
+
 .backup .status.err {
   color: var(--accent);
 }
+
 .backup a.help {
   color: var(--track);
 }

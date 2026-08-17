@@ -4,9 +4,9 @@
   "packageManager": "pnpm@10.15.0",
   "scripts": {
     "lint": "npm-run-all --continue-on-error --parallel --print-label lint:css lint:html lint:js lint:prettier lint:xml",
-    "lint:css": "stylelint \"**/*.css\"",
-    "lint:css:fix": "stylelint --fix \"**/*.css\"",
-    "lint:fix": "npm-run-all --serial --print-label lint:css:fix lint:js:fix lint:prettier:fix",
+    "lint:css": "stylelint '**/*.css'",
+    "lint:css:fix": "stylelint --fix '**/*.css'",
+    "lint:fix": "npm-run-all --print-label --serial lint:css:fix lint:js:fix lint:prettier:fix",
     "lint:prettier": "prettier --check .",
     "lint:prettier:fix": "prettier --write .",
     "lint:html": "html-validate \"**/*.html\"",
@@ -21,6 +21,7 @@
     "npm-run-all2": "^9.0.3",
     "prettier": "3.9.6",
     "stylelint": "17.14.1",
+    "stylelint-config-standard": "^40.0.0",
     "xmllint-wasm": "5.3.0"
   }
 }
