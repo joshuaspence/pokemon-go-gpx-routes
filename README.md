@@ -27,6 +27,14 @@ importing it leaves the rest of your PGSharp profile as it was. Everything runs
 in the browser. The favourite encoding is a client-side port of
 [`pgsedit`](https://github.com/joshuaspence/pgsedit).
 
+Waypoints are named with their country's flag in front — `🇳🇱 Amsterdam,
+Netherlands` — matching PGSharp's own hot places (`🇺🇸 Pier 39, California,
+USA`). The favourite format has no icon field, so the flag is simply part of the
+name; the flag is derived from the `<desc>` country, and a country the viewer
+has no code for stops the build rather than importing unflagged. Routes are left
+unflagged, as PGSharp's are. The list still sorts by the name itself, so a flag
+never moves an entry.
+
 Each waypoint also carries the IANA timezone its coordinates fall in
 (`Europe/Madrid`), read from the boundary data in
 [`tz-lookup`](https://github.com/darkskyapp/tz-lookup) — a zone name belongs to

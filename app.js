@@ -924,6 +924,46 @@ function entryName(el, path) {
   return type ? `${label} (${type})` : label;
 }
 
+// PGSharp's own hot places carry a country flag at the front of the name —
+// "🇺🇸 Pier 39, California, USA" — in the same {name,lat,lng,tz} schema our
+// waypoints use. The format has no icon field, so the flag is simply the first
+// characters of the name, and waypoints here follow that convention.
+//
+// The key is a <desc>, which is always the country, so this list has to name
+// every country the waypoints use; a new one errors rather than importing
+// without a flag. Codes are ISO 3166-1 alpha-2, which the emoji is derived
+// from rather than pasted in, since "AU" is legible in a diff and two similar
+// flags are not. England is a subdivision rather than a country, and carries
+// the "GB-ENG" tag sequence Unicode gives it instead of a pair of indicators.
+const COUNTRY_CODES = {
+  "Antarctica": "AQ", "Argentina": "AR", "Australia": "AU", "Austria": "AT",
+  "Belgium": "BE", "Brazil": "BR", "Canada": "CA", "Canary Islands": "IC",
+  "Czechia": "CZ", "Denmark": "DK", "Ecuador": "EC", "England": "GB-ENG",
+  "France": "FR", "Germany": "DE", "Hungary": "HU", "India": "IN",
+  "Ireland": "IE", "Italy": "IT", "Japan": "JP", "Mexico": "MX",
+  "Netherlands": "NL", "New Zealand": "NZ", "North Korea": "KP",
+  "Norway": "NO", "Peru": "PE", "Portugal": "PT", "Romania": "RO",
+  "Russia": "RU", "Singapore": "SG", "South Korea": "KR", "Spain": "ES",
+  "Taiwan": "TW", "United Arab Emirates": "AE", "United States": "US",
+};
+// A subdivision flag is a black flag, the region and subdivision letters as
+// tag characters (ASCII shifted into the tag block), then the cancel tag.
+const REGIONAL_INDICATOR_A = 0x1F1E6, TAG_BLOCK = 0xE0000, CANCEL_TAG = 0xE007F;
+const BLACK_FLAG = "\u{1F3F4}";
+
+function countryFlag(country, path) {
+  const code = COUNTRY_CODES[country];
+  if (!code) throw new Error(`${path}: no flag for "${country}" — add it to COUNTRY_CODES`);
+  if (code.includes("-")) {
+    const tags = [...code.replace("-", "").toLowerCase()]
+      .map((c) => String.fromCodePoint(TAG_BLOCK + c.charCodeAt(0)));
+    return BLACK_FLAG + tags.join("") + String.fromCodePoint(CANCEL_TAG);
+  }
+  return [...code]
+    .map((c) => String.fromCodePoint(REGIONAL_INDICATOR_A + c.charCodeAt(0) - 65))
+    .join("");
+}
+
 function coord(el, path) {
   const lat = parseFloat(el.getAttribute("lat"));
   const lng = parseFloat(el.getAttribute("lon"));
@@ -936,14 +976,17 @@ function coord(el, path) {
 // <wpt> is one coordinate (a Point), a <trk> is a path (a Route keeping all
 // of its <trkpt>). A file may hold either or both. Mirrors pgsedit's
 // parse_gpx — an empty <trk> is skipped (gpx.studio writes one for a cleared
-// track) rather than treated as a route.
+// track) rather than treated as a route. Only Points take a flag, the way only
+// hot places carry one; PGSharp lists routes separately and unflagged.
 function parseGpxFavourites(text, path) {
   const doc = new DOMParser().parseFromString(text, "application/xml");
   if (doc.querySelector("parsererror")) throw new Error(`${path}: not valid XML`);
   const points = [], routes = [];
   for (const wpt of doc.getElementsByTagName("wpt")) {
     const [lat, lng] = coord(wpt, path);
-    points.push({ name: entryName(wpt, path), lat, lng });
+    const country = childText(wpt, "desc");
+    const name = entryName(wpt, path);
+    points.push({ name: country ? `${countryFlag(country, path)} ${name}` : name, lat, lng });
   }
   for (const trk of doc.getElementsByTagName("trk")) {
     const trkpts = trk.getElementsByTagName("trkpt");
@@ -1017,8 +1060,11 @@ function dedupeByName(entries) {
 // under S rather than after every ASCII name. A tie on the folded key falls
 // back to the exact spelling, so names differing only by accent still order
 // deterministically. Each kind is sorted within itself, as PGSharp lists them
-// separately.
-const sortKey = (name) => (name || "").normalize("NFKD").replace(/\p{M}/gu, "").toLowerCase();
+// separately. A waypoint's leading flag is decoration rather than part of how
+// the list reads, so it is folded out too — otherwise every place would sort by
+// its country's regional-indicator code instead of by name.
+const sortKey = (name) =>
+  (name || "").replace(/^[^\p{L}\p{N}]+/u, "").normalize("NFKD").replace(/\p{M}/gu, "").toLowerCase();
 function byName(a, b) {
   const ka = sortKey(a.name), kb = sortKey(b.name);
   if (ka !== kb) return ka < kb ? -1 : 1;
