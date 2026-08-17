@@ -1,10 +1,10 @@
-# Lints the three source files the viewer is made of. The repository has no
-# package.json, no lockfile and no node_modules — nothing here is built — so
-# each linter is fetched for the run and thrown away, and its version is pinned
-# in the step that fetches it. The rules live in the config files at the root:
-# eslint.config.mjs, stylelint.config.mjs and .htmlvalidate.mjs, each written
-# out rather than extended from a preset, since there is nothing installed for
-# an "extends" to resolve against.
+# Lints the source files the viewer is made of, and validates the GPX files it
+# reads. The repository has no package.json, no lockfile and no node_modules —
+# nothing here is built — so each linter is fetched for the run and thrown away,
+# and its version is pinned in the step that fetches it. The rules live in the
+# config files at the root: eslint.config.mjs, stylelint.config.mjs and
+# .htmlvalidate.mjs, each written out rather than extended from a preset, since
+# there is nothing installed for an "extends" to resolve against.
 name: Lint
 
 on:
@@ -36,3 +36,22 @@ jobs:
       - name: HTML
         if: ${{ !cancelled() }}
         run: npx --yes html-validate@11.7.0 "**/*.html"
+
+      # libxml2-utils is not in the runner image's package list, so xmllint is
+      # installed rather than assumed to be there.
+      - name: Install xmllint
+        if: ${{ !cancelled() }}
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq libxml2-utils
+
+      # Checks each file is well-formed and is really GPX 1.1, against the
+      # schema vendored at gpx.xsd. The list comes from git rather than a shell
+      # glob so that a file in a country directory is covered like one at the
+      # root, and so a name with a space or an accent survives the hand-off.
+      #
+      # Worth knowing what this does not reach: GPX declares <extensions> as
+      # any element from another namespace, processed leniently, so the pgr
+      # fields inside it are not checked against anything. A <pgr:contry> typo
+      # validates here and is caught only when the viewer refuses the file.
+      - name: XML
+        if: ${{ !cancelled() }}
+        run: git ls-files -z '*.gpx' | xargs -0 xmllint --noout --schema gpx.xsd

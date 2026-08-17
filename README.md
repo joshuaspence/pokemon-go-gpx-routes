@@ -52,6 +52,13 @@ and only for routes that come as a pair. `<name>` and `<pgr:country>` are
 required; the viewer names any file missing either instead of guessing from the
 path.
 
+Every file is real GPX 1.1 and is checked against the schema on each push, using
+the copy of it vendored at [`gpx.xsd`](gpx.xsd) so the check needs nothing from
+the network. That check reaches the GPX itself, not the `pgr` fields: GPX
+declares `<extensions>` as any element from another namespace, processed
+leniently, so a misspelled `<pgr:contry>` passes it and is caught only when the
+viewer refuses the file.
+
 One caveat: an editor that does not model foreign extensions drops the whole
 `<extensions>` block when it exports. gpx.studio is one, so a route re-exported
 from there comes back without its city, country and variant, and needs them
