@@ -1,57 +1,25 @@
-// Route files, relative to this page. Static hosting cannot list a directory,
-// so the paths live here, but nothing else is inferred from them: a route's
-// name, locality, country and variant are read from the GPX metadata
-// (<trk><name> and the <pgr:*> fields in its <extensions>), which is the
-// source of truth. A file missing its <name> or <pgr:country> is reported
-// rather than named after its path, so the defect surfaces instead of being
-// papered over. Variant is "short"/"long" for routes that come as a pair, and
-// absent otherwise. When you add or remove a route, update this list.
-const ROUTE_FILES = [
-  "Australia/Kings Park, Perth, Western Australia.gpx",
-  "Australia/Melbourne Zoo, Melbourne, Victoria.gpx",
-  "Australia/Royal Botanic Gardens, Sydney, New South Wales (long).gpx",
-  "Australia/Royal Botanic Gardens, Sydney, New South Wales (short).gpx",
-  "Austria/Stadtpark, Vienna.gpx",
-  "Brazil/Ibirapuera Park, São Paulo (long).gpx",
-  "Brazil/Ibirapuera Park, São Paulo (short).gpx",
-  "Canada/Assiniboine Park Zoo, Winnipeg, Manitoba.gpx",
-  "Canada/Jardin Botanique, Montreal, Quebec.gpx",
-  "Denmark/Fisketorvet, Copenhagen.gpx",
-  "England/Chester Zoo, Chester, Cheshire.gpx",
-  "England/City of London, London.gpx",
-  "England/West End, London.gpx",
-  "France/Pere Lachaise Cemetery, Paris.gpx",
-  "Germany/City Centre, Dortmund, North Rhine-Westphalia.gpx",
-  "Germany/Friedrichsau, Ulm, Baden-Württemberg.gpx",
-  "Germany/Schlossgarten, Schwetzingen, Baden-Württemberg.gpx",
-  "Germany/Westfalenpark, Dortmund, North Rhine-Westphalia (long).gpx",
-  "Germany/Westfalenpark, Dortmund, North Rhine-Westphalia (short).gpx",
-  "Germany/Westpark, Munich, Bavaria.gpx",
-  "Hungary/Margaret Island, Budapest.gpx",
-  "Japan/Hibiya Park, Tokyo.gpx",
-  "Japan/Igashira Park, Moka, Tochigi.gpx",
-  "Japan/Morioka Castle Ruins Park, Morioka, Iwate.gpx",
-  "Japan/Nagai Park, Osaka.gpx",
-  "Japan/Ueno Park, Tokyo.gpx",
-  "New Zealand/Ashburton Domain, Ashburton, Canterbury.gpx",
-  "New Zealand/Botanic Garden, Wellington.gpx",
-  "Singapore/Fort Canning Park, Singapore.gpx",
-  "South Korea/Starfield COEX Mall, Seoul.gpx",
-  "Spain/Parque San Pablo, Zaragoza, Aragon.gpx",
-  "Spain/Parque de María Luisa, Seville, Andalusia.gpx",
-  "United Arab Emirates/The Walk, Dubai.gpx",
-  "United States/Centennial Park, Ellicott City, Maryland.gpx",
-  "United States/Central Park, New York City, New York.gpx",
-  "United States/Golden Gate Bridge, San Francisco, California.gpx",
-  "United States/Honolulu Downtown, Honolulu, Hawaii.gpx",
-  "United States/LA Zoo, Los Angeles, California.gpx",
-  "United States/Lebanon Hills, Eagan, Minnesota.gpx",
-  "United States/Memorial Park, Houston, Texas.gpx",
-  "United States/Navy Pier, Chicago, Illinois.gpx",
-  "United States/Pier 39, San Francisco, California.gpx",
-  "United States/River Park, New York City, New York.gpx",
-  "United States/Slater Memorial Park, Pawtucket, Rhode Island.gpx",
-];
+// Every GPX file, relative to this page. Static hosting cannot list a
+// directory, so the page has to be handed the paths — but they are not a list
+// to curate: gpx.json is generated from the repository itself, so it says what
+// is there rather than what someone remembered to add.
+//
+//   git ls-files -z '*.gpx' | tr '\0' '\n' |
+//     jq -Rs 'split("\n") | map(select(length > 0))' > gpx.json
+//
+// Nothing but the paths comes from here. What a file *is* is decided by its own
+// elements — a <trk> is a route, a <wpt> is a place, and a file may hold either
+// or both — and its name, locality, country and variant are read from the GPX
+// metadata (<name> and the <pgr:*> fields in <extensions>), which is the source
+// of truth. A file missing its <name> or <pgr:country> is reported rather than
+// named after its path, so the defect surfaces instead of being papered over.
+async function loadManifest() {
+  const res = await fetch("gpx.json");
+  if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+  const files = await res.json();
+  if (!Array.isArray(files) || files.some((f) => typeof f !== "string"))
+    throw new Error("is not a list of paths");
+  return files;
+}
 
 const cssVar = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 
@@ -179,42 +147,67 @@ function entryCountry(el) {
   return country;
 }
 
-// Read one route. Name, locality, country and variant all come from the file's
-// own metadata; a file missing what it needs is rejected rather than guessed
-// at, so the gap shows up in the banner instead of quietly reading back the
-// path. The variant stays optional — it is empty for a route with no
-// short/long counterpart.
-async function loadGpx(file) {
+// Read one file, splitting it into routes and waypoints by element rather than
+// by where it sits: a <trk> is a path to walk, a <wpt> is one place to stand,
+// and a file may hold either or both. This is how the backup writer has always
+// read these files (see parseGpxFavourites), so the two now agree about what a
+// file contains instead of the viewer being told separately.
+//
+// Name, locality, country and variant all come from the file's own metadata; an
+// entry missing what it needs is rejected rather than guessed at, so the gap
+// shows up in the banner instead of quietly reading back the path. The variant
+// stays optional — it is empty for a route with no short/long counterpart. The
+// whole file text is returned once, for the copy button to hand over.
+async function loadGpxFile(file) {
   const res = await fetch(encodeURI(file));
   if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
   const text = await res.text();
   const doc = new DOMParser().parseFromString(text, "application/xml");
   if (doc.querySelector("parsererror")) throw new Error("not valid XML");
-  const latlngs = [];
-  for (const p of doc.getElementsByTagName("trkpt")) {
-    const lat = parseFloat(p.getAttribute("lat"));
-    const lon = parseFloat(p.getAttribute("lon"));
-    if (Number.isFinite(lat) && Number.isFinite(lon)) latlngs.push([lat, lon]);
-  }
-  if (latlngs.length < 2) throw new Error("has fewer than two usable <trkpt>");
-  const trk = doc.getElementsByTagName("trk")[0];
-  if (!trk) throw new Error("has no <trk>");
-  return {
-    latlngs, text,
-    name: placeName(trk),
-    country: entryCountry(trk),
-    variant: extText(trk, "variant") || "",
-  };
-}
 
-// Waypoint files: each holds points of interest as named GPX waypoints
-// (<wpt> with <name> = place, and the locality and country in <extensions>).
-const WAYPOINT_FILES = [
-  "Large Cities.gpx",
-  "Pokestop Clusters.gpx",
-  "Popular Spoofing Spots.gpx",
-  "Remote Locations.gpx",
-];
+  const routes = [];
+  for (const trk of doc.getElementsByTagName("trk")) {
+    const trkpts = trk.getElementsByTagName("trkpt");
+    // An emptied <trk> is what gpx.studio writes for a cleared track; skip it
+    // rather than report it, matching parseGpxFavourites. A <trk> that kept a
+    // single point is a different thing — a track that cannot be drawn — and is
+    // still an error.
+    if (trkpts.length === 0) continue;
+    const latlngs = [];
+    for (const p of trkpts) {
+      const lat = parseFloat(p.getAttribute("lat"));
+      const lon = parseFloat(p.getAttribute("lon"));
+      if (Number.isFinite(lat) && Number.isFinite(lon)) latlngs.push([lat, lon]);
+    }
+    if (latlngs.length < 2) throw new Error("<trk> has fewer than two usable <trkpt>");
+    routes.push({
+      latlngs,
+      name: placeName(trk),
+      country: entryCountry(trk),
+      variant: extText(trk, "variant") || "",
+    });
+  }
+
+  // coordStr preserves the file's exact lat/lon text for copying.
+  const waypoints = [];
+  for (const w of doc.getElementsByTagName("wpt")) {
+    const latStr = w.getAttribute("lat"), lonStr = w.getAttribute("lon");
+    const lat = parseFloat(latStr), lon = parseFloat(lonStr);
+    if (!Number.isFinite(lat) || !Number.isFinite(lon))
+      throw new Error(`<wpt> at ${latStr},${lonStr} has an unparseable coordinate`);
+    waypoints.push({
+      country: entryCountry(w), name: placeName(w),
+      coords: [lat, lon], coordStr: `${latStr},${lonStr}`,
+    });
+  }
+
+  // A listed file holding neither is a defect too: something is in gpx.json
+  // that has nothing to show.
+  if (routes.length === 0 && waypoints.length === 0)
+    throw new Error("has no <trk> or <wpt>");
+
+  return { text, routes, waypoints };
+}
 
 // Continent for each country, used to group the sidebar. Unlisted countries fall back to "Other".
 const CONTINENTS = {
@@ -231,28 +224,6 @@ const CONTINENTS = {
   "Argentina": "South America", "Brazil": "South America", "Ecuador": "South America",
   "Peru": "South America",
 };
-
-// Read one waypoint file. Returns [{country, name, coords, coordStr}];
-// coordStr preserves the file's exact lat/lon text for copying. As with
-// routes, every <wpt> must carry its own <name> and <pgr:country> — a nameless
-// or countryless point is an error, not something to label with its
-// coordinates or file under "Other".
-async function loadWaypoints(file) {
-  const res = await fetch(encodeURI(file));
-  if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
-  const doc = new DOMParser().parseFromString(await res.text(), "application/xml");
-  if (doc.querySelector("parsererror")) throw new Error("not valid XML");
-  const places = [];
-  for (const w of doc.getElementsByTagName("wpt")) {
-    const latStr = w.getAttribute("lat"), lonStr = w.getAttribute("lon");
-    const lat = parseFloat(latStr), lon = parseFloat(lonStr);
-    if (!Number.isFinite(lat) || !Number.isFinite(lon))
-      throw new Error(`<wpt> at ${latStr},${lonStr} has an unparseable coordinate`);
-    const name = placeName(w);
-    places.push({ country: entryCountry(w), name, coords: [lat, lon], coordStr: `${latStr},${lonStr}` });
-  }
-  return places;
-}
 
 function clearMarkers(entry) {
   if (entry.markers) { entry.markers.forEach((m) => map.removeLayer(m)); entry.markers = null; }
@@ -513,52 +484,59 @@ async function init() {
   const rejected = [];
   const note = (file, e) => rejected.push({ file, reason: e.message });
 
-  const results = await Promise.allSettled(ROUTE_FILES.map((file) => loadGpx(file)));
-  results.forEach((res, i) => {
-    const file = ROUTE_FILES[i];
-    if (res.status === "rejected") { note(file, res.reason); return; }
-    const { latlngs, text, name, country, variant } = res.value;
-    const line = L.polyline(latlngs, {
-      color: cssVar("--track"), weight: 2, opacity: 0.55,
-    }).addTo(map);
-    const entry = {
-      name, country, variant, file, gpx: text,
-      latlngs, line, markers: null, distance: routeDistance(latlngs),
-    };
-    line.on("click", () => selectRoute(entry, { pan: false }));
-    store.push(entry);
-  });
+  // Nothing can be drawn without the list, and reading it is the page's first
+  // fetch — so this is also where opening the page from disk lands.
+  let files;
+  try {
+    files = await loadManifest();
+  } catch (e) {
+    showBanner(
+      `<b>Could not read <code>gpx.json</code> — ${e.message}.</b><br>` +
+      "This page reads the route list and the <code>.gpx</code> files over HTTP, " +
+      "so it needs to be served rather than opened directly from disk. Try:<br>" +
+      "<code>python3 -m http.server</code> then open " +
+      "<code>http://localhost:8000/</code> — or view it via GitHub Pages."
+    );
+    return;
+  }
 
-  // One bad waypoint file does not hide the others, but it is still reported.
-  const wpts = await Promise.allSettled(WAYPOINT_FILES.map((file) => loadWaypoints(file)));
-  wpts.forEach((res, i) => {
-    if (res.status === "rejected") { note(WAYPOINT_FILES[i], res.reason); return; }
-    for (const c of res.value) {
-      const marker = L.circleMarker(c.coords, {
+  // One bad file does not hide the others, but it is still reported.
+  const results = await Promise.allSettled(files.map((file) => loadGpxFile(file)));
+  results.forEach((res, i) => {
+    const file = files[i];
+    if (res.status === "rejected") { note(file, res.reason); return; }
+    const { text, routes, waypoints } = res.value;
+
+    for (const route of routes) {
+      const line = L.polyline(route.latlngs, {
+        color: cssVar("--track"), weight: 2, opacity: 0.55,
+      }).addTo(map);
+      const entry = {
+        ...route, file, gpx: text,
+        line, markers: null, distance: routeDistance(route.latlngs),
+      };
+      line.on("click", () => selectRoute(entry, { pan: false }));
+      store.push(entry);
+    }
+
+    for (const place of waypoints) {
+      const marker = L.circleMarker(place.coords, {
         radius: 5, color: "#fff", weight: 2,
         fillColor: cssVar("--city"), fillOpacity: 1,
       }).addTo(map);
-      marker.bindTooltip(c.name);
-      const entry = { ...c, marker };
+      marker.bindTooltip(place.name);
+      const entry = { ...place, marker };
       marker.on("click", () => selectCity(entry, { pan: false }));
       cityStore.push(entry);
     }
   });
 
   buildSidebar();
-
-  if (store.length === 0) {
-    showBanner(
-      "<b>No tracks could be loaded.</b><br>" +
-      "This page reads the <code>.gpx</code> files over HTTP, so it needs to be " +
-      "served rather than opened directly from disk. Try:<br>" +
-      "<code>python3 -m http.server</code> then open " +
-      "<code>http://localhost:8000/</code> — or view it via GitHub Pages."
-    );
-    if (rejected.length) appendRejected(rejected);
-    return;
-  }
   if (rejected.length) appendRejected(rejected);
+
+  // Every file listed was rejected; the banner already names each one, and
+  // there is no layer to fit the map to.
+  if (store.length === 0 && cityStore.length === 0) return;
 
   const all = L.featureGroup([
     ...store.map((s) => s.line),
@@ -1037,7 +1015,11 @@ function parseGpxFavourites(text) {
 // at fault; the file is added here, where it is known, so a failure reads as
 // "England/West End, London.gpx: <trk> has no <pgr:country>".
 async function buildRepoFavourites() {
-  const files = [...ROUTE_FILES, ...WAYPOINT_FILES];
+  // Read the list again rather than reuse what the map loaded, so a backup is
+  // built from every file the repository has, not only the ones that drew.
+  let files;
+  try { files = await loadManifest(); }
+  catch (e) { throw new Error(`gpx.json: ${e.message}`); }
   const texts = await Promise.all(files.map(async (file) => {
     const res = await fetch(encodeURI(file));
     if (!res.ok) throw new Error(`${file}: ${res.status} ${res.statusText}`);

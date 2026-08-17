@@ -15,6 +15,19 @@ python3 -m http.server
 # then open http://localhost:8000/
 ```
 
+Static hosting cannot list a directory, so the viewer is handed the paths in
+[`gpx.json`](gpx.json). That file is generated rather than kept by hand —
+regenerate it after adding or removing a `.gpx`:
+
+```sh
+git ls-files -z '*.gpx' | tr '\0' '\n' |
+  jq -Rs 'split("\n") | map(select(length > 0))' > gpx.json
+```
+
+Nothing but the paths comes from it. Each listed file is read for what it holds:
+a `<trk>` becomes a track and a `<wpt>` becomes a waypoint, so which directory a
+file sits in decides nothing.
+
 ## File format
 
 Each entry keeps its place name in `<name>` and everything else in separate
