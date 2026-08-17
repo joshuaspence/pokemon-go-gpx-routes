@@ -856,7 +856,10 @@ const newRouteState = () => ({
 
 // Gson's JSON spelling: no spaces, forward slashes escaped. Points escape
 // non-ASCII as \uXXXX (what "hlfavor" contains); Routes write it literally
-// ("São Paulo") — the two keys differ, so they don't share an encoder.
+// ("São Paulo") — the two keys differ, so they don't share an encoder. A flag
+// is escaped per UTF-16 code unit either way, matching hot places for Points
+// and leaving the Route stream to write the surrogates as Java's modified
+// UTF-8 does.
 const escSlashes = (s) => s.replace(/\//g, "\\/");
 const asciiEscape = (s) =>
   s.replace(/[\u0080-\uFFFF]/g, (c) => "\\u" + c.charCodeAt(0).toString(16).padStart(4, "0"));
@@ -927,10 +930,10 @@ function entryName(el, path) {
 // PGSharp's own hot places carry a country flag at the front of the name —
 // "🇺🇸 Pier 39, California, USA" — in the same {name,lat,lng,tz} schema our
 // waypoints use. The format has no icon field, so the flag is simply the first
-// characters of the name, and waypoints here follow that convention.
+// characters of the name, and both favourite kinds here follow that convention.
 //
 // The key is a <desc>, which is always the country, so this list has to name
-// every country the waypoints use; a new one errors rather than importing
+// every country the GPX files use; a new one errors rather than importing
 // without a flag. Codes are ISO 3166-1 alpha-2, which the emoji is derived
 // from rather than pasted in, since "AU" is legible in a diff and two similar
 // flags are not. England is a subdivision rather than a country, and carries
@@ -964,6 +967,15 @@ function countryFlag(country, path) {
     .join("");
 }
 
+// A favourite's name with its country's flag in front. The country is the
+// <desc>, which entryName has already put in the label, so an element without
+// one keeps a bare name rather than being flagged from somewhere else.
+function flaggedName(el, path) {
+  const name = entryName(el, path);
+  const country = childText(el, "desc");
+  return country ? `${countryFlag(country, path)} ${name}` : name;
+}
+
 function coord(el, path) {
   const lat = parseFloat(el.getAttribute("lat"));
   const lng = parseFloat(el.getAttribute("lon"));
@@ -976,24 +988,22 @@ function coord(el, path) {
 // <wpt> is one coordinate (a Point), a <trk> is a path (a Route keeping all
 // of its <trkpt>). A file may hold either or both. Mirrors pgsedit's
 // parse_gpx — an empty <trk> is skipped (gpx.studio writes one for a cleared
-// track) rather than treated as a route. Only Points take a flag, the way only
-// hot places carry one; PGSharp lists routes separately and unflagged.
+// track) rather than treated as a route. Both kinds are flagged, so the two
+// lists read alike in the app even though PGSharp shows them on separate tabs.
 function parseGpxFavourites(text, path) {
   const doc = new DOMParser().parseFromString(text, "application/xml");
   if (doc.querySelector("parsererror")) throw new Error(`${path}: not valid XML`);
   const points = [], routes = [];
   for (const wpt of doc.getElementsByTagName("wpt")) {
     const [lat, lng] = coord(wpt, path);
-    const country = childText(wpt, "desc");
-    const name = entryName(wpt, path);
-    points.push({ name: country ? `${countryFlag(country, path)} ${name}` : name, lat, lng });
+    points.push({ name: flaggedName(wpt, path), lat, lng });
   }
   for (const trk of doc.getElementsByTagName("trk")) {
     const trkpts = trk.getElementsByTagName("trkpt");
     if (trkpts.length === 0) continue;
     const pts = [];
     for (const p of trkpts) { const [lat, lng] = coord(p, path); pts.push([lat, lng, ROUTE_POINT_FLAG]); }
-    routes.push({ name: entryName(trk, path), points: pts, mode: ROUTE_MODE, state: newRouteState() });
+    routes.push({ name: flaggedName(trk, path), points: pts, mode: ROUTE_MODE, state: newRouteState() });
   }
   return { points, routes };
 }
@@ -1060,7 +1070,7 @@ function dedupeByName(entries) {
 // under S rather than after every ASCII name. A tie on the folded key falls
 // back to the exact spelling, so names differing only by accent still order
 // deterministically. Each kind is sorted within itself, as PGSharp lists them
-// separately. A waypoint's leading flag is decoration rather than part of how
+// separately. A favourite's leading flag is decoration rather than part of how
 // the list reads, so it is folded out too — otherwise every place would sort by
 // its country's regional-indicator code instead of by name.
 const sortKey = (name) =>
