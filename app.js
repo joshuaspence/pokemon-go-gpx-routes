@@ -244,12 +244,13 @@ function selectRoute(entry, { pan = true } = {}) {
 
   clearMarkers(entry);
   const a = entry.latlngs[0], b = entry.latlngs[entry.latlngs.length - 1];
-  const dot = (color) => L.circleMarker(a, {
+  const dot = (at, color, label) => L.circleMarker(at, {
     radius: 6, color: "#fff", weight: 2, fillColor: color, fillOpacity: 1,
-  });
-  const start = L.circleMarker(a, { radius: 6, color: "#fff", weight: 2, fillColor: cssVar("--start"), fillOpacity: 1 }).bindTooltip("Start");
-  const end = L.circleMarker(b, { radius: 6, color: "#fff", weight: 2, fillColor: cssVar("--end"), fillOpacity: 1 }).bindTooltip("End");
-  entry.markers = [start.addTo(map), end.addTo(map)];
+  }).bindTooltip(label);
+  entry.markers = [
+    dot(a, cssVar("--start"), "Start").addTo(map),
+    dot(b, cssVar("--end"), "End").addTo(map),
+  ];
 
   const popup = document.createElement("div");
   const title = document.createElement("b");
