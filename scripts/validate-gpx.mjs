@@ -1,5 +1,6 @@
 /**
- * Checks every GPX file in the repository is well-formed and is really GPX 1.1, against the schema (resources/gpx.xsd).
+ * Checks the GPX files in the repository are in order: that each one is well-formed and really is GPX 1.1, against the
+ * schema (resources/gpx.xsd), and that gpx.json still lists exactly the files the viewer should fetch.
  *
  * The schema is vendored rather than fetched. GPX 1.1 has not moved since 2004 and the file is 26 KB, so there is
  * nothing to gain by making this check depend on a twenty-year-old site staying up.
@@ -9,8 +10,11 @@
  * only when the viewer refuses the file.
  */
 
+import { execFileSync } from "node:child_process";
 import { globSync, readFileSync } from "node:fs";
 import { validateXML } from "xmllint-wasm";
+
+const problems = [];
 
 // Read off disk rather than out of git, so a route added but not yet committed is checked too — which is exactly
 // when a broken one is worth hearing about. node_modules is excluded because a dependency shipping a .gpx of its own
@@ -29,14 +33,37 @@ const { valid, errors } = await validateXML({
 
 if (valid) {
   console.log(`${files.length} files validate against GPX 1.1.`);
-  process.exit(0);
+} else {
+  // A malformed file reports the offending source line with no position to hang it on, so the location is printed only
+  // when there is one.
+  for (const { loc, message } of errors) {
+    problems.push(loc ? `${loc.fileName}:${loc.lineNumber}: ${message}` : message);
+  }
 }
 
-// A malformed file reports the offending source line with no position to hang it on, so the location is printed only
-// when there is one.
-for (const { loc, message } of errors) {
-  console.error(loc ? `${loc.fileName}:${loc.lineNumber}: ${message}` : message);
+// Static hosting cannot list a directory, so the viewer is handed its paths in gpx.json. Nothing else notices when that
+// file falls out of step with the repository, and the failure is silent in the worst way: a route that is perfectly
+// good GPX, and that this script has just validated, simply never appears on the map.
+//
+// The comparison is against git rather than the glob above, because that is what generates gpx.json (see the README).
+// Comparing it to the glob would report every scratch file as drift, and regenerating would not resolve it.
+const tracked = execFileSync("git", ["ls-files", "-z", "*.gpx"], { encoding: "utf8" }).split("\0").filter(Boolean);
+const listed = JSON.parse(readFileSync("gpx.json", "utf8"));
+
+const unlisted = tracked.filter((file) => !listed.includes(file));
+const phantom = listed.filter((file) => !tracked.includes(file));
+
+for (const file of unlisted) problems.push(`${file}: tracked but missing from gpx.json — the map will not show it`);
+for (const file of phantom)
+  problems.push(`${file}: listed in gpx.json but not tracked — the map will fail to fetch it`);
+
+if (unlisted.length || phantom.length) {
+  problems.push("Regenerate it with the command in the README.");
+} else {
+  console.log(`gpx.json lists all ${listed.length} of them.`);
 }
 
-console.error(`\n${errors.length} problem(s) in ${files.length} files.`);
+if (problems.length === 0) process.exit(0);
+
+for (const problem of problems) console.error(problem);
 process.exit(1);
