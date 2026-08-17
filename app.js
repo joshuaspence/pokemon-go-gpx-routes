@@ -1,11 +1,8 @@
-// Route files, relative to this page. Static hosting cannot list a directory,
-// so the paths live here, but nothing else is inferred from them: a route's
-// name, country and variant are read from the GPX metadata (<trk><name>,
-// <trk><desc> and <trk><type>), which is the source of truth. A file missing
-// its <name> or <desc> is reported rather than named after its path, so the
-// defect surfaces instead of being papered over. Variant is "short"/"long"
-// for routes that come as a pair, and empty otherwise. When you add or remove
-// a route, update this list.
+// Route files, relative to this page. Static hosting cannot list a directory, so the paths live here, but nothing else
+// is inferred from them: a route's name, country and variant are read from the GPX metadata (`<trk><name>`,
+// `<trk><desc>` and `<trk><type>`), which is the source of truth. A file missing its `<name>` or `<desc>` is reported
+// rather than named after its path, so the defect surfaces instead of being papered over. Variant is "short"/"long"
+// for routes that come as a pair, and empty otherwise. When you add or remove a route, update this list.
 const ROUTE_FILES = [
   "Australia/Kings Park, Perth, Western Australia.gpx",
   "Australia/Melbourne Zoo, Melbourne, Victoria.gpx",
@@ -80,9 +77,8 @@ function toast(msg) {
   toastTimer = setTimeout(() => toastEl.classList.remove("show"), 1800);
 }
 
-// Copy text to the clipboard, falling back to execCommand for insecure
-// contexts (e.g. served over plain http, where the async Clipboard API is
-// unavailable). Returns a promise that resolves to true on success.
+// Copy text to the clipboard, falling back to `execCommand` for insecure contexts (e.g. served over plain HTTP, where
+// the async Clipboard API is unavailable). Returns a promise that resolves to true on success.
 async function copyText(text) {
   try {
     if (navigator.clipboard && window.isSecureContext) {
@@ -139,11 +135,9 @@ const metaText = (root, selector) => {
   return el ? el.textContent.trim() : "";
 };
 
-// Read one route. The name and country must come from the file's own
-// <trk><name>/<desc>; a file missing either is rejected rather than guessed
-// at, so the gap shows up in the banner instead of quietly reading back the
-// path. <type> stays optional — it is empty for a route with no short/long
-// counterpart.
+// Read one route. The name and country must come from the file's own `<trk><name>/<desc>`; a file missing either is
+// rejected rather than guessed at, so the gap shows up in the banner instead of quietly reading back the path.
+// `<type>` stays optional — it is empty for a route with no short/long counterpart.
 async function loadGpx(file) {
   const res = await fetch(encodeURI(file));
   if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
@@ -164,8 +158,8 @@ async function loadGpx(file) {
   return { latlngs, text, name, country, variant: metaText(doc, "trk > type") };
 }
 
-// Waypoint files: each holds points of interest as named GPX waypoints
-// (<wpt> with <name> = place and <desc> = country).
+// Waypoint files: each holds points of interest as named GPX waypoints (`<wpt>` with `<name>` = place and
+// `<desc>` = country).
 const WAYPOINT_FILES = [
   "Large Cities.gpx",
   "Pokestop Clusters.gpx",
@@ -173,8 +167,7 @@ const WAYPOINT_FILES = [
   "Remote Locations.gpx",
 ];
 
-// Continent for each country, used to group the sidebar. Unlisted countries
-// fall back to "Other".
+// Continent for each country, used to group the sidebar. Unlisted countries fall back to "Other".
 const CONTINENTS = {
   "Canary Islands": "Africa",
   "Antarctica": "Antarctica",
@@ -190,11 +183,9 @@ const CONTINENTS = {
   "Peru": "South America",
 };
 
-// Read one waypoint file. Returns [{country, city, coords, coordStr}];
-// coordStr preserves the file's exact lat/lon text for copying. As with
-// routes, every <wpt> must carry its own <name> and <desc> — a nameless or
-// countryless point is an error, not something to label with its
-// coordinates or file under "Other".
+// Read one waypoint file. Returns [{country, city, coords, coordStr}]; `coordStr` preserves the file's exact lat/lon
+// text for copying. As with routes, every `<wpt>` must carry its own `<name>` and `<desc>` — a nameless or countryless
+// point is an error, not something to label with its coordinates or file under "Other".
 async function loadWaypoints(file) {
   const res = await fetch(encodeURI(file));
   if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
@@ -366,8 +357,8 @@ function buildCityRow(c, country) {
   return el;
 }
 
-// Render one list grouped by country. Within each country, tracks and
-// waypoints are interleaved and sorted alphabetically by name.
+// Render one list grouped by country. Within each country, tracks and waypoints are interleaved and sorted
+// alphabetically by name.
 function buildSidebar() {
   countEl.textContent = cityStore.length
     ? `${store.length} tracks \u00b7 ${cityStore.length} waypoints`
@@ -436,6 +427,7 @@ filterEl.addEventListener("input", () => {
     const hit = !q || el.dataset.name.includes(q) || el.dataset.country.toLowerCase().includes(q);
     el.classList.toggle("hidden", !hit);
   });
+
   // Hide groups with no matches; while searching, auto-expand those that have
   // matches so the results are visible. With no query, collapse everything.
   document.querySelectorAll(".country-group").forEach((group) => {
@@ -443,6 +435,7 @@ filterEl.addEventListener("input", () => {
     group.classList.toggle("hidden", !anyVisible);
     group.classList.toggle("collapsed", q ? !anyVisible : true);
   });
+
   document.querySelectorAll(".continent-group").forEach((cg) => {
     const anyVisible = [...cg.querySelectorAll(".country-group")].some((g) => !g.classList.contains("hidden"));
     cg.classList.toggle("hidden", !anyVisible);
@@ -452,9 +445,8 @@ filterEl.addEventListener("input", () => {
 
 function showBanner(html) { bannerEl.innerHTML = html; bannerEl.style.display = "block"; }
 
-// Name every file that could not be read, and why. The banner stays up: a
-// file whose metadata is missing is a defect to fix, not a transient hiccup
-// to time out, and the map now has no way to show a placeholder for it.
+// Name every file that could not be read, and why. The banner stays up: a file whose metadata is missing is a defect to 
+// fix, not a transient hiccup to time out, and the map now has no way to show a placeholder for it.
 function appendRejected(rejected) {
   const head = document.createElement("b");
   head.textContent = `${rejected.length} file(s) rejected — fix the GPX metadata:`;
