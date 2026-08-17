@@ -14,12 +14,8 @@ import { execFileSync } from 'node:child_process';
 import { globSync, readFileSync } from 'node:fs';
 import { validateXML } from 'xmllint-wasm';
 
-const problems = [];
-
-// Read off disk rather than out of git, so a route added but not yet committed is checked too — which is exactly
-// when a broken one is worth hearing about. node_modules is excluded because a dependency shipping a .gpx of its own
-// would otherwise fail this check, as one shipping an .html already did to html-validate.
 const files = globSync('**/*.gpx', { exclude: ['node_modules/**'] });
+const problems = [];
 
 if (files.length === 0) {
   console.error('No GPX files found. Run this from the repository root.');
@@ -34,16 +30,16 @@ const { valid, errors } = await validateXML({
 if (valid) {
   console.log(`${files.length} files validate against GPX 1.1.`);
 } else {
-  // A malformed file reports the offending source line with no position to hang it on, so the location is printed only
-  // when there is one.
+  // A malformed file reports the offending source line with no position to hang it on, so the location is printed
+  // only when there is one.
   for (const { loc, message } of errors) {
     problems.push(loc ? `${loc.fileName}:${loc.lineNumber}: ${message}` : message);
   }
 }
 
-// Static hosting cannot list a directory, so the viewer is handed its paths in gpx.json. Nothing else notices when that
-// file falls out of step with the repository, and the failure is silent in the worst way: a route that is perfectly
-// good GPX, and that this script has just validated, simply never appears on the map.
+// Static hosting cannot list a directory, so the viewer is handed its paths in `gpx.json`. Nothing else notices when 
+// that file falls out of step with the repository, and the failure is silent in the worst way: a route that is
+// perfectly good GPX, and that this script has just validated, simply never appears on the map.
 //
 // The comparison is against git rather than the glob above, because that is what generates gpx.json (see the README).
 // Comparing it to the glob would report every scratch file as drift, and regenerating would not resolve it.
