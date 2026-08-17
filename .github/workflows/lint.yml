@@ -1,66 +1,38 @@
-# Lints the source files the viewer is made of, and validates the GPX files it
-# reads. Nothing here is built — the site is served as it sits in the
-# repository — so package.json exists only to hold the linters and pin them.
-# pnpm-lock.yaml pins them exactly, down to the integrity hash of every
-# transitive package, which is why the versions are no longer written into the
-# steps below.
-#
-# The rules live in the config files at the root: eslint.config.mjs,
-# stylelint.config.mjs and .htmlvalidate.mjs. Each writes its rules out rather
-# than extending a shared preset, so that a failure can be argued with in place
-# and the set does not shift when a preset changes upstream.
-name: Lint
+---
+name: 'Lint'
 
 on:
   push:
-    branches: [master]
-  pull_request:
+    branches: ['master']
+  pull_request: {}
 
 permissions:
-  contents: read
+  contents: 'read'
 
 jobs:
   lint:
-    runs-on: ubuntu-latest
+    runs-on: 'ubuntu-latest'
     steps:
-      - uses: actions/checkout@v7
-
-      # pnpm is not in the runner image, which ships only npm and Yarn. The
-      # version comes from the packageManager field, so it cannot drift from
-      # the one that wrote the lockfile.
-      - uses: pnpm/action-setup@v6
-      - uses: actions/setup-node@v7
+      - uses: 'actions/checkout@v7'
+      - uses: 'pnpm/setup@v2'
         with:
-          node-version: 22
-          cache: pnpm
+          cache: true
 
-      - name: Install
-        run: pnpm install --frozen-lockfile
+      - name: 'JavaScript'
+        run: 'pnpm lint:js'
 
-      # Every linter runs even if an earlier one failed, so a red build reports
-      # everything wrong at once rather than one thing per push.
-      - name: JavaScript
-        run: pnpm lint:js
-
-      - name: CSS
+      - name: 'CSS'
         if: ${{ !cancelled() }}
-        run: pnpm lint:css
+        run: 'pnpm lint:css'
 
-      - name: HTML
+      - name: 'HTML'
         if: ${{ !cancelled() }}
-        run: pnpm lint:html
+        run: 'pnpm lint:html'
 
-      # Checks every GPX file is well-formed and really is GPX 1.1, against
-      # the schema vendored at resources/gpx.xsd. See validate-gpx.mjs for
-      # what the check does not reach.
-      - name: XML
+      - name: 'XML'
         if: ${{ !cancelled() }}
-        run: pnpm lint:xml
+        run: 'pnpm lint:xml'
 
-      # Formatting, for every file Prettier understands — the JavaScript and
-      # CSS above, and index.html, the Markdown, this file and package.json
-      # besides. The steps above report only correctness; this one reports how
-      # it is written.
-      - name: Prettier
+      - name: 'Prettier'
         if: ${{ !cancelled() }}
-        run: pnpm lint:prettier
+        run: 'pnpm lint:prettier'
