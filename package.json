@@ -1,7 +1,14 @@
 {
   "name": "pokemon-go-gpx-routes",
   "private": true,
-  "packageManager": "pnpm@10.15.0",
+  "packageManager": "pnpm@11.22.0",
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "^22.0.0",
+      "onFail": "download"
+    }
+  },
   "scripts": {
     "lint": "npm-run-all --continue-on-error --parallel --print-label lint:css lint:html lint:js lint:prettier lint:xml",
     "lint:css": "stylelint '**/*.css'",
