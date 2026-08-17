@@ -1,21 +1,5 @@
-// The rules are written out rather than pulled from a shared preset. Nothing
-// stops us extending one now that the linters are installed, but a preset that
-// changes upstream would change what this repository considers an error
-// without anyone deciding to; written out, the set only moves when someone
-// moves it, and the config is the answer to "why did CI fail".
-//
-// Formatting is Prettier's, not ESLint's, and `pnpm lint:prettier` is what
-// reports it. This config only has to stay out of its way: eslint-config-
-// prettier goes last and switches off any rule here that would argue with
-// Prettier. It finds nothing to switch off today — the rules below are all
-// correctness, and none of them has an opinion about whitespace — so it sits
-// here against the day one of them does.
 import prettierConfig from "eslint-config-prettier/flat";
 
-// One set of rules, applied to two kinds of file: app.js, the classic browser
-// script the page loads, and the .mjs files that are this repository's own
-// tooling — these configs and validate-gpx.mjs. They differ only in what is
-// already defined around them.
 const rules = {
   // Things that are simply wrong.
   "no-const-assign": "error",
