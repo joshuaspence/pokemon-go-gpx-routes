@@ -1,0 +1,4 @@
+# html-validate walks whatever the glob matches, and unlike ESLint and
+# stylelint it does not skip installed packages on its own. Without this, the
+# HTML step goes red the day a dependency ships an .html file of its own.
+node_modules/

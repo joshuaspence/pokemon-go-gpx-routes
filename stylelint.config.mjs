@@ -1,8 +1,8 @@
 // As with the ESLint config, the rules are written out rather than extended
-// from a shared preset: there is no node_modules here for an "extends" to
-// resolve against, and a rule that fails is easier to argue with when it is
-// written down. This is stylelint's recommended set — the rules that catch a
-// stylesheet saying something it does not mean — with one left out, below.
+// from a shared preset, so the set only changes when someone changes it and a
+// rule that fails can be argued with where it is written. This is stylelint's
+// recommended set — the rules that catch a stylesheet saying something it does
+// not mean — with one left out, below.
 export default {
   rules: {
     "annotation-no-unknown": true,

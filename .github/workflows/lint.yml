@@ -1,10 +1,14 @@
 # Lints the source files the viewer is made of, and validates the GPX files it
-# reads. The repository has no package.json, no lockfile and no node_modules —
-# nothing here is built — so each linter is fetched for the run and thrown away,
-# and its version is pinned in the step that fetches it. The rules live in the
-# config files at the root: eslint.config.mjs, stylelint.config.mjs and
-# .htmlvalidate.mjs, each written out rather than extended from a preset, since
-# there is nothing installed for an "extends" to resolve against.
+# reads. Nothing here is built — the site is served as it sits in the
+# repository — so package.json exists only to hold the linters and pin them.
+# pnpm-lock.yaml pins them exactly, down to the integrity hash of every
+# transitive package, which is why the versions are no longer written into the
+# steps below.
+#
+# The rules live in the config files at the root: eslint.config.mjs,
+# stylelint.config.mjs and .htmlvalidate.mjs. Each writes its rules out rather
+# than extending a shared preset, so that a failure can be argued with in place
+# and the set does not shift when a preset changes upstream.
 name: Lint
 
 on:
@@ -20,38 +24,35 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+
+      # pnpm is not in the runner image, which ships only npm and Yarn. The
+      # version comes from the packageManager field, so it cannot drift from
+      # the one that wrote the lockfile.
+      - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v7
         with:
           node-version: 22
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
 
       # Every linter runs even if an earlier one failed, so a red build reports
       # everything wrong at once rather than one thing per push.
       - name: JavaScript
-        run: npx --yes eslint@10.8.1 .
+        run: pnpm lint:js
 
       - name: CSS
         if: ${{ !cancelled() }}
-        run: npx --yes stylelint@17.14.1 "**/*.css"
+        run: pnpm lint:css
 
       - name: HTML
         if: ${{ !cancelled() }}
-        run: npx --yes html-validate@11.7.0 "**/*.html"
+        run: pnpm lint:html
 
-      # libxml2-utils is not in the runner image's package list, so xmllint is
-      # installed rather than assumed to be there.
-      - name: Install xmllint
-        if: ${{ !cancelled() }}
-        run: sudo apt-get update -qq && sudo apt-get install -y -qq libxml2-utils
-
-      # Checks each file is well-formed and is really GPX 1.1, against the
-      # schema vendored at gpx.xsd. The list comes from git rather than a shell
-      # glob so that a file in a country directory is covered like one at the
-      # root, and so a name with a space or an accent survives the hand-off.
-      #
-      # Worth knowing what this does not reach: GPX declares <extensions> as
-      # any element from another namespace, processed leniently, so the pgr
-      # fields inside it are not checked against anything. A <pgr:contry> typo
-      # validates here and is caught only when the viewer refuses the file.
+      # Checks every GPX file is well-formed and really is GPX 1.1, against the
+      # schema vendored at gpx.xsd. See validate-gpx.mjs for what it does not
+      # reach.
       - name: XML
         if: ${{ !cancelled() }}
-        run: git ls-files -z '*.gpx' | xargs -0 xmllint --noout --schema gpx.xsd
+        run: pnpm lint:xml

@@ -53,8 +53,15 @@ required; the viewer names any file missing either instead of guessing from the
 path.
 
 Every file is real GPX 1.1 and is checked against the schema on each push, using
-the copy of it vendored at [`gpx.xsd`](gpx.xsd) so the check needs nothing from
-the network. That check reaches the GPX itself, not the `pgr` fields: GPX
+the copy of it vendored at [`gpx.xsd`](gpx.xsd). That check, and the HTML, CSS
+and JavaScript linters, run together:
+
+```sh
+pnpm install
+pnpm lint
+```
+
+The GPX check reaches the GPX itself, not the `pgr` fields: GPX
 declares `<extensions>` as any element from another namespace, processed
 leniently, so a misspelled `<pgr:contry>` passes it and is caught only when the
 viewer refuses the file.
