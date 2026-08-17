@@ -12,7 +12,7 @@
     "lint:js:fix": "eslint --fix .",
     "lint:prettier": "prettier --check .",
     "lint:prettier:fix": "prettier --write .",
-    "lint:xml": "node validate-gpx.mjs"
+    "lint:xml": "node scripts/validate-gpx.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
