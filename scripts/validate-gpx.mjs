@@ -1,7 +1,7 @@
 /**
  * Checks every GPX file in the repository is well-formed and is really GPX 1.1, against the schema (resources/gpx.xsd).
  *
- * The schema is vendored rather than fetched. GPX 1.1 has not moved since 2004 and the file is 26 KB, so there is 
+ * The schema is vendored rather than fetched. GPX 1.1 has not moved since 2004 and the file is 26 KB, so there is
  * nothing to gain by making this check depend on a twenty-year-old site staying up.
  *
  * What this does not reach: GPX declares `<extensions>` as any element from another namespace, processed leniently, so
@@ -9,11 +9,13 @@
  * only when the viewer refuses the file.
  */
 
-import { execFileSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { globSync, readFileSync } from "node:fs";
 import { validateXML } from "xmllint-wasm";
 
-const files = execFileSync("git", ["ls-files", "-z", "*.gpx"], { encoding: "utf8" }).split("\0").filter(Boolean);
+// Read off disk rather than out of git, so a route added but not yet committed is checked too — which is exactly
+// when a broken one is worth hearing about. node_modules is excluded because a dependency shipping a .gpx of its own
+// would otherwise fail this check, as one shipping an .html already did to html-validate.
+const files = globSync("**/*.gpx", { exclude: ["node_modules/**"] });
 
 if (files.length === 0) {
   console.error("No GPX files found. Run this from the repository root.");
@@ -37,4 +39,4 @@ for (const { loc, message } of errors) {
 }
 
 console.error(`\n${errors.length} problem(s) in ${files.length} files.`);
-  process.exit(1);
+process.exit(1);
