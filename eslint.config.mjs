@@ -4,10 +4,13 @@
 // without anyone deciding to; written out, the set only moves when someone
 // moves it, and the config is the answer to "why did CI fail".
 //
-// Formatting is Prettier's, not ESLint's: the plugin's recommended config
-// goes last so that eslint-config-prettier can switch off anything here that
-// would argue with it, and so `eslint --fix` reformats as it fixes.
-import prettierRecommended from "eslint-plugin-prettier/recommended";
+// Formatting is Prettier's, not ESLint's, and `pnpm lint:prettier` is what
+// reports it. This config only has to stay out of its way: eslint-config-
+// prettier goes last and switches off any rule here that would argue with
+// Prettier. It finds nothing to switch off today — the rules below are all
+// correctness, and none of them has an opinion about whitespace — so it sits
+// here against the day one of them does.
+import prettierConfig from "eslint-config-prettier/flat";
 
 // One set of rules, applied to two kinds of file: app.js, the classic browser
 // script the page loads, and the .mjs files that are this repository's own
@@ -101,5 +104,5 @@ export default [
     rules,
   },
 
-  prettierRecommended,
+  prettierConfig,
 ];

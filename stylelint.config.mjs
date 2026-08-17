@@ -3,12 +3,12 @@
 // rule that fails can be argued with where it is written. This is stylelint's
 // recommended set — the rules that catch a stylesheet saying something it does
 // not mean — with one left out, below.
+//
+// Formatting is Prettier's, reported by `pnpm lint:prettier`. There is no
+// counterpart here to the ESLint config's eslint-config-prettier, and none is
+// needed: stylelint dropped its stylistic rules in v15, so nothing below has
+// an opinion about whitespace for Prettier to collide with.
 export default {
-  // Formatting is Prettier's here too, reported as an ordinary stylelint
-  // error so that `pnpm lint:css:fix` reformats. Nothing needs switching off
-  // alongside it: stylelint dropped its stylistic rules in v15, and the set
-  // below is all correctness.
-  extends: ["stylelint-prettier/recommended"],
   rules: {
     "annotation-no-unknown": true,
     "at-rule-no-unknown": true,

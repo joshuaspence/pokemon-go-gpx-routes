@@ -57,9 +57,10 @@ jobs:
         if: ${{ !cancelled() }}
         run: pnpm lint:xml
 
-      # Formatting. The JavaScript and CSS steps above already report it, via
-      # eslint-plugin-prettier and stylelint-prettier; this is what covers the
-      # rest — index.html, the Markdown, this file, and package.json.
-      - name: Format
+      # Formatting, for every file Prettier understands — the JavaScript and
+      # CSS above, and index.html, the Markdown, this file and package.json
+      # besides. The steps above report only correctness; this one reports how
+      # it is written.
+      - name: Prettier
         if: ${{ !cancelled() }}
-        run: pnpm lint:format
+        run: pnpm lint:prettier

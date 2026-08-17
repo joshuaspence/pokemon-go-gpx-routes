@@ -1,7 +1,9 @@
 // Prettier decides formatting; the linters are left to decide correctness.
-// eslint-config-prettier turns off any ESLint rule that would disagree with
-// it, and eslint-plugin-prettier / stylelint-prettier report the disagreements
-// that remain as ordinary lint errors, so `pnpm lint:fix` formats as it fixes.
+// It is run on its own — `pnpm lint:prettier` checks, `pnpm lint:prettier:fix`
+// writes — rather than through eslint-plugin-prettier and stylelint-prettier,
+// which would report the same problems a second time inside ESLint and
+// stylelint. eslint-config-prettier stays, to switch off any ESLint rule that
+// ever does disagree.
 //
 // Only printWidth departs from the defaults, and it is set to what this code
 // already does rather than to 80: of app.js's lines, 86 run past 80 characters
