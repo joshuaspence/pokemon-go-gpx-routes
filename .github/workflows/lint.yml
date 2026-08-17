@@ -11,28 +11,19 @@ permissions:
 
 jobs:
   lint:
+    name: "${{ matrix.check }}"
     runs-on: "ubuntu-latest"
+    strategy:
+      # Without this, the first check to fail cancels the rest, and a run that stops at the first
+      # problem says less than one reporting all of them. This is what the `!cancelled()` on every
+      # step used to buy when these were one job.
+      fail-fast: false
+      matrix:
+        check: ["css", "html", "js", "prettier", "xml"]
     steps:
       - uses: "actions/checkout@v7"
       - uses: "pnpm/setup@v2"
         with:
           cache: true
 
-      - name: "JavaScript"
-        run: "pnpm lint:js"
-
-      - name: "CSS"
-        if: ${{ !cancelled() }}
-        run: "pnpm lint:css"
-
-      - name: "HTML"
-        if: ${{ !cancelled() }}
-        run: "pnpm lint:html"
-
-      - name: "XML"
-        if: ${{ !cancelled() }}
-        run: "pnpm lint:xml"
-
-      - name: "Prettier"
-        if: ${{ !cancelled() }}
-        run: "pnpm lint:prettier"
+      - run: "pnpm lint:${{ matrix.check }}"
