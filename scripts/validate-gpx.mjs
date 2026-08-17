@@ -10,25 +10,25 @@
  * only when the viewer refuses the file.
  */
 
-import { execFileSync } from "node:child_process";
-import { globSync, readFileSync } from "node:fs";
-import { validateXML } from "xmllint-wasm";
+import { execFileSync } from 'node:child_process';
+import { globSync, readFileSync } from 'node:fs';
+import { validateXML } from 'xmllint-wasm';
 
 const problems = [];
 
 // Read off disk rather than out of git, so a route added but not yet committed is checked too — which is exactly
 // when a broken one is worth hearing about. node_modules is excluded because a dependency shipping a .gpx of its own
 // would otherwise fail this check, as one shipping an .html already did to html-validate.
-const files = globSync("**/*.gpx", { exclude: ["node_modules/**"] });
+const files = globSync('**/*.gpx', { exclude: ['node_modules/**'] });
 
 if (files.length === 0) {
-  console.error("No GPX files found. Run this from the repository root.");
+  console.error('No GPX files found. Run this from the repository root.');
   process.exit(1);
 }
 
 const { valid, errors } = await validateXML({
-  xml: files.map((fileName) => ({ fileName, contents: readFileSync(fileName, "utf8") })),
-  schema: [readFileSync("resources/gpx.xsd", "utf8")],
+  xml: files.map((fileName) => ({ fileName, contents: readFileSync(fileName, 'utf8') })),
+  schema: [readFileSync('resources/gpx.xsd', 'utf8')],
 });
 
 if (valid) {
@@ -47,8 +47,8 @@ if (valid) {
 //
 // The comparison is against git rather than the glob above, because that is what generates gpx.json (see the README).
 // Comparing it to the glob would report every scratch file as drift, and regenerating would not resolve it.
-const tracked = execFileSync("git", ["ls-files", "-z", "*.gpx"], { encoding: "utf8" }).split("\0").filter(Boolean);
-const listed = JSON.parse(readFileSync("gpx.json", "utf8"));
+const tracked = execFileSync('git', ['ls-files', '-z', '*.gpx'], { encoding: 'utf8' }).split('\0').filter(Boolean);
+const listed = JSON.parse(readFileSync('gpx.json', 'utf8'));
 
 const unlisted = tracked.filter((file) => !listed.includes(file));
 const phantom = listed.filter((file) => !tracked.includes(file));
@@ -58,7 +58,7 @@ for (const file of phantom)
   problems.push(`${file}: listed in gpx.json but not tracked — the map will fail to fetch it`);
 
 if (unlisted.length || phantom.length) {
-  problems.push("Regenerate it with the command in the README.");
+  problems.push('Regenerate it with the command in the README.');
 } else {
   console.log(`gpx.json lists all ${listed.length} of them.`);
 }

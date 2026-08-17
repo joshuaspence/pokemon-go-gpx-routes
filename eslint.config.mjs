@@ -1,25 +1,25 @@
-import globals from "globals";
-import js from "@eslint/js";
-import prettier from "eslint-config-prettier/flat";
+import globals from 'globals';
+import js from '@eslint/js';
+import prettier from 'eslint-config-prettier/flat';
 
 export default [
   js.configs.recommended,
   prettier,
 
   {
-    files: ["**/*.js"],
+    files: ['**/*.js'],
     languageOptions: {
-      sourceType: "script",
+      sourceType: 'script',
       globals: {
         ...globals.browser,
-        L: "readonly",
-        tzlookup: "readonly",
+        L: 'readonly',
+        tzlookup: 'readonly',
       },
     },
   },
 
   {
-    files: ["**/*.mjs"],
+    files: ['**/*.mjs'],
     languageOptions: {
       globals: globals.nodeBuiltin,
     },

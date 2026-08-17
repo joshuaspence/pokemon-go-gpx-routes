@@ -13,26 +13,26 @@
 // of truth. A file missing its <name> or <pgr:country> is reported rather than
 // named after its path, so the defect surfaces instead of being papered over.
 async function loadManifest() {
-  const res = await fetch("gpx.json");
+  const res = await fetch('gpx.json');
   if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
   const files = await res.json();
-  if (!Array.isArray(files) || files.some((f) => typeof f !== "string")) throw new Error("is not a list of paths");
+  if (!Array.isArray(files) || files.some((f) => typeof f !== 'string')) throw new Error('is not a list of paths');
   return files;
 }
 
 const cssVar = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 
-const map = L.map("map", { worldCopyJump: true }).setView([20, 0], 2);
-L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+const map = L.map('map', { worldCopyJump: true }).setView([20, 0], 2);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   maxZoom: 19,
   attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
 }).addTo(map);
 
-const listEl = document.getElementById("list");
-const countEl = document.getElementById("count");
-const filterEl = document.getElementById("filter");
-const bannerEl = document.getElementById("banner");
-const toastEl = document.getElementById("toast");
+const listEl = document.getElementById('list');
+const countEl = document.getElementById('count');
+const filterEl = document.getElementById('filter');
+const bannerEl = document.getElementById('banner');
+const toastEl = document.getElementById('toast');
 
 const store = []; // { name, country, variant, file, gpx, latlngs, line, el, markers, distance }
 const cityStore = []; // { name, country, coords:[lat,lon], coordStr, marker, el }
@@ -42,9 +42,9 @@ let toastTimer = null;
 
 function toast(msg) {
   toastEl.textContent = msg;
-  toastEl.classList.add("show");
+  toastEl.classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => toastEl.classList.remove("show"), 1800);
+  toastTimer = setTimeout(() => toastEl.classList.remove('show'), 1800);
 }
 
 // Copy text to the clipboard, falling back to `execCommand` for insecure contexts (e.g. served over plain HTTP, where
@@ -59,14 +59,14 @@ async function copyText(text) {
     /* fall through to legacy path */
   }
   try {
-    const ta = document.createElement("textarea");
+    const ta = document.createElement('textarea');
     ta.value = text;
-    ta.style.position = "fixed";
-    ta.style.opacity = "0";
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
     document.body.appendChild(ta);
     ta.focus();
     ta.select();
-    const ok = document.execCommand("copy");
+    const ok = document.execCommand('copy');
     document.body.removeChild(ta);
     return ok;
   } catch {
@@ -78,14 +78,14 @@ async function copyRoute(entry, btn) {
   const ok = await copyText(entry.gpx);
   if (btn) {
     const original = btn.textContent;
-    btn.textContent = ok ? "Copied" : "Failed";
-    btn.classList.add("done");
+    btn.textContent = ok ? 'Copied' : 'Failed';
+    btn.classList.add('done');
     setTimeout(() => {
       btn.textContent = original;
-      btn.classList.remove("done");
+      btn.classList.remove('done');
     }, 1400);
   }
-  toast(ok ? `Copied “${entry.name}” GPX to clipboard` : "Copy failed");
+  toast(ok ? `Copied “${entry.name}” GPX to clipboard` : 'Copy failed');
 }
 
 function haversine(a, b) {
@@ -102,7 +102,7 @@ function routeDistance(latlngs) {
   return d;
 }
 function fmtDist(m) {
-  return m >= 1000 ? (m / 1000).toFixed(2) + " km" : Math.round(m) + " m";
+  return m >= 1000 ? (m / 1000).toFixed(2) + ' km' : Math.round(m) + ' m';
 }
 
 // The text of a direct child <tag>, or null. Read from the element itself, not
@@ -125,7 +125,7 @@ function childText(el, tag) {
 // through such a tool loses these fields, and the viewer will say so rather
 // than fall back to the path.
 function extText(el, tag) {
-  const ext = [...el.children].find((child) => child.localName === "extensions");
+  const ext = [...el.children].find((child) => child.localName === 'extensions');
   return ext ? childText(ext, tag) : null;
 }
 
@@ -136,9 +136,9 @@ function extText(el, tag) {
 // These readers say what is wrong with the element without naming the file;
 // each caller already knows which file it is reading, and says so once.
 function placeName(el) {
-  const name = childText(el, "name");
+  const name = childText(el, 'name');
   if (!name) throw new Error(`<${el.localName}> has no <name>`);
-  const city = extText(el, "city");
+  const city = extText(el, 'city');
   return city ? `${name}, ${city}` : name;
 }
 
@@ -146,7 +146,7 @@ function placeName(el) {
 // grouped, flagged or named, and guessing one from the path is the papering
 // over this file format exists to avoid.
 function entryCountry(el) {
-  const country = extText(el, "country");
+  const country = extText(el, 'country');
   if (!country) throw new Error(`<${el.localName}> has no <pgr:country>`);
   return country;
 }
@@ -166,12 +166,12 @@ async function loadGpxFile(file) {
   const res = await fetch(encodeURI(file));
   if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
   const text = await res.text();
-  const doc = new DOMParser().parseFromString(text, "application/xml");
-  if (doc.querySelector("parsererror")) throw new Error("not valid XML");
+  const doc = new DOMParser().parseFromString(text, 'application/xml');
+  if (doc.querySelector('parsererror')) throw new Error('not valid XML');
 
   const routes = [];
-  for (const trk of doc.getElementsByTagName("trk")) {
-    const trkpts = trk.getElementsByTagName("trkpt");
+  for (const trk of doc.getElementsByTagName('trk')) {
+    const trkpts = trk.getElementsByTagName('trkpt');
     // An emptied <trk> is what gpx.studio writes for a cleared track; skip it
     // rather than report it, matching parseGpxFavourites. A <trk> that kept a
     // single point is a different thing — a track that cannot be drawn — and is
@@ -179,24 +179,24 @@ async function loadGpxFile(file) {
     if (trkpts.length === 0) continue;
     const latlngs = [];
     for (const p of trkpts) {
-      const lat = parseFloat(p.getAttribute("lat"));
-      const lon = parseFloat(p.getAttribute("lon"));
+      const lat = parseFloat(p.getAttribute('lat'));
+      const lon = parseFloat(p.getAttribute('lon'));
       if (Number.isFinite(lat) && Number.isFinite(lon)) latlngs.push([lat, lon]);
     }
-    if (latlngs.length < 2) throw new Error("<trk> has fewer than two usable <trkpt>");
+    if (latlngs.length < 2) throw new Error('<trk> has fewer than two usable <trkpt>');
     routes.push({
       latlngs,
       name: placeName(trk),
       country: entryCountry(trk),
-      variant: extText(trk, "variant") || "",
+      variant: extText(trk, 'variant') || '',
     });
   }
 
   // coordStr preserves the file's exact lat/lon text for copying.
   const waypoints = [];
-  for (const w of doc.getElementsByTagName("wpt")) {
-    const latStr = w.getAttribute("lat"),
-      lonStr = w.getAttribute("lon");
+  for (const w of doc.getElementsByTagName('wpt')) {
+    const latStr = w.getAttribute('lat'),
+      lonStr = w.getAttribute('lon');
     const lat = parseFloat(latStr),
       lon = parseFloat(lonStr);
     if (!Number.isFinite(lat) || !Number.isFinite(lon))
@@ -211,47 +211,47 @@ async function loadGpxFile(file) {
 
   // A listed file holding neither is a defect too: something is in gpx.json
   // that has nothing to show.
-  if (routes.length === 0 && waypoints.length === 0) throw new Error("has no <trk> or <wpt>");
+  if (routes.length === 0 && waypoints.length === 0) throw new Error('has no <trk> or <wpt>');
 
   return { text, routes, waypoints };
 }
 
 // Continent for each country, used to group the sidebar. Unlisted countries fall back to "Other".
 const CONTINENTS = {
-  "Canary Islands": "Africa",
-  "Antarctica": "Antarctica",
-  "India": "Asia",
-  "Japan": "Asia",
-  "North Korea": "Asia",
-  "Singapore": "Asia",
-  "South Korea": "Asia",
-  "Taiwan": "Asia",
-  "United Arab Emirates": "Asia",
-  "Austria": "Europe",
-  "Belgium": "Europe",
-  "Czechia": "Europe",
-  "Denmark": "Europe",
-  "England": "Europe",
-  "France": "Europe",
-  "Germany": "Europe",
-  "Hungary": "Europe",
-  "Ireland": "Europe",
-  "Italy": "Europe",
-  "Netherlands": "Europe",
-  "Norway": "Europe",
-  "Portugal": "Europe",
-  "Romania": "Europe",
-  "Russia": "Europe",
-  "Spain": "Europe",
-  "Canada": "North America",
-  "Mexico": "North America",
-  "United States": "North America",
-  "Australia": "Oceania",
-  "New Zealand": "Oceania",
-  "Argentina": "South America",
-  "Brazil": "South America",
-  "Ecuador": "South America",
-  "Peru": "South America",
+  'Canary Islands': 'Africa',
+  'Antarctica': 'Antarctica',
+  'India': 'Asia',
+  'Japan': 'Asia',
+  'North Korea': 'Asia',
+  'Singapore': 'Asia',
+  'South Korea': 'Asia',
+  'Taiwan': 'Asia',
+  'United Arab Emirates': 'Asia',
+  'Austria': 'Europe',
+  'Belgium': 'Europe',
+  'Czechia': 'Europe',
+  'Denmark': 'Europe',
+  'England': 'Europe',
+  'France': 'Europe',
+  'Germany': 'Europe',
+  'Hungary': 'Europe',
+  'Ireland': 'Europe',
+  'Italy': 'Europe',
+  'Netherlands': 'Europe',
+  'Norway': 'Europe',
+  'Portugal': 'Europe',
+  'Romania': 'Europe',
+  'Russia': 'Europe',
+  'Spain': 'Europe',
+  'Canada': 'North America',
+  'Mexico': 'North America',
+  'United States': 'North America',
+  'Australia': 'Oceania',
+  'New Zealand': 'Oceania',
+  'Argentina': 'South America',
+  'Brazil': 'South America',
+  'Ecuador': 'South America',
+  'Peru': 'South America',
 };
 
 function clearMarkers(entry) {
@@ -264,14 +264,14 @@ function clearMarkers(entry) {
 function selectRoute(entry, { pan = true } = {}) {
   deselectCity();
   if (active && active !== entry) {
-    active.line.setStyle({ color: cssVar("--track"), weight: 2, opacity: 0.55 });
+    active.line.setStyle({ color: cssVar('--track'), weight: 2, opacity: 0.55 });
     active.line.bringToBack();
     clearMarkers(active);
-    active.el.classList.remove("active");
+    active.el.classList.remove('active');
   }
   active = entry;
-  entry.el.classList.add("active");
-  entry.line.setStyle({ color: cssVar("--accent"), weight: 4, opacity: 1 });
+  entry.el.classList.add('active');
+  entry.line.setStyle({ color: cssVar('--accent'), weight: 4, opacity: 1 });
   entry.line.bringToFront();
 
   clearMarkers(entry);
@@ -280,66 +280,66 @@ function selectRoute(entry, { pan = true } = {}) {
   const dot = (at, color, label) =>
     L.circleMarker(at, {
       radius: 6,
-      color: "#fff",
+      color: '#fff',
       weight: 2,
       fillColor: color,
       fillOpacity: 1,
     }).bindTooltip(label);
-  entry.markers = [dot(a, cssVar("--start"), "Start").addTo(map), dot(b, cssVar("--end"), "End").addTo(map)];
+  entry.markers = [dot(a, cssVar('--start'), 'Start').addTo(map), dot(b, cssVar('--end'), 'End').addTo(map)];
 
-  const popup = document.createElement("div");
-  const title = document.createElement("b");
+  const popup = document.createElement('div');
+  const title = document.createElement('b');
   title.textContent = entry.name;
-  const info = document.createElement("div");
+  const info = document.createElement('div');
   info.textContent = `${entry.country} · ${entry.latlngs.length} points · ${fmtDist(entry.distance)}`;
-  const pCopy = document.createElement("button");
-  pCopy.className = "popup-copy";
-  pCopy.type = "button";
-  pCopy.textContent = "Copy GPX";
-  pCopy.addEventListener("click", () => copyRoute(entry, pCopy));
+  const pCopy = document.createElement('button');
+  pCopy.className = 'popup-copy';
+  pCopy.type = 'button';
+  pCopy.textContent = 'Copy GPX';
+  pCopy.addEventListener('click', () => copyRoute(entry, pCopy));
   popup.append(title, info, pCopy);
   entry.line.bindPopup(popup);
   if (pan) {
     map.fitBounds(entry.line.getBounds(), { padding: [40, 40], maxZoom: 17 });
     entry.line.openPopup();
   }
-  entry.el.closest(".country-group")?.classList.remove("collapsed");
-  entry.el.closest(".continent-group")?.classList.remove("collapsed");
-  entry.el.scrollIntoView({ block: "nearest" });
+  entry.el.closest('.country-group')?.classList.remove('collapsed');
+  entry.el.closest('.continent-group')?.classList.remove('collapsed');
+  entry.el.scrollIntoView({ block: 'nearest' });
 }
 
 function deselectCity() {
   if (!activeCity) return;
-  activeCity.marker.setStyle({ radius: 5, fillColor: cssVar("--city") });
-  activeCity.el.classList.remove("active");
+  activeCity.marker.setStyle({ radius: 5, fillColor: cssVar('--city') });
+  activeCity.el.classList.remove('active');
   activeCity = null;
 }
 
 function selectCity(c, { pan = true } = {}) {
   // Clear any active route selection so only one thing is highlighted.
   if (active) {
-    active.line.setStyle({ color: cssVar("--track"), weight: 2, opacity: 0.55 });
+    active.line.setStyle({ color: cssVar('--track'), weight: 2, opacity: 0.55 });
     active.line.bringToBack();
     clearMarkers(active);
-    active.el.classList.remove("active");
+    active.el.classList.remove('active');
     active = null;
   }
   deselectCity();
   activeCity = c;
-  c.el.classList.add("active");
-  c.marker.setStyle({ radius: 8, fillColor: cssVar("--accent") });
+  c.el.classList.add('active');
+  c.marker.setStyle({ radius: 8, fillColor: cssVar('--accent') });
   c.marker.bringToFront();
 
-  const popup = document.createElement("div");
-  const title = document.createElement("b");
+  const popup = document.createElement('div');
+  const title = document.createElement('b');
   title.textContent = c.name;
-  const info = document.createElement("div");
+  const info = document.createElement('div');
   info.textContent = `${c.country} · ${c.coordStr}`;
-  const btn = document.createElement("button");
-  btn.className = "popup-copy";
-  btn.type = "button";
-  btn.textContent = "Copy coordinates";
-  btn.addEventListener("click", () => copyCoords(c, btn));
+  const btn = document.createElement('button');
+  btn.className = 'popup-copy';
+  btn.type = 'button';
+  btn.textContent = 'Copy coordinates';
+  btn.addEventListener('click', () => copyCoords(c, btn));
   popup.append(title, info, btn);
   c.marker.bindPopup(popup);
 
@@ -347,74 +347,74 @@ function selectCity(c, { pan = true } = {}) {
     map.setView(c.coords, Math.max(map.getZoom(), 12));
     c.marker.openPopup();
   }
-  c.el.closest(".country-group")?.classList.remove("collapsed");
-  c.el.closest(".continent-group")?.classList.remove("collapsed");
-  c.el.scrollIntoView({ block: "nearest" });
+  c.el.closest('.country-group')?.classList.remove('collapsed');
+  c.el.closest('.continent-group')?.classList.remove('collapsed');
+  c.el.scrollIntoView({ block: 'nearest' });
 }
 
 async function copyCoords(c, btn) {
   const ok = await copyText(c.coordStr);
   if (btn) {
     const original = btn.textContent;
-    btn.textContent = ok ? "Copied" : "Failed";
-    btn.classList.add("done");
+    btn.textContent = ok ? 'Copied' : 'Failed';
+    btn.classList.add('done');
     setTimeout(() => {
       btn.textContent = original;
-      btn.classList.remove("done");
+      btn.classList.remove('done');
     }, 1400);
   }
-  toast(ok ? `Copied ${c.name} coordinates to clipboard` : "Copy failed");
+  toast(ok ? `Copied ${c.name} coordinates to clipboard` : 'Copy failed');
 }
 
 function buildRouteRow(entry) {
-  const el = document.createElement("div");
-  el.className = "route";
+  const el = document.createElement('div');
+  el.className = 'route';
   el.dataset.country = entry.country;
   el.dataset.name = entry.name.toLowerCase();
-  const label = document.createElement("span");
+  const label = document.createElement('span');
   label.textContent = entry.name;
-  const end = document.createElement("span");
-  end.className = "end";
-  const meta = document.createElement("span");
-  meta.className = "meta";
+  const end = document.createElement('span');
+  end.className = 'end';
+  const meta = document.createElement('span');
+  meta.className = 'meta';
   meta.textContent = fmtDist(entry.distance);
-  const copyBtn = document.createElement("button");
-  copyBtn.className = "copy";
-  copyBtn.type = "button";
-  copyBtn.textContent = "Copy";
-  copyBtn.title = "Copy GPX file contents to clipboard";
-  copyBtn.addEventListener("click", (e) => {
+  const copyBtn = document.createElement('button');
+  copyBtn.className = 'copy';
+  copyBtn.type = 'button';
+  copyBtn.textContent = 'Copy';
+  copyBtn.title = 'Copy GPX file contents to clipboard';
+  copyBtn.addEventListener('click', (e) => {
     e.stopPropagation();
     copyRoute(entry, copyBtn);
   });
   end.append(meta, copyBtn);
   el.append(label, end);
-  el.addEventListener("click", () => selectRoute(entry));
+  el.addEventListener('click', () => selectRoute(entry));
   entry.el = el;
   return el;
 }
 
 function buildCityRow(c, country) {
-  const el = document.createElement("div");
-  el.className = "route city";
+  const el = document.createElement('div');
+  el.className = 'route city';
   el.dataset.country = country;
   el.dataset.name = c.name.toLowerCase();
-  const label = document.createElement("span");
+  const label = document.createElement('span');
   label.textContent = c.name;
-  const end = document.createElement("span");
-  end.className = "end";
-  const copyBtn = document.createElement("button");
-  copyBtn.className = "copy";
-  copyBtn.type = "button";
-  copyBtn.textContent = "Copy";
-  copyBtn.title = "Copy coordinates to clipboard";
-  copyBtn.addEventListener("click", (e) => {
+  const end = document.createElement('span');
+  end.className = 'end';
+  const copyBtn = document.createElement('button');
+  copyBtn.className = 'copy';
+  copyBtn.type = 'button';
+  copyBtn.textContent = 'Copy';
+  copyBtn.title = 'Copy coordinates to clipboard';
+  copyBtn.addEventListener('click', (e) => {
     e.stopPropagation();
     copyCoords(c, copyBtn);
   });
   end.append(copyBtn);
   el.append(label, end);
-  el.addEventListener("click", () => selectCity(c));
+  el.addEventListener('click', () => selectCity(c));
   c.el = el;
   return el;
 }
@@ -444,41 +444,41 @@ function buildSidebar() {
 
   const byContinent = {};
   for (const country of Object.keys(byCountry)) {
-    (byContinent[CONTINENTS[country] || "Other"] ||= []).push(country);
+    (byContinent[CONTINENTS[country] || 'Other'] ||= []).push(country);
   }
 
   for (const continent of Object.keys(byContinent).sort()) {
-    const cg = document.createElement("div");
-    cg.className = "continent-group collapsed";
-    const chead = document.createElement("div");
-    chead.className = "continent";
-    const cchev = document.createElement("span");
-    cchev.className = "chev";
-    cchev.textContent = "▾";
-    const clabel = document.createElement("span");
+    const cg = document.createElement('div');
+    cg.className = 'continent-group collapsed';
+    const chead = document.createElement('div');
+    chead.className = 'continent';
+    const cchev = document.createElement('span');
+    cchev.className = 'chev';
+    cchev.textContent = '▾';
+    const clabel = document.createElement('span');
     clabel.textContent = continent;
     chead.append(cchev, clabel);
-    chead.addEventListener("click", () => cg.classList.toggle("collapsed"));
+    chead.addEventListener('click', () => cg.classList.toggle('collapsed'));
     cg.appendChild(chead);
-    const citems = document.createElement("div");
-    citems.className = "continent-items";
+    const citems = document.createElement('div');
+    citems.className = 'continent-items';
 
     for (const country of byContinent[continent].sort()) {
-      const group = document.createElement("div");
-      group.className = "country-group collapsed";
-      const head = document.createElement("div");
-      head.className = "country";
+      const group = document.createElement('div');
+      group.className = 'country-group collapsed';
+      const head = document.createElement('div');
+      head.className = 'country';
       head.dataset.country = country;
-      const chev = document.createElement("span");
-      chev.className = "chev";
-      chev.textContent = "▾";
-      const label = document.createElement("span");
+      const chev = document.createElement('span');
+      chev.className = 'chev';
+      chev.textContent = '▾';
+      const label = document.createElement('span');
       label.textContent = country;
       head.append(chev, label);
-      head.addEventListener("click", () => group.classList.toggle("collapsed"));
+      head.addEventListener('click', () => group.classList.toggle('collapsed'));
       group.appendChild(head);
-      const items = document.createElement("div");
-      items.className = "country-items";
+      const items = document.createElement('div');
+      items.className = 'country-items';
       for (const item of byCountry[country].sort((a, b) => a.name.localeCompare(b.name) || a.dist - b.dist)) {
         items.appendChild(item.build());
       }
@@ -491,49 +491,49 @@ function buildSidebar() {
   }
 }
 
-filterEl.addEventListener("input", () => {
+filterEl.addEventListener('input', () => {
   const q = filterEl.value.trim().toLowerCase();
-  document.querySelectorAll(".route").forEach((el) => {
+  document.querySelectorAll('.route').forEach((el) => {
     const hit = !q || el.dataset.name.includes(q) || el.dataset.country.toLowerCase().includes(q);
-    el.classList.toggle("hidden", !hit);
+    el.classList.toggle('hidden', !hit);
   });
 
   // Hide groups with no matches; while searching, auto-expand those that have
   // matches so the results are visible. With no query, collapse everything.
-  document.querySelectorAll(".country-group").forEach((group) => {
-    const anyVisible = [...group.querySelectorAll(".route")].some((r) => !r.classList.contains("hidden"));
-    group.classList.toggle("hidden", !anyVisible);
-    group.classList.toggle("collapsed", q ? !anyVisible : true);
+  document.querySelectorAll('.country-group').forEach((group) => {
+    const anyVisible = [...group.querySelectorAll('.route')].some((r) => !r.classList.contains('hidden'));
+    group.classList.toggle('hidden', !anyVisible);
+    group.classList.toggle('collapsed', q ? !anyVisible : true);
   });
 
-  document.querySelectorAll(".continent-group").forEach((cg) => {
-    const anyVisible = [...cg.querySelectorAll(".country-group")].some((g) => !g.classList.contains("hidden"));
-    cg.classList.toggle("hidden", !anyVisible);
-    cg.classList.toggle("collapsed", q ? !anyVisible : true);
+  document.querySelectorAll('.continent-group').forEach((cg) => {
+    const anyVisible = [...cg.querySelectorAll('.country-group')].some((g) => !g.classList.contains('hidden'));
+    cg.classList.toggle('hidden', !anyVisible);
+    cg.classList.toggle('collapsed', q ? !anyVisible : true);
   });
 });
 
 function showBanner(html) {
   bannerEl.innerHTML = html;
-  bannerEl.style.display = "block";
+  bannerEl.style.display = 'block';
 }
 
 // Name every file that could not be read, and why. The banner stays up: a file whose metadata is missing is a defect to
 // fix, not a transient hiccup to time out, and the map now has no way to show a placeholder for it.
 function appendRejected(rejected) {
-  const head = document.createElement("b");
+  const head = document.createElement('b');
   head.textContent = `${rejected.length} file(s) rejected — fix the GPX metadata:`;
-  const list = document.createElement("ul");
+  const list = document.createElement('ul');
   for (const { file, reason } of rejected) {
     console.error(`${file}: ${reason}`);
-    const item = document.createElement("li");
-    const path = document.createElement("code");
+    const item = document.createElement('li');
+    const path = document.createElement('code');
     path.textContent = file;
     item.append(path, document.createTextNode(` — ${reason}`));
     list.appendChild(item);
   }
   bannerEl.append(head, list);
-  bannerEl.style.display = "block";
+  bannerEl.style.display = 'block';
 }
 
 async function init() {
@@ -548,10 +548,10 @@ async function init() {
   } catch (e) {
     showBanner(
       `<b>Could not read <code>gpx.json</code> — ${e.message}.</b><br>` +
-        "This page reads the route list and the <code>.gpx</code> files over HTTP, " +
-        "so it needs to be served rather than opened directly from disk. Try:<br>" +
-        "<code>python3 -m http.server</code> then open " +
-        "<code>http://localhost:8000/</code> — or view it via GitHub Pages.",
+        'This page reads the route list and the <code>.gpx</code> files over HTTP, ' +
+        'so it needs to be served rather than opened directly from disk. Try:<br>' +
+        '<code>python3 -m http.server</code> then open ' +
+        '<code>http://localhost:8000/</code> — or view it via GitHub Pages.',
     );
     return;
   }
@@ -560,7 +560,7 @@ async function init() {
   const results = await Promise.allSettled(files.map((file) => loadGpxFile(file)));
   results.forEach((res, i) => {
     const file = files[i];
-    if (res.status === "rejected") {
+    if (res.status === 'rejected') {
       note(file, res.reason);
       return;
     }
@@ -568,7 +568,7 @@ async function init() {
 
     for (const route of routes) {
       const line = L.polyline(route.latlngs, {
-        color: cssVar("--track"),
+        color: cssVar('--track'),
         weight: 2,
         opacity: 0.55,
       }).addTo(map);
@@ -580,21 +580,21 @@ async function init() {
         markers: null,
         distance: routeDistance(route.latlngs),
       };
-      line.on("click", () => selectRoute(entry, { pan: false }));
+      line.on('click', () => selectRoute(entry, { pan: false }));
       store.push(entry);
     }
 
     for (const place of waypoints) {
       const marker = L.circleMarker(place.coords, {
         radius: 5,
-        color: "#fff",
+        color: '#fff',
         weight: 2,
-        fillColor: cssVar("--city"),
+        fillColor: cssVar('--city'),
         fillOpacity: 1,
       }).addTo(map);
       marker.bindTooltip(place.name);
       const entry = { ...place, marker };
-      marker.on("click", () => selectCity(entry, { pan: false }));
+      marker.on('click', () => selectCity(entry, { pan: false }));
       cityStore.push(entry);
     }
   });
@@ -645,18 +645,18 @@ const JavaSer = (() => {
   // must round-trip exactly — PGSharp hides doubles inside longs), and a
   // boolean for Z.
   const BOX = {
-    I: { cls: "java.lang.Integer", uid: 0x12e2a0a4f7818738n },
-    J: { cls: "java.lang.Long", uid: 0x3b8be490cc8f23dfn },
-    F: { cls: "java.lang.Float", uid: 0xdaedc9a2db3cf0ecn },
-    Z: { cls: "java.lang.Boolean", uid: 0xcd207280d59cfaeen },
+    I: { cls: 'java.lang.Integer', uid: 0x12e2a0a4f7818738n },
+    J: { cls: 'java.lang.Long', uid: 0x3b8be490cc8f23dfn },
+    F: { cls: 'java.lang.Float', uid: 0xdaedc9a2db3cf0ecn },
+    Z: { cls: 'java.lang.Boolean', uid: 0xcd207280d59cfaeen },
   };
   const BOX_BY_CLASS = {
-    "java.lang.Integer": "I",
-    "java.lang.Long": "J",
-    "java.lang.Float": "F",
-    "java.lang.Boolean": "Z",
+    'java.lang.Integer': 'I',
+    'java.lang.Long': 'J',
+    'java.lang.Float': 'F',
+    'java.lang.Boolean': 'Z',
   };
-  const NUMBER = { name: "java.lang.Number", uid: 0x86ac951d0b94e08bn };
+  const NUMBER = { name: 'java.lang.Number', uid: 0x86ac951d0b94e08bn };
   const HASHMAP_UID = 0x0507dac1c31660d1n;
 
   const err = (m) => new Error(m);
@@ -676,7 +676,7 @@ const JavaSer = (() => {
     return out;
   }
   function decodeMutf8(bytes) {
-    let s = "",
+    let s = '',
       i = 0;
     const n = bytes.length;
     while (i < n) {
@@ -685,11 +685,11 @@ const JavaSer = (() => {
         s += String.fromCharCode(c);
         i += 1;
       } else if ((c & 0xe0) === 0xc0) {
-        if (i + 1 >= n) throw err("truncated modified UTF-8 sequence");
+        if (i + 1 >= n) throw err('truncated modified UTF-8 sequence');
         s += String.fromCharCode(((c & 0x1f) << 6) | (bytes[i + 1] & 0x3f));
         i += 2;
       } else if ((c & 0xf0) === 0xe0) {
-        if (i + 2 >= n) throw err("truncated modified UTF-8 sequence");
+        if (i + 2 >= n) throw err('truncated modified UTF-8 sequence');
         s += String.fromCharCode(((c & 0x0f) << 12) | ((bytes[i + 1] & 0x3f) << 6) | (bytes[i + 2] & 0x3f));
         i += 3;
       } else throw err(`invalid modified UTF-8 byte 0x${c.toString(16)}`);
@@ -705,7 +705,7 @@ const JavaSer = (() => {
       this.handles = [];
     }
     u1() {
-      if (this.p >= this.b.length) throw err("truncated stream");
+      if (this.p >= this.b.length) throw err('truncated stream');
       return this.b[this.p++];
     }
     u2() {
@@ -735,7 +735,7 @@ const JavaSer = (() => {
     }
     raw(n) {
       const v = this.b.subarray(this.p, this.p + n);
-      if (v.length !== n) throw err("truncated stream");
+      if (v.length !== n) throw err('truncated stream');
       this.p += n;
       return v;
     }
@@ -781,7 +781,7 @@ const JavaSer = (() => {
       for (let i = 0; i < nfields; i++) {
         const tcode = String.fromCharCode(this.u1());
         const fname = this.utf();
-        if (tcode === "L" || tcode === "[") this.content(); // field type string; unused
+        if (tcode === 'L' || tcode === '[') this.content(); // field type string; unused
         desc.fields.push([tcode, fname]);
       }
       this.skipAnnotation();
@@ -799,24 +799,24 @@ const JavaSer = (() => {
     }
     readPrimitive(tcode) {
       switch (tcode) {
-        case "I":
+        case 'I':
           return this.i4();
-        case "J":
+        case 'J':
           return this.i8();
-        case "F":
+        case 'F':
           return this.f4();
-        case "D":
+        case 'D':
           return this.f8();
-        case "Z":
+        case 'Z':
           return this.u1() !== 0;
-        case "B":
+        case 'B':
           return this.u1();
-        case "S": {
+        case 'S': {
           const v = this.dv.getInt16(this.p);
           this.p += 2;
           return v;
         }
-        case "C": {
+        case 'C': {
           const v = this.dv.getUint16(this.p);
           this.p += 2;
           return String.fromCharCode(v);
@@ -847,7 +847,7 @@ const JavaSer = (() => {
           d.values ||= {};
           // We only need HashMap's writeObject payload; a field's value is
           // read to advance the stream but not otherwise used here.
-          d.values[fname] = tcode === "L" || tcode === "[" ? this.content() : this.readPrimitive(tcode);
+          d.values[fname] = tcode === 'L' || tcode === '[' ? this.content() : this.readPrimitive(tcode);
         }
         if (d.flags & SC_WRITE_METHOD) d.custom = this.customData(d.name);
       }
@@ -856,7 +856,7 @@ const JavaSer = (() => {
         const t = BOX_BY_CLASS[name];
         return this.resolveHandle(slot, { box: t, value: chain[chain.length - 1].values.value });
       }
-      if (name === "java.util.HashMap") {
+      if (name === 'java.util.HashMap') {
         let entries = null;
         for (const d of chain) if (d.custom !== undefined) entries = d.custom;
         return this.resolveHandle(slot, entries);
@@ -864,8 +864,8 @@ const JavaSer = (() => {
       throw err(`unsupported class ${name}`);
     }
     customData(className) {
-      if (className !== "java.util.HashMap") throw err(`no custom-data handler for ${className}`);
-      if (this.u1() !== TC_BLOCKDATA) throw err("expected HashMap block data");
+      if (className !== 'java.util.HashMap') throw err(`no custom-data handler for ${className}`);
+      if (this.u1() !== TC_BLOCKDATA) throw err('expected HashMap block data');
       const payload = this.raw(this.u1());
       const pdv = new DataView(payload.buffer, payload.byteOffset, payload.byteLength);
       const size = pdv.getInt32(4); // [capacity, size]; capacity is recomputed on write
@@ -874,7 +874,7 @@ const JavaSer = (() => {
         const k = this.content();
         m.set(k, this.content());
       }
-      if (this.u1() !== TC_ENDBLOCKDATA) throw err("expected TC_ENDBLOCKDATA after HashMap");
+      if (this.u1() !== TC_ENDBLOCKDATA) throw err('expected TC_ENDBLOCKDATA after HashMap');
       return m;
     }
   }
@@ -882,7 +882,7 @@ const JavaSer = (() => {
   function loads(bytes) {
     const r = new Reader(bytes);
     if (r.u2() !== STREAM_MAGIC || r.u2() !== STREAM_VERSION)
-      throw err("not a Java serialization stream (bad magic/version)");
+      throw err('not a Java serialization stream (bad magic/version)');
     const root = r.content();
     if (r.p !== bytes.length) throw err(`${bytes.length - r.p} trailing bytes after root object`);
     return root;
@@ -927,7 +927,7 @@ const JavaSer = (() => {
     }
     utf(s) {
       const b = encodeMutf8(s);
-      if (b.length > 0xffff) throw err("string too long for TC_STRING");
+      if (b.length > 0xffff) throw err('string too long for TC_STRING');
       this.u2(b.length);
       this.push(b);
     }
@@ -975,17 +975,17 @@ const JavaSer = (() => {
     box(b) {
       const info = BOX[b.box];
       this.u1(TC_OBJECT);
-      if (b.box === "Z") this.classDesc(info.cls, info.uid, SC_SERIALIZABLE, [["Z", "value"]]);
-      else this.classDesc(info.cls, info.uid, SC_SERIALIZABLE, [[b.box, "value"]], NUMBER.name, NUMBER.uid);
+      if (b.box === 'Z') this.classDesc(info.cls, info.uid, SC_SERIALIZABLE, [['Z', 'value']]);
+      else this.classDesc(info.cls, info.uid, SC_SERIALIZABLE, [[b.box, 'value']], NUMBER.name, NUMBER.uid);
       this.boxHandles.set(b, this.claim());
-      if (b.box === "Z") this.u1(b.value ? 1 : 0);
-      else if (b.box === "I") this.i4(b.value);
-      else if (b.box === "J") this.i8(b.value);
-      else if (b.box === "F") this.f4(b.value);
+      if (b.box === 'Z') this.u1(b.value ? 1 : 0);
+      else if (b.box === 'I') this.i4(b.value);
+      else if (b.box === 'J') this.i8(b.value);
+      else if (b.box === 'F') this.f4(b.value);
     }
     value(v) {
       if (v === null || v === undefined) this.u1(TC_NULL);
-      else if (typeof v === "string") this.string(v);
+      else if (typeof v === 'string') this.string(v);
       else if (v.box) {
         const h = this.boxHandles.get(v);
         if (h !== undefined) this.ref(h);
@@ -995,9 +995,9 @@ const JavaSer = (() => {
     }
     hashmap(m) {
       this.u1(TC_OBJECT);
-      this.classDesc("java.util.HashMap", HASHMAP_UID, SC_WRITE_METHOD | SC_SERIALIZABLE, [
-        ["F", "loadFactor"],
-        ["I", "threshold"],
+      this.classDesc('java.util.HashMap', HASHMAP_UID, SC_WRITE_METHOD | SC_SERIALIZABLE, [
+        ['F', 'loadFactor'],
+        ['I', 'threshold'],
       ]);
       this.claim(); // the map's own handle
       const loadFactor = 0.75;
@@ -1037,8 +1037,8 @@ const JavaSer = (() => {
 // ------------------------------------------------------------------
 // GPX -> favourites, mirroring pgsedit's parse_gpx / entry_name.
 // ------------------------------------------------------------------
-const POINTS_KEY = "hlfavor";
-const ROUTES_KEY = "hlfavorRoute";
+const POINTS_KEY = 'hlfavor';
+const ROUTES_KEY = 'hlfavorRoute';
 // Third element of every stored route point, and the neutral playback state
 // of a route that has not been walked — both copied from PGSharp's own output.
 const ROUTE_POINT_FLAG = 65536;
@@ -1058,8 +1058,8 @@ const newRouteState = () => ({
 // is escaped per UTF-16 code unit either way, matching hot places for Points
 // and leaving the Route stream to write the surrogates as Java's modified
 // UTF-8 does.
-const escSlashes = (s) => s.replace(/\//g, "\\/");
-const asciiEscape = (s) => s.replace(/[\u0080-\uFFFF]/g, (c) => "\\u" + c.charCodeAt(0).toString(16).padStart(4, "0"));
+const escSlashes = (s) => s.replace(/\//g, '\\/');
+const asciiEscape = (s) => s.replace(/[\u0080-\uFFFF]/g, (c) => '\\u' + c.charCodeAt(0).toString(16).padStart(4, '0'));
 
 function encodePoints(entries) {
   const arr = entries.map((e) => {
@@ -1092,12 +1092,12 @@ const SNIPE2 = { x: 916.2529296875, y: CONTROL_ROW_Y }; // fast-snipe button 2
 const SCAN_CONFIG =
   '{"shiny":true,"minlv":1,"maxlv":36,"miniv":0,"maxiv":100,"checkAll":true,"onlyShiny":true,"name":"Nearby Radar","birds":true,"attrMode":0,"minatk":0,"maxatk":15,"mindef":0,"maxdef":15,"minsta":0,"maxsta":15,"showShinyOnly":false,"loadShiny":true,"notify":true,"stop":true,"pgp":true}';
 const CONTROL_RESETS = [
-  { id: "resetIcon", keys: { iconX: 0.0, iconY: CONTROL_ROW_Y } },
-  { id: "resetSnipe1", keys: { hlfastsnipex: 816.33203125, hlfastsnipey: CONTROL_ROW_Y } },
-  { id: "resetSnipe2", keys: { hlfastsnipe2x: SNIPE2.x, hlfastsnipe2y: SNIPE2.y } },
-  { id: "resetCdpos", keys: { hlcdposx: 0.0, hlcdposy: 306.25 } },
+  { id: 'resetIcon', keys: { iconX: 0.0, iconY: CONTROL_ROW_Y } },
+  { id: 'resetSnipe1', keys: { hlfastsnipex: 816.33203125, hlfastsnipey: CONTROL_ROW_Y } },
+  { id: 'resetSnipe2', keys: { hlfastsnipe2x: SNIPE2.x, hlfastsnipe2y: SNIPE2.y } },
+  { id: 'resetCdpos', keys: { hlcdposx: 0.0, hlcdposy: 306.25 } },
   // The radar button shares fast-snipe button 2's position; hlscan is its filter.
-  { id: "resetScan", keys: { hlscanx: SNIPE2.x, hlscany: SNIPE2.y, hlscan: SCAN_CONFIG } },
+  { id: 'resetScan', keys: { hlscanx: SNIPE2.x, hlscany: SNIPE2.y, hlscan: SCAN_CONFIG } },
 ];
 
 // A favourite's whole name — the sidebar's "<name>, <locality>" plus the
@@ -1108,7 +1108,7 @@ const CONTROL_RESETS = [
 // entry_name.
 function entryName(el) {
   const label = `${placeName(el)}, ${entryCountry(el)}`;
-  const variant = extText(el, "variant");
+  const variant = extText(el, 'variant');
   return variant ? `${label} (${variant})` : label;
 }
 
@@ -1124,56 +1124,56 @@ function entryName(el) {
 // flags are not. England is a subdivision rather than a country, and carries
 // the "GB-ENG" tag sequence Unicode gives it instead of a pair of indicators.
 const COUNTRY_CODES = {
-  "Antarctica": "AQ",
-  "Argentina": "AR",
-  "Australia": "AU",
-  "Austria": "AT",
-  "Belgium": "BE",
-  "Brazil": "BR",
-  "Canada": "CA",
-  "Canary Islands": "IC",
-  "Czechia": "CZ",
-  "Denmark": "DK",
-  "Ecuador": "EC",
-  "England": "GB-ENG",
-  "France": "FR",
-  "Germany": "DE",
-  "Hungary": "HU",
-  "India": "IN",
-  "Ireland": "IE",
-  "Italy": "IT",
-  "Japan": "JP",
-  "Mexico": "MX",
-  "Netherlands": "NL",
-  "New Zealand": "NZ",
-  "North Korea": "KP",
-  "Norway": "NO",
-  "Peru": "PE",
-  "Portugal": "PT",
-  "Romania": "RO",
-  "Russia": "RU",
-  "Singapore": "SG",
-  "South Korea": "KR",
-  "Spain": "ES",
-  "Taiwan": "TW",
-  "United Arab Emirates": "AE",
-  "United States": "US",
+  'Antarctica': 'AQ',
+  'Argentina': 'AR',
+  'Australia': 'AU',
+  'Austria': 'AT',
+  'Belgium': 'BE',
+  'Brazil': 'BR',
+  'Canada': 'CA',
+  'Canary Islands': 'IC',
+  'Czechia': 'CZ',
+  'Denmark': 'DK',
+  'Ecuador': 'EC',
+  'England': 'GB-ENG',
+  'France': 'FR',
+  'Germany': 'DE',
+  'Hungary': 'HU',
+  'India': 'IN',
+  'Ireland': 'IE',
+  'Italy': 'IT',
+  'Japan': 'JP',
+  'Mexico': 'MX',
+  'Netherlands': 'NL',
+  'New Zealand': 'NZ',
+  'North Korea': 'KP',
+  'Norway': 'NO',
+  'Peru': 'PE',
+  'Portugal': 'PT',
+  'Romania': 'RO',
+  'Russia': 'RU',
+  'Singapore': 'SG',
+  'South Korea': 'KR',
+  'Spain': 'ES',
+  'Taiwan': 'TW',
+  'United Arab Emirates': 'AE',
+  'United States': 'US',
 };
 // A subdivision flag is a black flag, the region and subdivision letters as
 // tag characters (ASCII shifted into the tag block), then the cancel tag.
 const REGIONAL_INDICATOR_A = 0x1f1e6,
   TAG_BLOCK = 0xe0000,
   CANCEL_TAG = 0xe007f;
-const BLACK_FLAG = "\u{1F3F4}";
+const BLACK_FLAG = '\u{1F3F4}';
 
 function countryFlag(country) {
   const code = COUNTRY_CODES[country];
   if (!code) throw new Error(`no flag for "${country}" — add it to COUNTRY_CODES`);
-  if (code.includes("-")) {
-    const tags = [...code.replace("-", "").toLowerCase()].map((c) => String.fromCodePoint(TAG_BLOCK + c.charCodeAt(0)));
-    return BLACK_FLAG + tags.join("") + String.fromCodePoint(CANCEL_TAG);
+  if (code.includes('-')) {
+    const tags = [...code.replace('-', '').toLowerCase()].map((c) => String.fromCodePoint(TAG_BLOCK + c.charCodeAt(0)));
+    return BLACK_FLAG + tags.join('') + String.fromCodePoint(CANCEL_TAG);
   }
-  return [...code].map((c) => String.fromCodePoint(REGIONAL_INDICATOR_A + c.charCodeAt(0) - 65)).join("");
+  return [...code].map((c) => String.fromCodePoint(REGIONAL_INDICATOR_A + c.charCodeAt(0) - 65)).join('');
 }
 
 // A favourite's name with its country's flag in front.
@@ -1182,8 +1182,8 @@ function flaggedName(el) {
 }
 
 function coord(el) {
-  const lat = parseFloat(el.getAttribute("lat"));
-  const lng = parseFloat(el.getAttribute("lon"));
+  const lat = parseFloat(el.getAttribute('lat'));
+  const lng = parseFloat(el.getAttribute('lon'));
   if (!Number.isFinite(lat) || !Number.isFinite(lng))
     throw new Error(`<${el.localName}> has an unparseable coordinate`);
   return [lat, lng];
@@ -1196,16 +1196,16 @@ function coord(el) {
 // track) rather than treated as a route. Both kinds are flagged, so the two
 // lists read alike in the app even though PGSharp shows them on separate tabs.
 function parseGpxFavourites(text) {
-  const doc = new DOMParser().parseFromString(text, "application/xml");
-  if (doc.querySelector("parsererror")) throw new Error("not valid XML");
+  const doc = new DOMParser().parseFromString(text, 'application/xml');
+  if (doc.querySelector('parsererror')) throw new Error('not valid XML');
   const points = [],
     routes = [];
-  for (const wpt of doc.getElementsByTagName("wpt")) {
+  for (const wpt of doc.getElementsByTagName('wpt')) {
     const [lat, lng] = coord(wpt);
     points.push({ name: flaggedName(wpt), lat, lng });
   }
-  for (const trk of doc.getElementsByTagName("trk")) {
-    const trkpts = trk.getElementsByTagName("trkpt");
+  for (const trk of doc.getElementsByTagName('trk')) {
+    const trkpts = trk.getElementsByTagName('trkpt');
     if (trkpts.length === 0) continue;
     const pts = [];
     for (const p of trkpts) {
@@ -1268,7 +1268,7 @@ function applyTimezones(points) {
   let unknown = 0;
   for (const p of points) {
     let tz = null;
-    if (typeof tzlookup === "function") {
+    if (typeof tzlookup === 'function') {
       try {
         tz = tzlookup(p.lat, p.lng);
       } catch {
@@ -1307,10 +1307,10 @@ function dedupeByName(entries) {
 // the list reads, so it is folded out too — otherwise every place would sort by
 // its country's regional-indicator code instead of by name.
 const sortKey = (name) =>
-  (name || "")
-    .replace(/^[^\p{L}\p{N}]+/u, "")
-    .normalize("NFKD")
-    .replace(/\p{M}/gu, "")
+  (name || '')
+    .replace(/^[^\p{L}\p{N}]+/u, '')
+    .normalize('NFKD')
+    .replace(/\p{M}/gu, '')
     .toLowerCase();
 function byName(a, b) {
   const ka = sortKey(a.name),
@@ -1320,18 +1320,18 @@ function byName(a, b) {
   return 0;
 }
 
-const backupRunEl = document.getElementById("backupRun");
-const backupStatusEl = document.getElementById("backupStatus");
+const backupRunEl = document.getElementById('backupRun');
+const backupStatusEl = document.getElementById('backupStatus');
 
 function backupStatus(msg, kind) {
   backupStatusEl.textContent = msg;
-  backupStatusEl.className = "status" + (kind ? " " + kind : "");
+  backupStatusEl.className = 'status' + (kind ? ' ' + kind : '');
 }
 
 function downloadBytes(bytes, name) {
-  const blob = new Blob([bytes], { type: "application/octet-stream" });
+  const blob = new Blob([bytes], { type: 'application/octet-stream' });
   const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
+  const a = document.createElement('a');
   a.href = url;
   a.download = name;
   document.body.appendChild(a);
@@ -1344,9 +1344,9 @@ function downloadBytes(bytes, name) {
 // keys we set (the favourites, plus whichever control positions are ticked).
 // Nothing is read from an existing backup; every other preference is omitted,
 // so importing this leaves the rest of the profile as PGSharp had it.
-backupRunEl.addEventListener("click", async () => {
+backupRunEl.addEventListener('click', async () => {
   backupRunEl.disabled = true;
-  backupStatus("Building backup…");
+  backupStatus('Building backup…');
   try {
     const repo = await buildRepoFavourites();
     const notes = [];
@@ -1374,7 +1374,7 @@ backupRunEl.addEventListener("click", async () => {
     let positions = 0;
     for (const { id, keys } of CONTROL_RESETS) {
       if (!document.getElementById(id).checked) continue;
-      for (const [k, v] of Object.entries(keys)) root.set(k, typeof v === "string" ? v : JavaSer.box("F", v));
+      for (const [k, v] of Object.entries(keys)) root.set(k, typeof v === 'string' ? v : JavaSer.box('F', v));
       positions++;
     }
     if (positions) notes.push(`${positions} control(s)`);
@@ -1382,15 +1382,15 @@ backupRunEl.addEventListener("click", async () => {
     const outBytes = JavaSer.dumps(root);
     JavaSer.loads(outBytes); // re-parse our own output before offering it
 
-    downloadBytes(outBytes, "PGSData.dat");
-    const detail = notes.length ? ` (${notes.join("; ")})` : "";
+    downloadBytes(outBytes, 'PGSData.dat');
+    const detail = notes.length ? ` (${notes.join('; ')})` : '';
     backupStatus(
       `Built a partial backup — ${points.length} waypoint(s) and ${routes.length} route(s)${detail}. ` +
-        "Import it into PGSharp.",
-      "ok",
+        'Import it into PGSharp.',
+      'ok',
     );
   } catch (e) {
-    backupStatus(`Failed to build backup: ${e.message}`, "err");
+    backupStatus(`Failed to build backup: ${e.message}`, 'err');
   } finally {
     backupRunEl.disabled = false;
   }

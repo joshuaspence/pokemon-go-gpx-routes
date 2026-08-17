@@ -1,29 +1,29 @@
 ---
-name: "Lint"
+name: 'Lint'
 
 on:
   push:
-    branches: ["master"]
+    branches: ['master']
   pull_request: {}
 
 permissions:
-  contents: "read"
+  contents: 'read'
 
 jobs:
   lint:
-    name: "${{ matrix.check }}"
-    runs-on: "ubuntu-latest"
+    name: '${{ matrix.check }}'
+    runs-on: 'ubuntu-latest'
     strategy:
       # Without this, the first check to fail cancels the rest, and a run that stops at the first
       # problem says less than one reporting all of them. This is what the `!cancelled()` on every
       # step used to buy when these were one job.
       fail-fast: false
       matrix:
-        check: ["css", "html", "js", "prettier", "xml"]
+        check: ['css', 'html', 'js', 'prettier', 'xml']
     steps:
-      - uses: "actions/checkout@v7"
-      - uses: "pnpm/setup@v2"
+      - uses: 'actions/checkout@v7'
+      - uses: 'pnpm/setup@v2'
         with:
           cache: true
 
-      - run: "pnpm lint:${{ matrix.check }}"
+      - run: 'pnpm lint:${{ matrix.check }}'

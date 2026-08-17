@@ -1,7 +1,7 @@
 export default {
-  extends: ["html-validate:recommended"],
+  extends: ['html-validate:recommended'],
   rules: {
-    "doctype-style": ["error", { style: "lowercase" }],
-    "void-style": ["error", { style: "selfclose" }],
+    'doctype-style': ['error', { style: 'lowercase' }],
+    'void-style': ['error', { style: 'selfclose' }],
   },
 };

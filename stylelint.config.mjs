@@ -1,7 +1,7 @@
 export default {
-  extends: ["stylelint-config-standard"],
+  extends: ['stylelint-config-standard'],
   reportNeedlessDisables: true,
   rules: {
-    "no-descending-specificity": null,
+    'no-descending-specificity': null,
   },
 };

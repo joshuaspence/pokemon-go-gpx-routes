@@ -39,7 +39,7 @@ body {
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   color: var(--text);
   background: var(--bg);
   display: grid;
@@ -420,12 +420,12 @@ footer a {
 }
 
 .backup > summary::before {
-  content: "▸";
+  content: '▸';
   font-size: 9px;
 }
 
 .backup[open] > summary::before {
-  content: "▾";
+  content: '▾';
 }
 
 .backup .body {
@@ -471,12 +471,12 @@ footer a {
 }
 
 .backup details.subgroup > summary::before {
-  content: "▸";
+  content: '▸';
   font-size: 9px;
 }
 
 .backup details.subgroup[open] > summary::before {
-  content: "▾";
+  content: '▾';
 }
 
 .backup details.subgroup[open] .group {
