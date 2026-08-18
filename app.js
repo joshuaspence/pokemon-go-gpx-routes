@@ -1,17 +1,3 @@
-// Every GPX file, relative to this page. Static hosting cannot list a
-// directory, so the page has to be handed the paths — but they are not a list
-// to curate: gpx.json is generated from the repository itself, so it says what
-// is there rather than what someone remembered to add.
-//
-//   git ls-files -z '*.gpx' | tr '\0' '\n' |
-//     jq -Rs 'split("\n") | map(select(length > 0))' > gpx.json
-//
-// Nothing but the paths comes from here. What a file *is* is decided by its own
-// elements — a <trk> is a route, a <wpt> is a place, and a file may hold either
-// or both — and its name, locality, country and variant are read from the GPX
-// metadata (<name> and the <pgr:*> fields in <extensions>), which is the source
-// of truth. A file missing its <name> or <pgr:country> is reported rather than
-// named after its path, so the defect surfaces instead of being papered over.
 async function loadManifest() {
   const res = await fetch('gpx.json');
   if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);

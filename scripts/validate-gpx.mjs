@@ -69,7 +69,7 @@ for (const { fileName, contents } of sources) {
     continue;
   }
 
-  // A `<trk>` and a `<wpt>` are the two things the viewer turns into entries, and each must name its country. An 
+  // A `<trk>` and a `<wpt>` are the two things the viewer turns into entries, and each must name its country. An
   // emptied `<trk>` (no `<trkpt>`) is what a cleared track looks like on export; the viewer skips it, so its `pgr`
   // fields are not required and nothing is checked for it here.
   const entries = [
