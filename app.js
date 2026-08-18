@@ -263,42 +263,55 @@ async function loadGpxFile(file) {
   return { text, routes, waypoints };
 }
 
-// Continent for each country, used to group the sidebar. Unlisted countries fall back to "Other".
-const CONTINENTS = {
-  'Canary Islands': 'Africa',
-  'Antarctica': 'Antarctica',
-  'India': 'Asia',
-  'Japan': 'Asia',
-  'North Korea': 'Asia',
-  'Singapore': 'Asia',
-  'South Korea': 'Asia',
-  'Taiwan': 'Asia',
-  'United Arab Emirates': 'Asia',
-  'Austria': 'Europe',
-  'Belgium': 'Europe',
-  'Czechia': 'Europe',
-  'Denmark': 'Europe',
-  'England': 'Europe',
-  'France': 'Europe',
-  'Germany': 'Europe',
-  'Hungary': 'Europe',
-  'Ireland': 'Europe',
-  'Italy': 'Europe',
-  'Netherlands': 'Europe',
-  'Norway': 'Europe',
-  'Portugal': 'Europe',
-  'Romania': 'Europe',
-  'Russia': 'Europe',
-  'Spain': 'Europe',
-  'Canada': 'North America',
-  'Mexico': 'North America',
-  'United States': 'North America',
-  'Australia': 'Oceania',
-  'New Zealand': 'Oceania',
-  'Argentina': 'South America',
-  'Brazil': 'South America',
-  'Ecuador': 'South America',
-  'Peru': 'South America',
+// Every country the GPX files use, each with the continent it groups under in
+// the sidebar and the ISO 3166-1 alpha-2 code its flag is drawn from. One table
+// so a country is added in a single place and its continent and code cannot
+// drift out of step.
+//
+// The continent only groups the sidebar, so an unlisted country falls back to
+// "Other" (see buildSidebar). The code is required: a route or waypoint whose
+// country has no entry here cannot be flagged, and building a PGSharp backup
+// errors rather than importing it without one (see countryFlag).
+//
+// Codes are alpha-2 so the flag emoji is derived rather than pasted in — "AU"
+// is legible in a diff and two similar flags are not. England is a subdivision
+// rather than a country, and carries the "GB-ENG" tag sequence Unicode gives it
+// instead of a pair of regional indicators.
+const COUNTRIES = {
+  'Antarctica': { code: 'AQ', continent: 'Antarctica' },
+  'Argentina': { code: 'AR', continent: 'South America' },
+  'Australia': { code: 'AU', continent: 'Oceania' },
+  'Austria': { code: 'AT', continent: 'Europe' },
+  'Belgium': { code: 'BE', continent: 'Europe' },
+  'Brazil': { code: 'BR', continent: 'South America' },
+  'Canada': { code: 'CA', continent: 'North America' },
+  'Canary Islands': { code: 'IC', continent: 'Africa' },
+  'Czechia': { code: 'CZ', continent: 'Europe' },
+  'Denmark': { code: 'DK', continent: 'Europe' },
+  'Ecuador': { code: 'EC', continent: 'South America' },
+  'England': { code: 'GB-ENG', continent: 'Europe' },
+  'France': { code: 'FR', continent: 'Europe' },
+  'Germany': { code: 'DE', continent: 'Europe' },
+  'Hungary': { code: 'HU', continent: 'Europe' },
+  'India': { code: 'IN', continent: 'Asia' },
+  'Ireland': { code: 'IE', continent: 'Europe' },
+  'Italy': { code: 'IT', continent: 'Europe' },
+  'Japan': { code: 'JP', continent: 'Asia' },
+  'Mexico': { code: 'MX', continent: 'North America' },
+  'Netherlands': { code: 'NL', continent: 'Europe' },
+  'New Zealand': { code: 'NZ', continent: 'Oceania' },
+  'North Korea': { code: 'KP', continent: 'Asia' },
+  'Norway': { code: 'NO', continent: 'Europe' },
+  'Peru': { code: 'PE', continent: 'South America' },
+  'Portugal': { code: 'PT', continent: 'Europe' },
+  'Romania': { code: 'RO', continent: 'Europe' },
+  'Russia': { code: 'RU', continent: 'Europe' },
+  'Singapore': { code: 'SG', continent: 'Asia' },
+  'South Korea': { code: 'KR', continent: 'Asia' },
+  'Spain': { code: 'ES', continent: 'Europe' },
+  'Taiwan': { code: 'TW', continent: 'Asia' },
+  'United Arab Emirates': { code: 'AE', continent: 'Asia' },
+  'United States': { code: 'US', continent: 'North America' },
 };
 
 function clearMarkers(entry) {
@@ -495,7 +508,7 @@ function buildSidebar() {
   const byContinent = {};
 
   for (const country of Object.keys(byCountry)) {
-    (byContinent[CONTINENTS[country] || 'Other'] ||= []).push(country);
+    (byContinent[COUNTRIES[country]?.continent || 'Other'] ||= []).push(country);
   }
 
   for (const continent of Object.keys(byContinent).sort()) {
@@ -1335,53 +1348,6 @@ function entryName(el) {
   return variant ? `${label} (${variant})` : label;
 }
 
-// PGSharp's own hot places carry a country flag at the front of the name —
-// "🇺🇸 Pier 39, California, USA" — in the same {name,lat,lng,tz} schema our
-// waypoints use. The format has no icon field, so the flag is simply the first
-// characters of the name, and both favourite kinds here follow that convention.
-//
-// The key is a <pgr:country>, so this list has to name every country the GPX
-// files use; a new one errors rather than importing
-// without a flag. Codes are ISO 3166-1 alpha-2, which the emoji is derived
-// from rather than pasted in, since "AU" is legible in a diff and two similar
-// flags are not. England is a subdivision rather than a country, and carries
-// the "GB-ENG" tag sequence Unicode gives it instead of a pair of indicators.
-const COUNTRY_CODES = {
-  'Antarctica': 'AQ',
-  'Argentina': 'AR',
-  'Australia': 'AU',
-  'Austria': 'AT',
-  'Belgium': 'BE',
-  'Brazil': 'BR',
-  'Canada': 'CA',
-  'Canary Islands': 'IC',
-  'Czechia': 'CZ',
-  'Denmark': 'DK',
-  'Ecuador': 'EC',
-  'England': 'GB-ENG',
-  'France': 'FR',
-  'Germany': 'DE',
-  'Hungary': 'HU',
-  'India': 'IN',
-  'Ireland': 'IE',
-  'Italy': 'IT',
-  'Japan': 'JP',
-  'Mexico': 'MX',
-  'Netherlands': 'NL',
-  'New Zealand': 'NZ',
-  'North Korea': 'KP',
-  'Norway': 'NO',
-  'Peru': 'PE',
-  'Portugal': 'PT',
-  'Romania': 'RO',
-  'Russia': 'RU',
-  'Singapore': 'SG',
-  'South Korea': 'KR',
-  'Spain': 'ES',
-  'Taiwan': 'TW',
-  'United Arab Emirates': 'AE',
-  'United States': 'US',
-};
 // A subdivision flag is a black flag, the region and subdivision letters as
 // tag characters (ASCII shifted into the tag block), then the cancel tag.
 const REGIONAL_INDICATOR_A = 0x1f1e6,
@@ -1389,11 +1355,20 @@ const REGIONAL_INDICATOR_A = 0x1f1e6,
   CANCEL_TAG = 0xe007f;
 const BLACK_FLAG = '\u{1F3F4}';
 
+// The emoji flag for a country, derived from its alpha-2 code in COUNTRIES.
+//
+// PGSharp's own hot places carry a country flag at the front of the name —
+// "🇺🇸 Pier 39, California, USA" — in the same {name,lat,lng,tz} schema our
+// waypoints use. The format has no icon field, so the flag is simply the first
+// characters of the name, and both favourite kinds here follow that convention.
+//
+// The country comes from a <pgr:country>, so it must have an entry in COUNTRIES;
+// one that does not errors rather than importing without a flag.
 function countryFlag(country) {
-  const code = COUNTRY_CODES[country];
+  const code = COUNTRIES[country]?.code;
 
   if (!code) {
-    throw new Error(`no flag for "${country}" — add it to COUNTRY_CODES`);
+    throw new Error(`no flag for "${country}" — add it to COUNTRIES`);
   }
 
   if (code.includes('-')) {
