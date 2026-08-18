@@ -1,8 +1,12 @@
 async function loadManifest() {
   const res = await fetch('gpx.json');
-  if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+  if (!res.ok) {
+    throw new Error(`${res.status} ${res.statusText}`);
+  }
   const files = await res.json();
-  if (!Array.isArray(files) || files.some((f) => typeof f !== 'string')) throw new Error('is not a list of paths');
+  if (!Array.isArray(files) || files.some((f) => typeof f !== 'string')) {
+    throw new Error('is not a list of paths');
+  }
   return files;
 }
 
@@ -84,7 +88,9 @@ function haversine(a, b) {
 }
 function routeDistance(latlngs) {
   let d = 0;
-  for (let i = 1; i < latlngs.length; i++) d += haversine(latlngs[i - 1], latlngs[i]);
+  for (let i = 1; i < latlngs.length; i++) {
+    d += haversine(latlngs[i - 1], latlngs[i]);
+  }
   return d;
 }
 function fmtDist(m) {
@@ -96,7 +102,9 @@ function fmtDist(m) {
 // mistaken for an entry's name.
 function childText(el, tag) {
   for (const child of el.children) {
-    if (child.localName === tag && child.textContent && child.textContent.trim()) return child.textContent.trim();
+    if (child.localName === tag && child.textContent && child.textContent.trim()) {
+      return child.textContent.trim();
+    }
   }
   return null;
 }
@@ -123,7 +131,9 @@ function extText(el, tag) {
 // each caller already knows which file it is reading, and says so once.
 function placeName(el) {
   const name = childText(el, 'name');
-  if (!name) throw new Error(`<${el.localName}> has no <name>`);
+  if (!name) {
+    throw new Error(`<${el.localName}> has no <name>`);
+  }
   const city = extText(el, 'city');
   return city ? `${name}, ${city}` : name;
 }
@@ -133,7 +143,9 @@ function placeName(el) {
 // over this file format exists to avoid.
 function entryCountry(el) {
   const country = extText(el, 'country');
-  if (!country) throw new Error(`<${el.localName}> has no <pgr:country>`);
+  if (!country) {
+    throw new Error(`<${el.localName}> has no <pgr:country>`);
+  }
   return country;
 }
 
@@ -150,10 +162,14 @@ function entryCountry(el) {
 // whole file text is returned once, for the copy button to hand over.
 async function loadGpxFile(file) {
   const res = await fetch(encodeURI(file));
-  if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+  if (!res.ok) {
+    throw new Error(`${res.status} ${res.statusText}`);
+  }
   const text = await res.text();
   const doc = new DOMParser().parseFromString(text, 'application/xml');
-  if (doc.querySelector('parsererror')) throw new Error('not valid XML');
+  if (doc.querySelector('parsererror')) {
+    throw new Error('not valid XML');
+  }
 
   const routes = [];
   for (const trk of doc.getElementsByTagName('trk')) {
@@ -162,14 +178,20 @@ async function loadGpxFile(file) {
     // rather than report it, matching parseGpxFavourites. A <trk> that kept a
     // single point is a different thing — a track that cannot be drawn — and is
     // still an error.
-    if (trkpts.length === 0) continue;
+    if (trkpts.length === 0) {
+      continue;
+    }
     const latlngs = [];
     for (const p of trkpts) {
       const lat = parseFloat(p.getAttribute('lat'));
       const lon = parseFloat(p.getAttribute('lon'));
-      if (Number.isFinite(lat) && Number.isFinite(lon)) latlngs.push([lat, lon]);
+      if (Number.isFinite(lat) && Number.isFinite(lon)) {
+        latlngs.push([lat, lon]);
+      }
     }
-    if (latlngs.length < 2) throw new Error('<trk> has fewer than two usable <trkpt>');
+    if (latlngs.length < 2) {
+      throw new Error('<trk> has fewer than two usable <trkpt>');
+    }
     routes.push({
       latlngs,
       name: placeName(trk),
@@ -185,8 +207,9 @@ async function loadGpxFile(file) {
       lonStr = w.getAttribute('lon');
     const lat = parseFloat(latStr),
       lon = parseFloat(lonStr);
-    if (!Number.isFinite(lat) || !Number.isFinite(lon))
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
       throw new Error(`<wpt> at ${latStr},${lonStr} has an unparseable coordinate`);
+    }
     waypoints.push({
       country: entryCountry(w),
       name: placeName(w),
@@ -197,7 +220,9 @@ async function loadGpxFile(file) {
 
   // A listed file holding neither is a defect too: something is in gpx.json
   // that has nothing to show.
-  if (routes.length === 0 && waypoints.length === 0) throw new Error('has no <trk> or <wpt>');
+  if (routes.length === 0 && waypoints.length === 0) {
+    throw new Error('has no <trk> or <wpt>');
+  }
 
   return { text, routes, waypoints };
 }
@@ -295,7 +320,9 @@ function selectRoute(entry, { pan = true } = {}) {
 }
 
 function deselectCity() {
-  if (!activeCity) return;
+  if (!activeCity) {
+    return;
+  }
   activeCity.marker.setStyle({ radius: 5, fillColor: cssVar('--city') });
   activeCity.el.classList.remove('active');
   activeCity = null;
@@ -586,11 +613,15 @@ async function init() {
   });
 
   buildSidebar();
-  if (rejected.length) appendRejected(rejected);
+  if (rejected.length) {
+    appendRejected(rejected);
+  }
 
   // Every file listed was rejected; the banner already names each one, and
   // there is no layer to fit the map to.
-  if (store.length === 0 && cityStore.length === 0) return;
+  if (store.length === 0 && cityStore.length === 0) {
+    return;
+  }
 
   const all = L.featureGroup([...store.map((s) => s.line), ...cityStore.map((c) => c.marker)]);
   map.fitBounds(all.getBounds(), { padding: [30, 30] });
@@ -654,10 +685,15 @@ const JavaSer = (() => {
     const out = [];
     for (let i = 0; i < s.length; i++) {
       const c = s.charCodeAt(i);
-      if (c === 0) out.push(0xc0, 0x80);
-      else if (c < 0x80) out.push(c);
-      else if (c < 0x800) out.push(0xc0 | (c >> 6), 0x80 | (c & 0x3f));
-      else out.push(0xe0 | (c >> 12), 0x80 | ((c >> 6) & 0x3f), 0x80 | (c & 0x3f));
+      if (c === 0) {
+        out.push(0xc0, 0x80);
+      } else if (c < 0x80) {
+        out.push(c);
+      } else if (c < 0x800) {
+        out.push(0xc0 | (c >> 6), 0x80 | (c & 0x3f));
+      } else {
+        out.push(0xe0 | (c >> 12), 0x80 | ((c >> 6) & 0x3f), 0x80 | (c & 0x3f));
+      }
     }
     return out;
   }
@@ -671,14 +707,20 @@ const JavaSer = (() => {
         s += String.fromCharCode(c);
         i += 1;
       } else if ((c & 0xe0) === 0xc0) {
-        if (i + 1 >= n) throw err('truncated modified UTF-8 sequence');
+        if (i + 1 >= n) {
+          throw err('truncated modified UTF-8 sequence');
+        }
         s += String.fromCharCode(((c & 0x1f) << 6) | (bytes[i + 1] & 0x3f));
         i += 2;
       } else if ((c & 0xf0) === 0xe0) {
-        if (i + 2 >= n) throw err('truncated modified UTF-8 sequence');
+        if (i + 2 >= n) {
+          throw err('truncated modified UTF-8 sequence');
+        }
         s += String.fromCharCode(((c & 0x0f) << 12) | ((bytes[i + 1] & 0x3f) << 6) | (bytes[i + 2] & 0x3f));
         i += 3;
-      } else throw err(`invalid modified UTF-8 byte 0x${c.toString(16)}`);
+      } else {
+        throw err(`invalid modified UTF-8 byte 0x${c.toString(16)}`);
+      }
     }
     return s;
   }
@@ -691,7 +733,9 @@ const JavaSer = (() => {
       this.handles = [];
     }
     u1() {
-      if (this.p >= this.b.length) throw err('truncated stream');
+      if (this.p >= this.b.length) {
+        throw err('truncated stream');
+      }
       return this.b[this.p++];
     }
     u2() {
@@ -721,7 +765,9 @@ const JavaSer = (() => {
     }
     raw(n) {
       const v = this.b.subarray(this.p, this.p + n);
-      if (v.length !== n) throw err('truncated stream');
+      if (v.length !== n) {
+        throw err('truncated stream');
+      }
       this.p += n;
       return v;
     }
@@ -744,7 +790,9 @@ const JavaSer = (() => {
     }
     ref() {
       const h = this.i4() - BASE_HANDLE;
-      if (h < 0 || h >= this.handles.length) throw err(`bad handle reference ${h}`);
+      if (h < 0 || h >= this.handles.length) {
+        throw err(`bad handle reference ${h}`);
+      }
       return this.handles[h];
     }
     utf() {
@@ -756,9 +804,15 @@ const JavaSer = (() => {
 
     classDesc() {
       const tag = this.u1();
-      if (tag === TC_NULL) return null;
-      if (tag === TC_REFERENCE) return this.ref();
-      if (tag !== TC_CLASSDESC) throw err(`expected classdesc, got 0x${tag.toString(16)} at ${this.p - 1}`);
+      if (tag === TC_NULL) {
+        return null;
+      }
+      if (tag === TC_REFERENCE) {
+        return this.ref();
+      }
+      if (tag !== TC_CLASSDESC) {
+        throw err(`expected classdesc, got 0x${tag.toString(16)} at ${this.p - 1}`);
+      }
       const name = this.utf();
       const uid = this.i8();
       const flags = this.u1();
@@ -767,7 +821,9 @@ const JavaSer = (() => {
       for (let i = 0; i < nfields; i++) {
         const tcode = String.fromCharCode(this.u1());
         const fname = this.utf();
-        if (tcode === 'L' || tcode === '[') this.content(); // field type string; unused
+        if (tcode === 'L' || tcode === '[') {
+          this.content();
+        } // field type string; unused
         desc.fields.push([tcode, fname]);
       }
       this.skipAnnotation();
@@ -813,20 +869,36 @@ const JavaSer = (() => {
     }
     content() {
       const tag = this.u1();
-      if (tag === TC_NULL) return null;
-      if (tag === TC_REFERENCE) return this.ref();
-      if (tag === TC_STRING) return this.newHandle(this.utf());
-      if (tag === TC_LONGSTRING) return this.newHandle(this.longUtf());
-      if (tag === TC_BLOCKDATA) return { blockdata: this.raw(this.u1()) };
-      if (tag === TC_BLOCKDATALONG) return { blockdata: this.raw(this.i4()) };
-      if (tag === TC_OBJECT) return this.object();
+      if (tag === TC_NULL) {
+        return null;
+      }
+      if (tag === TC_REFERENCE) {
+        return this.ref();
+      }
+      if (tag === TC_STRING) {
+        return this.newHandle(this.utf());
+      }
+      if (tag === TC_LONGSTRING) {
+        return this.newHandle(this.longUtf());
+      }
+      if (tag === TC_BLOCKDATA) {
+        return { blockdata: this.raw(this.u1()) };
+      }
+      if (tag === TC_BLOCKDATALONG) {
+        return { blockdata: this.raw(this.i4()) };
+      }
+      if (tag === TC_OBJECT) {
+        return this.object();
+      }
       throw err(`unsupported tag 0x${tag.toString(16)} at offset ${this.p - 1}`);
     }
     object() {
       const desc = this.classDesc();
       const slot = this.claimHandle();
       const chain = [];
-      for (let d = desc; d; d = d.super) chain.push(d);
+      for (let d = desc; d; d = d.super) {
+        chain.push(d);
+      }
       chain.reverse(); // superclass fields come first
       for (const d of chain) {
         for (const [tcode, fname] of d.fields) {
@@ -835,7 +907,9 @@ const JavaSer = (() => {
           // read to advance the stream but not otherwise used here.
           d.values[fname] = tcode === 'L' || tcode === '[' ? this.content() : this.readPrimitive(tcode);
         }
-        if (d.flags & SC_WRITE_METHOD) d.custom = this.customData(d.name);
+        if (d.flags & SC_WRITE_METHOD) {
+          d.custom = this.customData(d.name);
+        }
       }
       const name = desc.name;
       if (name in BOX_BY_CLASS) {
@@ -844,14 +918,22 @@ const JavaSer = (() => {
       }
       if (name === 'java.util.HashMap') {
         let entries = null;
-        for (const d of chain) if (d.custom !== undefined) entries = d.custom;
+        for (const d of chain) {
+          if (d.custom !== undefined) {
+            entries = d.custom;
+          }
+        }
         return this.resolveHandle(slot, entries);
       }
       throw err(`unsupported class ${name}`);
     }
     customData(className) {
-      if (className !== 'java.util.HashMap') throw err(`no custom-data handler for ${className}`);
-      if (this.u1() !== TC_BLOCKDATA) throw err('expected HashMap block data');
+      if (className !== 'java.util.HashMap') {
+        throw err(`no custom-data handler for ${className}`);
+      }
+      if (this.u1() !== TC_BLOCKDATA) {
+        throw err('expected HashMap block data');
+      }
       const payload = this.raw(this.u1());
       const pdv = new DataView(payload.buffer, payload.byteOffset, payload.byteLength);
       const size = pdv.getInt32(4); // [capacity, size]; capacity is recomputed on write
@@ -860,17 +942,22 @@ const JavaSer = (() => {
         const k = this.content();
         m.set(k, this.content());
       }
-      if (this.u1() !== TC_ENDBLOCKDATA) throw err('expected TC_ENDBLOCKDATA after HashMap');
+      if (this.u1() !== TC_ENDBLOCKDATA) {
+        throw err('expected TC_ENDBLOCKDATA after HashMap');
+      }
       return m;
     }
   }
 
   function loads(bytes) {
     const r = new Reader(bytes);
-    if (r.u2() !== STREAM_MAGIC || r.u2() !== STREAM_VERSION)
+    if (r.u2() !== STREAM_MAGIC || r.u2() !== STREAM_VERSION) {
       throw err('not a Java serialization stream (bad magic/version)');
+    }
     const root = r.content();
-    if (r.p !== bytes.length) throw err(`${bytes.length - r.p} trailing bytes after root object`);
+    if (r.p !== bytes.length) {
+      throw err(`${bytes.length - r.p} trailing bytes after root object`);
+    }
     return root;
   }
 
@@ -886,7 +973,9 @@ const JavaSer = (() => {
       return this.next++;
     }
     push(arr) {
-      for (let i = 0; i < arr.length; i++) this.out.push(arr[i]);
+      for (let i = 0; i < arr.length; i++) {
+        this.out.push(arr[i]);
+      }
     }
     u1(v) {
       this.out.push(v & 0xff);
@@ -913,7 +1002,9 @@ const JavaSer = (() => {
     }
     utf(s) {
       const b = encodeMutf8(s);
-      if (b.length > 0xffff) throw err('string too long for TC_STRING');
+      if (b.length > 0xffff) {
+        throw err('string too long for TC_STRING');
+      }
       this.u2(b.length);
       this.push(b);
     }
@@ -955,29 +1046,48 @@ const JavaSer = (() => {
       }
       this.u1(TC_ENDBLOCKDATA); // empty classAnnotation
       this.classHandles.set(name, this.claim());
-      if (superName == null) this.u1(TC_NULL);
-      else this.classDesc(superName, superUid, SC_SERIALIZABLE, []);
+      if (superName == null) {
+        this.u1(TC_NULL);
+      } else {
+        this.classDesc(superName, superUid, SC_SERIALIZABLE, []);
+      }
     }
     box(b) {
       const info = BOX[b.box];
       this.u1(TC_OBJECT);
-      if (b.box === 'Z') this.classDesc(info.cls, info.uid, SC_SERIALIZABLE, [['Z', 'value']]);
-      else this.classDesc(info.cls, info.uid, SC_SERIALIZABLE, [[b.box, 'value']], NUMBER.name, NUMBER.uid);
+      if (b.box === 'Z') {
+        this.classDesc(info.cls, info.uid, SC_SERIALIZABLE, [['Z', 'value']]);
+      } else {
+        this.classDesc(info.cls, info.uid, SC_SERIALIZABLE, [[b.box, 'value']], NUMBER.name, NUMBER.uid);
+      }
       this.boxHandles.set(b, this.claim());
-      if (b.box === 'Z') this.u1(b.value ? 1 : 0);
-      else if (b.box === 'I') this.i4(b.value);
-      else if (b.box === 'J') this.i8(b.value);
-      else if (b.box === 'F') this.f4(b.value);
+      if (b.box === 'Z') {
+        this.u1(b.value ? 1 : 0);
+      } else if (b.box === 'I') {
+        this.i4(b.value);
+      } else if (b.box === 'J') {
+        this.i8(b.value);
+      } else if (b.box === 'F') {
+        this.f4(b.value);
+      }
     }
     value(v) {
-      if (v === null || v === undefined) this.u1(TC_NULL);
-      else if (typeof v === 'string') this.string(v);
-      else if (v.box) {
+      if (v === null || v === undefined) {
+        this.u1(TC_NULL);
+      } else if (typeof v === 'string') {
+        this.string(v);
+      } else if (v.box) {
         const h = this.boxHandles.get(v);
-        if (h !== undefined) this.ref(h);
-        else this.box(v);
-      } else if (v instanceof Map) this.hashmap(v);
-      else throw err(`cannot serialize ${typeof v}`);
+        if (h !== undefined) {
+          this.ref(h);
+        } else {
+          this.box(v);
+        }
+      } else if (v instanceof Map) {
+        this.hashmap(v);
+      } else {
+        throw err(`cannot serialize ${typeof v}`);
+      }
     }
     hashmap(m) {
       this.u1(TC_OBJECT);
@@ -1005,7 +1115,9 @@ const JavaSer = (() => {
   // Mirror HashMap's power-of-two capacity growth for a given entry count.
   function tableSizeFor(size, loadFactor) {
     let capacity = 16;
-    while (size > capacity * loadFactor) capacity <<= 1;
+    while (size > capacity * loadFactor) {
+      capacity <<= 1;
+    }
     return capacity;
   }
 
@@ -1050,7 +1162,9 @@ const asciiEscape = (s) => s.replace(/[\u0080-\uFFFF]/g, (c) => '\\u' + c.charCo
 function encodePoints(entries) {
   const arr = entries.map((e) => {
     const o = { name: e.name, lat: e.lat, lng: e.lng };
-    if (e.tz) o.tz = e.tz;
+    if (e.tz) {
+      o.tz = e.tz;
+    }
     return o;
   });
   return escSlashes(asciiEscape(JSON.stringify(arr)));
@@ -1154,7 +1268,9 @@ const BLACK_FLAG = '\u{1F3F4}';
 
 function countryFlag(country) {
   const code = COUNTRY_CODES[country];
-  if (!code) throw new Error(`no flag for "${country}" — add it to COUNTRY_CODES`);
+  if (!code) {
+    throw new Error(`no flag for "${country}" — add it to COUNTRY_CODES`);
+  }
   if (code.includes('-')) {
     const tags = [...code.replace('-', '').toLowerCase()].map((c) => String.fromCodePoint(TAG_BLOCK + c.charCodeAt(0)));
     return BLACK_FLAG + tags.join('') + String.fromCodePoint(CANCEL_TAG);
@@ -1170,8 +1286,9 @@ function flaggedName(el) {
 function coord(el) {
   const lat = parseFloat(el.getAttribute('lat'));
   const lng = parseFloat(el.getAttribute('lon'));
-  if (!Number.isFinite(lat) || !Number.isFinite(lng))
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
     throw new Error(`<${el.localName}> has an unparseable coordinate`);
+  }
   return [lat, lng];
 }
 
@@ -1183,7 +1300,9 @@ function coord(el) {
 // lists read alike in the app even though PGSharp shows them on separate tabs.
 function parseGpxFavourites(text) {
   const doc = new DOMParser().parseFromString(text, 'application/xml');
-  if (doc.querySelector('parsererror')) throw new Error('not valid XML');
+  if (doc.querySelector('parsererror')) {
+    throw new Error('not valid XML');
+  }
   const points = [],
     routes = [];
   for (const wpt of doc.getElementsByTagName('wpt')) {
@@ -1192,7 +1311,9 @@ function parseGpxFavourites(text) {
   }
   for (const trk of doc.getElementsByTagName('trk')) {
     const trkpts = trk.getElementsByTagName('trkpt');
-    if (trkpts.length === 0) continue;
+    if (trkpts.length === 0) {
+      continue;
+    }
     const pts = [];
     for (const p of trkpts) {
       const [lat, lng] = coord(p);
@@ -1222,7 +1343,9 @@ async function buildRepoFavourites() {
   const texts = await Promise.all(
     files.map(async (file) => {
       const res = await fetch(encodeURI(file));
-      if (!res.ok) throw new Error(`${file}: ${res.status} ${res.statusText}`);
+      if (!res.ok) {
+        throw new Error(`${file}: ${res.status} ${res.statusText}`);
+      }
       return [file, await res.text()];
     }),
   );
@@ -1261,8 +1384,11 @@ function applyTimezones(points) {
         tz = null;
       }
     }
-    if (tz) p.tz = tz;
-    else unknown++;
+    if (tz) {
+      p.tz = tz;
+    } else {
+      unknown++;
+    }
   }
   return unknown;
 }
@@ -1301,8 +1427,12 @@ const sortKey = (name) =>
 function byName(a, b) {
   const ka = sortKey(a.name),
     kb = sortKey(b.name);
-  if (ka !== kb) return ka < kb ? -1 : 1;
-  if (a.name !== b.name) return a.name < b.name ? -1 : 1;
+  if (ka !== kb) {
+    return ka < kb ? -1 : 1;
+  }
+  if (a.name !== b.name) {
+    return a.name < b.name ? -1 : 1;
+  }
   return 0;
 }
 
@@ -1343,13 +1473,19 @@ backupRunEl.addEventListener('click', async () => {
     const r = dedupeByName(repo.routes);
     const points = p.out,
       routes = r.out;
-    if (p.dropped) notes.push(`${p.dropped} duplicate waypoint name(s) skipped`);
-    if (r.dropped) notes.push(`${r.dropped} duplicate route name(s) skipped`);
+    if (p.dropped) {
+      notes.push(`${p.dropped} duplicate waypoint name(s) skipped`);
+    }
+    if (r.dropped) {
+      notes.push(`${r.dropped} duplicate route name(s) skipped`);
+    }
     points.sort(byName);
     routes.sort(byName);
 
     const noTz = applyTimezones(points);
-    if (noTz) notes.push(`${noTz} waypoint(s) without a timezone`);
+    if (noTz) {
+      notes.push(`${noTz} waypoint(s) without a timezone`);
+    }
 
     const root = new Map();
     root.set(POINTS_KEY, encodePoints(points));
@@ -1359,11 +1495,17 @@ backupRunEl.addEventListener('click', async () => {
     // is written as a Java Float; a string (the radar's filter) as-is.
     let positions = 0;
     for (const { id, keys } of CONTROL_RESETS) {
-      if (!document.getElementById(id).checked) continue;
-      for (const [k, v] of Object.entries(keys)) root.set(k, typeof v === 'string' ? v : JavaSer.box('F', v));
+      if (!document.getElementById(id).checked) {
+        continue;
+      }
+      for (const [k, v] of Object.entries(keys)) {
+        root.set(k, typeof v === 'string' ? v : JavaSer.box('F', v));
+      }
       positions++;
     }
-    if (positions) notes.push(`${positions} control(s)`);
+    if (positions) {
+      notes.push(`${positions} control(s)`);
+    }
 
     const outBytes = JavaSer.dumps(root);
     JavaSer.loads(outBytes); // re-parse our own output before offering it

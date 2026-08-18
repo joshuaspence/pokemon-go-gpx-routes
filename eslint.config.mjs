@@ -5,6 +5,11 @@ import prettier from 'eslint-config-prettier/flat';
 export default [
   js.configs.recommended,
   prettier,
+  {
+    rules: {
+      curly: ['error', 'all'],
+    },
+  },
 
   {
     files: ['**/*.js'],
