@@ -54,9 +54,11 @@ pnpm install
 pnpm lint
 ```
 
-The GPX check reaches the GPX itself, not the `pgr` fields: GPX declares `<extensions>` as any element from another
-namespace, processed leniently, so a misspelled `<pgr:contry>` passes it and is caught only when the viewer refuses the
-file.
+The schema pass reaches the GPX itself, not the `pgr` fields: GPX declares `<extensions>` as any element from another
+namespace, processed leniently, so a misspelled `<pgr:contry>` sails through it. A second pass closes that gap by
+reading each file the way the viewer does — every `<trk>` and `<wpt>` must carry a non-empty `<pgr:country>`, a
+`<pgr:variant>` is only ever `short` or `long`, and a `pgr` element with no matching field (that `<pgr:contry>`) is
+reported as the typo it is.
 
 One caveat: an editor that does not model foreign extensions drops the whole `<extensions>` block when it exports.
 gpx.studio is one, so a route re-exported from there comes back without its city, country and variant, and needs them
