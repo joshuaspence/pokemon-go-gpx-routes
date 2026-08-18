@@ -1,11 +1,8 @@
-// On-screen controls, taken verbatim from a known-good backup. Each checkbox
-// includes one control's keys in the synthesized backup: x/y are fixed Java
-// Floats, and the radar also carries its filter config (a plain string). The
-// values are not user-editable.
-// The floating control and both fast-snipe buttons sit in one row along the
-// bottom of the screen, so they share a Y. Dragging each into place by hand
-// left them a pixel or so apart (the floating control was higher still, at
-// 535.75); naming the row's Y once keeps them level.
+// On-screen controls, taken verbatim from a known-good backup. Each checkbox includes one control's keys in the
+// synthesized backup: x/y are fixed Java Floats, and the radar also carries its filter config (a plain string). The
+// values are not user-editable. The floating control and both fast-snipe buttons sit in one row along the bottom of the
+// screen, so they share a Y. Dragging each into place by hand left them a pixel or so apart (the floating control was
+// higher still, at 535.75); naming the row's Y once keeps them level.
 const CONTROL_ROW_Y = 785.09375;
 const SNIPE2 = { x: 916.2529296875, y: CONTROL_ROW_Y }; // fast-snipe button 2
 const SCAN_CONFIG =

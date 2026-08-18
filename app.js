@@ -72,9 +72,8 @@ async function copyText(text) {
   }
 }
 
-// Flash a copy button through its outcome — "Copied" or "Failed" — then restore
-// its label a moment later. The button is optional, so a caller with none to
-// flash still shares this path.
+// Flash a copy button through its outcome — "Copied" or "Failed" — then restore its label a moment later. The button is
+// optional, so a caller with none to flash still shares this path.
 function flashButton(btn, ok) {
   if (!btn) {
     return;
@@ -118,9 +117,8 @@ function fmtDist(m) {
   return m >= 1000 ? (m / 1000).toFixed(2) + ' km' : Math.round(m) + ' m';
 }
 
-// The text of a direct child <tag>, or null. Read from the element itself, not
-// its descendants, so a gpx.studio file's <metadata><author><name> is never
-// mistaken for an entry's name.
+// The text of a direct child <tag>, or null. Read from the element itself, not its descendants, so a gpx.studio file's
+// <metadata><author><name> is never mistaken for an entry's name.
 function childText(el, tag) {
   for (const child of el.children) {
     if (child.localName === tag && child.textContent && child.textContent.trim()) {
@@ -131,26 +129,23 @@ function childText(el, tag) {
   return null;
 }
 
-// The text of a <pgr:*> field in this element's own <extensions>, or null.
-// GPX 1.1 has no element for a locality, a country or a short/long variant, so
-// each is its own extension field rather than parts packed into one <name>.
+// The text of a <pgr:*> field in this element's own <extensions>, or null. GPX 1.1 has no element for a locality, a
+// country or a short/long variant, so each is its own extension field rather than parts packed into one <name>.
 // Matching on local name leaves the prefix a file's own business.
 //
-// Worth knowing when editing: an editor that does not model foreign extensions
-// drops the whole block on export — gpx.studio is one — so a round trip
-// through such a tool loses these fields, and the viewer will say so rather
-// than fall back to the path.
+// Worth knowing when editing: an editor that does not model foreign extensions drops the whole block on export —
+// gpx.studio is one — so a round trip through such a tool loses these fields, and the viewer will say so rather than
+// fall back to the path.
 function extText(el, tag) {
   const ext = [...el.children].find((child) => child.localName === 'extensions');
   return ext ? childText(ext, tag) : null;
 }
 
-// An entry's name with the locality it sits in — "Kings Park, Perth, Western
-// Australia". The country is left out: it is the sidebar's own grouping, and
-// entryName adds it where a favourite needs the whole thing.
+// An entry's name with the locality it sits in — "Kings Park, Perth, Western Australia". The country is left out: it is
+// the sidebar's own grouping, and entryName adds it where a favourite needs the whole thing.
 //
-// These readers say what is wrong with the element without naming the file;
-// each caller already knows which file it is reading, and says so once.
+// These readers say what is wrong with the element without naming the file; each caller already knows which file it is
+// reading, and says so once.
 function placeName(el) {
   const name = childText(el, 'name');
 
@@ -162,9 +157,8 @@ function placeName(el) {
   return city ? `${name}, ${city}` : name;
 }
 
-// The country a <trk> or <wpt> is in. Required: a countryless entry cannot be
-// grouped, flagged or named, and guessing one from the path is the papering
-// over this file format exists to avoid.
+// The country a <trk> or <wpt> is in. Required: a countryless entry cannot be grouped, flagged or named, and guessing
+// one from the path is the papering over this file format exists to avoid.
 function entryCountry(el) {
   const country = extText(el, 'country');
 
@@ -175,17 +169,15 @@ function entryCountry(el) {
   return country;
 }
 
-// Read one file, splitting it into routes and waypoints by element rather than
-// by where it sits: a <trk> is a path to walk, a <wpt> is one place to stand,
-// and a file may hold either or both. This is how the backup writer has always
-// read these files (see parseGpxFavourites), so the two now agree about what a
-// file contains instead of the viewer being told separately.
+// Read one file, splitting it into routes and waypoints by element rather than by where it sits: a <trk> is a path to
+// walk, a <wpt> is one place to stand, and a file may hold either or both. This is how the backup writer has always
+// read these files (see parseGpxFavourites), so the two now agree about what a file contains instead of the viewer
+// being told separately.
 //
-// Name, locality, country and variant all come from the file's own metadata; an
-// entry missing what it needs is rejected rather than guessed at, so the gap
-// shows up in the banner instead of quietly reading back the path. The variant
-// stays optional — it is empty for a route with no short/long counterpart. The
-// whole file text is returned once, for the copy button to hand over.
+// Name, locality, country and variant all come from the file's own metadata; an entry missing what it needs is rejected
+// rather than guessed at, so the gap shows up in the banner instead of quietly reading back the path. The variant stays
+// optional — it is empty for a route with no short/long counterpart. The whole file text is returned once, for the copy
+// button to hand over.
 async function loadGpxFile(file) {
   const res = await fetch(encodeURI(file));
 
@@ -205,9 +197,8 @@ async function loadGpxFile(file) {
   for (const trk of doc.getElementsByTagName('trk')) {
     const trkpts = trk.getElementsByTagName('trkpt');
 
-    // An emptied <trk> is what gpx.studio writes for a cleared track; skip it
-    // rather than report it, matching parseGpxFavourites. A <trk> that kept a
-    // single point is a different thing — a track that cannot be drawn — and is
+    // An emptied <trk> is what gpx.studio writes for a cleared track; skip it rather than report it, matching
+    // parseGpxFavourites. A <trk> that kept a single point is a different thing — a track that cannot be drawn — and is
     // still an error.
     if (trkpts.length === 0) {
       continue;
@@ -257,8 +248,7 @@ async function loadGpxFile(file) {
     });
   }
 
-  // A listed file holding neither is a defect too: something is in gpx.json
-  // that has nothing to show.
+  // A listed file holding neither is a defect too: something is in gpx.json that has nothing to show.
   if (routes.length === 0 && waypoints.length === 0) {
     throw new Error('has no <trk> or <wpt>');
   }
@@ -273,9 +263,8 @@ function clearMarkers(entry) {
   }
 }
 
-// Build a map popup: a bold title, a detail line, and a copy button. The copy
-// handler is handed the button so it can flash it (see flashButton). Returns
-// the element to bind to a layer.
+// Build a map popup: a bold title, a detail line, and a copy button. The copy handler is handed the button so it can
+// flash it (see flashButton). Returns the element to bind to a layer.
 function buildPopup(name, detail, copyLabel, onCopy) {
   const popup = document.createElement('div');
   const title = document.createElement('b');
@@ -291,9 +280,8 @@ function buildPopup(name, detail, copyLabel, onCopy) {
   return popup;
 }
 
-// Return the active route to its resting style, drop its start/end markers and
-// un-highlight its row. Mirrors deselectCity, so selecting either kind can
-// clear the other with a single call.
+// Return the active route to its resting style, drop its start/end markers and un-highlight its row. Mirrors
+// deselectCity, so selecting either kind can clear the other with a single call.
 function deselectRoute() {
   if (!active) {
     return;
@@ -516,8 +504,8 @@ filterEl.addEventListener('input', () => {
     el.classList.toggle('hidden', !hit);
   });
 
-  // Hide groups with no matches; while searching, auto-expand those that have
-  // matches so the results are visible. With no query, collapse everything.
+  // Hide groups with no matches; while searching, auto-expand those that have matches so the results are visible. With
+  // no query, collapse everything.
   document.querySelectorAll('.country-group').forEach((group) => {
     const anyVisible = [...group.querySelectorAll('.route')].some((r) => !r.classList.contains('hidden'));
     group.classList.toggle('hidden', !anyVisible);
@@ -560,8 +548,8 @@ async function init() {
   const rejected = [];
   const note = (file, e) => rejected.push({ file, reason: e.message });
 
-  // Nothing can be drawn without the list, and reading it is the page's first
-  // fetch — so this is also where opening the page from disk lands.
+  // Nothing can be drawn without the list, and reading it is the page's first fetch — so this is also where opening the
+  // page from disk lands.
   let files;
 
   try {
@@ -628,8 +616,7 @@ async function init() {
     appendRejected(rejected);
   }
 
-  // Every file listed was rejected; the banner already names each one, and
-  // there is no layer to fit the map to.
+  // Every file listed was rejected; the banner already names each one, and there is no layer to fit the map to.
   if (store.length === 0 && cityStore.length === 0) {
     return;
   }
@@ -640,17 +627,15 @@ async function init() {
 
 init();
 
-// ------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // PGSharp backup editing, ported from the pgsedit tool.
 //
-// PGSData.dat is a serialized java.util.HashMap<String,Object> whose two
-// favourite keys hold JSON: "hlfavor" is Points (one coordinate each, from
-// <wpt>) and "hlfavorRoute" is Routes (a whole path, from <trk>). To write
-// those keys back we have to read and faithfully re-emit the whole Java
-// serialization stream — handles are positional, so the tool re-emits the
-// stream from scratch rather than patching bytes. See the pgsedit README
-// for the format details this mirrors.
-// ------------------------------------------------------------------
+// PGSData.dat is a serialized java.util.HashMap<String,Object> whose two favourite keys hold JSON: "hlfavor" is Points
+// (one coordinate each, from <wpt>) and "hlfavorRoute" is Routes (a whole path, from <trk>). To write those keys back
+// we have to read and faithfully re-emit the whole Java serialization stream — handles are positional, so the tool
+// re-emits the stream from scratch rather than patching bytes. See the pgsedit README for the format details this
+// mirrors.
+// ---------------------------------------------------------------------------------------------------------------------
 const JavaSer = (() => {
   // ObjectStreamConstants.
   const STREAM_MAGIC = 0xaced,
@@ -668,10 +653,8 @@ const JavaSer = (() => {
   const SC_WRITE_METHOD = 0x01,
     SC_SERIALIZABLE = 0x02;
 
-  // Boxed primitives, keyed by JVM field-type code. The value carried is a
-  // Number for I/F, a BigInt for J (a 64-bit long won't fit a JS number and
-  // must round-trip exactly — PGSharp hides doubles inside longs), and a
-  // boolean for Z.
+  // Boxed primitives, keyed by JVM field-type code. The value carried is a Number for I/F, a BigInt for J (a 64-bit
+  // long won't fit a JS number and must round-trip exactly — PGSharp hides doubles inside longs), and a boolean for Z.
   const BOX = {
     I: { cls: 'java.lang.Integer', uid: 0x12e2a0a4f7818738n },
     J: { cls: 'java.lang.Long', uid: 0x3b8be490cc8f23dfn },
@@ -689,9 +672,8 @@ const JavaSer = (() => {
 
   const err = (m) => new Error(m);
 
-  // Java's "modified UTF-8": U+0000 is C0 80 and non-BMP characters are
-  // written as their two UTF-16 surrogates (3 bytes each), so we iterate
-  // UTF-16 code units rather than code points.
+  // Java's "modified UTF-8": U+0000 is C0 80 and non-BMP characters are written as their two UTF-16 surrogates (3 bytes
+  // each), so we iterate UTF-16 code units rather than code points.
   function encodeMutf8(s) {
     const out = [];
 
@@ -801,8 +783,8 @@ const JavaSer = (() => {
       this.handles.push(obj);
       return obj;
     }
-    // The JVM assigns an object's handle before its fields are read, so a
-    // self-referential object can cite itself; reserve the slot, back-patch it.
+    // The JVM assigns an object's handle before its fields are read, so a self-referential object can cite itself;
+    // reserve the slot, back-patch it.
     claimHandle() {
       this.handles.push(null);
       return this.handles.length - 1;
@@ -951,8 +933,8 @@ const JavaSer = (() => {
       for (const d of chain) {
         for (const [tcode, fname] of d.fields) {
           d.values ||= {};
-          // We only need HashMap's writeObject payload; a field's value is
-          // read to advance the stream but not otherwise used here.
+          // We only need HashMap's writeObject payload; a field's value is read to advance the stream but not otherwise
+          // used here.
           d.values[fname] = tcode === 'L' || tcode === '[' ? this.content() : this.readPrimitive(tcode);
         }
 
@@ -1217,13 +1199,13 @@ const JavaSer = (() => {
   return { loads, dumps, box: (t, v) => ({ box: t, value: v }) };
 })();
 
-// ------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 // GPX -> favourites, mirroring pgsedit's parse_gpx / entry_name.
-// ------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------
 const POINTS_KEY = 'hlfavor';
 const ROUTES_KEY = 'hlfavorRoute';
-// Third element of every stored route point, and the neutral playback state
-// of a route that has not been walked — both copied from PGSharp's own output.
+// Third element of every stored route point, and the neutral playback state of a route that has not been walked — both
+// copied from PGSharp's own output.
 const ROUTE_POINT_FLAG = 65536;
 const ROUTE_MODE = 2;
 const newRouteState = () => ({
@@ -1235,12 +1217,10 @@ const newRouteState = () => ({
   lng: 0,
 });
 
-// Gson's JSON spelling: no spaces, forward slashes escaped. Points escape
-// non-ASCII as \uXXXX (what "hlfavor" contains); Routes write it literally
-// ("São Paulo") — the two keys differ, so they don't share an encoder. A flag
-// is escaped per UTF-16 code unit either way, matching hot places for Points
-// and leaving the Route stream to write the surrogates as Java's modified
-// UTF-8 does.
+// Gson's JSON spelling: no spaces, forward slashes escaped. Points escape non-ASCII as \uXXXX (what "hlfavor"
+// contains); Routes write it literally ("São Paulo") — the two keys differ, so they don't share an encoder. A flag is
+// escaped per UTF-16 code unit either way, matching hot places for Points and leaving the Route stream to write the
+// surrogates as Java's modified UTF-8 does.
 const escSlashes = (s) => s.replace(/\//g, '\\/');
 const asciiEscape = (s) => s.replace(/[\u0080-\uFFFF]/g, (c) => '\\u' + c.charCodeAt(0).toString(16).padStart(4, '0'));
 
@@ -1267,20 +1247,18 @@ function encodeRoutes(entries) {
   return escSlashes(JSON.stringify(arr));
 }
 
-// A favourite's whole name — the sidebar's "<name>, <locality>" plus the
-// country and, for one of a short/long pair, the variant: "Kings Park, Perth,
-// Western Australia, Australia (long)". PGSharp lists and deletes favourites
-// by name, so this is the only identity a favourite has, which is why every
-// part of it comes from the file rather than the path — this mirrors pgsedit's
-// entry_name.
+// A favourite's whole name — the sidebar's "<name>, <locality>" plus the country and, for one of a short/long pair, the
+// variant: "Kings Park, Perth, Western Australia, Australia (long)". PGSharp lists and deletes favourites by name, so
+// this is the only identity a favourite has, which is why every part of it comes from the file rather than the path —
+// this mirrors pgsedit's entry_name.
 function entryName(el) {
   const label = `${placeName(el)}, ${entryCountry(el)}`;
   const variant = extText(el, 'variant');
   return variant ? `${label} (${variant})` : label;
 }
 
-// A subdivision flag is a black flag, the region and subdivision letters as
-// tag characters (ASCII shifted into the tag block), then the cancel tag.
+// A subdivision flag is a black flag, the region and subdivision letters as tag characters (ASCII shifted into the tag
+// block), then the cancel tag.
 const REGIONAL_INDICATOR_A = 0x1f1e6,
   TAG_BLOCK = 0xe0000,
   CANCEL_TAG = 0xe007f;
@@ -1288,13 +1266,12 @@ const BLACK_FLAG = '\u{1F3F4}';
 
 // The emoji flag for a country, derived from its alpha-2 code in COUNTRIES.
 //
-// PGSharp's own hot places carry a country flag at the front of the name —
-// "🇺🇸 Pier 39, California, USA" — in the same {name,lat,lng,tz} schema our
-// waypoints use. The format has no icon field, so the flag is simply the first
+// PGSharp's own hot places carry a country flag at the front of the name — "🇺🇸 Pier 39, California, USA" — in the
+// same {name,lat,lng,tz} schema our waypoints use. The format has no icon field, so the flag is simply the first
 // characters of the name, and both favourite kinds here follow that convention.
 //
-// The country comes from a <pgr:country>, so it must have an entry in COUNTRIES;
-// one that does not errors rather than importing without a flag.
+// The country comes from a <pgr:country>, so it must have an entry in COUNTRIES; one that does not errors rather than
+// importing without a flag.
 function countryFlag(country) {
   const code = COUNTRIES[country]?.code;
 
@@ -1326,12 +1303,10 @@ function coord(el) {
   return [lat, lng];
 }
 
-// Split one GPX file into Points and Routes by element, not by filename: a
-// <wpt> is one coordinate (a Point), a <trk> is a path (a Route keeping all
-// of its <trkpt>). A file may hold either or both. Mirrors pgsedit's
-// parse_gpx — an empty <trk> is skipped (gpx.studio writes one for a cleared
-// track) rather than treated as a route. Both kinds are flagged, so the two
-// lists read alike in the app even though PGSharp shows them on separate tabs.
+// Split one GPX file into Points and Routes by element, not by filename: a <wpt> is one coordinate (a Point), a <trk>
+// is a path (a Route keeping all of its <trkpt>). A file may hold either or both. Mirrors pgsedit's parse_gpx — an
+// empty <trk> is skipped (gpx.studio writes one for a cleared track) rather than treated as a route. Both kinds are
+// flagged, so the two lists read alike in the app even though PGSharp shows them on separate tabs.
 function parseGpxFavourites(text) {
   const doc = new DOMParser().parseFromString(text, 'application/xml');
 
@@ -1367,16 +1342,14 @@ function parseGpxFavourites(text) {
   return { points, routes };
 }
 
-// Build the favourite lists by re-parsing every GPX file, so the result is
-// decided by each file's own elements and metadata rather than by how the
-// map viewer happened to load them. Every file is fetched and parsed before
-// the backup is touched, so a bad or nameless file aborts with a clear
-// message instead of writing a half-built backup. The readers name the element
-// at fault; the file is added here, where it is known, so a failure reads as
-// "England/West End, London.gpx: <trk> has no <pgr:country>".
+// Build the favourite lists by re-parsing every GPX file, so the result is decided by each file's own elements and
+// metadata rather than by how the map viewer happened to load them. Every file is fetched and parsed before the backup
+// is touched, so a bad or nameless file aborts with a clear message instead of writing a half-built backup. The readers
+// name the element at fault; the file is added here, where it is known, so a failure reads as "England/West End,
+// London.gpx: <trk> has no <pgr:country>".
 async function buildRepoFavourites() {
-  // Read the list again rather than reuse what the map loaded, so a backup is
-  // built from every file the repository has, not only the ones that drew.
+  // Read the list again rather than reuse what the map loaded, so a backup is built from every file the repository has,
+  // not only the ones that drew.
   let files;
 
   try {
@@ -1415,15 +1388,12 @@ async function buildRepoFavourites() {
   return { points, routes };
 }
 
-// Fill in each Point's IANA timezone from its coordinates, mirroring pgsedit's
-// apply_timezones. The name is a property of a boundary polygon rather than
-// anything a formula can derive from a coordinate — Melbourne and Sydney share
-// a UTC offset but not a zone name, and Missouri is America/Chicago, not
-// America/New_York — so it comes from the boundary data tz-lookup carries.
-// Routes have no tz field, so nothing is looked up for them. A point whose zone
-// cannot be found is left without one, which is how a missing script or an
-// unlocatable coordinate looks; the count is returned so the caller can say so
-// once rather than per point. PGSharp accepts entries with no tz.
+// Fill in each Point's IANA timezone from its coordinates, mirroring pgsedit's apply_timezones. The name is a property
+// of a boundary polygon rather than anything a formula can derive from a coordinate — Melbourne and Sydney share a UTC
+// offset but not a zone name, and Missouri is America/Chicago, not America/New_York — so it comes from the boundary
+// data tz-lookup carries. Routes have no tz field, so nothing is looked up for them. A point whose zone cannot be found
+// is left without one, which is how a missing script or an unlocatable coordinate looks; the count is returned so the
+// caller can say so once rather than per point. PGSharp accepts entries with no tz.
 function applyTimezones(points) {
   let unknown = 0;
 
@@ -1448,8 +1418,7 @@ function applyTimezones(points) {
   return unknown;
 }
 
-// Names must be unique within a kind (PGSharp lists and deletes by name), so
-// drop any repeated name, keeping the first.
+// Names must be unique within a kind (PGSharp lists and deletes by name), so drop any repeated name, keeping the first.
 function dedupeByName(entries) {
   const seen = new Set();
   const out = [];
@@ -1468,14 +1437,11 @@ function dedupeByName(entries) {
   return { out, dropped };
 }
 
-// Order favourites the way pgsedit's `reorder` does: fold accents (decompose
-// with NFKD, then drop the combining marks) and case, so "São Paulo" files
-// under S rather than after every ASCII name. A tie on the folded key falls
-// back to the exact spelling, so names differing only by accent still order
-// deterministically. Each kind is sorted within itself, as PGSharp lists them
-// separately. A favourite's leading flag is decoration rather than part of how
-// the list reads, so it is folded out too — otherwise every place would sort by
-// its country's regional-indicator code instead of by name.
+// Order favourites the way pgsedit's `reorder` does: fold accents (decompose with NFKD, then drop the combining marks)
+// and case, so "São Paulo" files under S rather than after every ASCII name. A tie on the folded key falls back to the
+// exact spelling, so names differing only by accent still order deterministically. Each kind is sorted within itself,
+// as PGSharp lists them separately. A favourite's leading flag is decoration rather than part of how the list reads, so
+// it is folded out too — otherwise every place would sort by its country's regional-indicator code instead of by name.
 const sortKey = (name) =>
   (name || '')
     .replace(/^[^\p{L}\p{N}]+/u, '')
@@ -1518,9 +1484,8 @@ function downloadBytes(bytes, name) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-// Synthesize a partial PGSData.dat from scratch — a HashMap holding only the
-// keys we set (the favourites, plus whichever control positions are ticked).
-// Nothing is read from an existing backup; every other preference is omitted,
+// Synthesize a partial PGSData.dat from scratch — a HashMap holding only the keys we set (the favourites, plus
+// whichever control positions are ticked). Nothing is read from an existing backup; every other preference is omitted,
 // so importing this leaves the rest of the profile as PGSharp had it.
 backupRunEl.addEventListener('click', async () => {
   backupRunEl.disabled = true;
@@ -1530,8 +1495,8 @@ backupRunEl.addEventListener('click', async () => {
     const repo = await buildRepoFavourites();
     const notes = [];
 
-    // Names must be unique within a kind (PGSharp lists and deletes by name),
-    // so drop any repeat, then alphabetise within each kind like `reorder`.
+    // Names must be unique within a kind (PGSharp lists and deletes by name), so drop any repeat, then alphabetise
+    // within each kind like `reorder`.
     const p = dedupeByName(repo.points);
     const r = dedupeByName(repo.routes);
     const points = p.out,
@@ -1558,8 +1523,8 @@ backupRunEl.addEventListener('click', async () => {
     root.set(POINTS_KEY, encodePoints(points));
     root.set(ROUTES_KEY, encodeRoutes(routes));
 
-    // Include whichever controls are ticked, set to fixed values. A number
-    // is written as a Java Float; a string (the radar's filter) as-is.
+    // Include whichever controls are ticked, set to fixed values. A number is written as a Java Float; a string (the
+    // radar's filter) as-is.
     let positions = 0;
 
     for (const { id, keys } of CONTROL_RESETS) {

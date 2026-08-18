@@ -1,16 +1,13 @@
-// Every country the GPX files use, each with the continent it groups under in
-// the sidebar and the ISO 3166-1 alpha-2 code its flag is drawn from. One table
-// so a country is added in a single place and its continent and code cannot
+// Every country the GPX files use, each with the continent it groups under in the sidebar and the ISO 3166-1 alpha-2
+// code its flag is drawn from. One table so a country is added in a single place and its continent and code cannot
 // drift out of step.
 //
-// The continent only groups the sidebar, so an unlisted country falls back to
-// "Other" (see buildSidebar). The code is required: a route or waypoint whose
-// country has no entry here cannot be flagged, and building a PGSharp backup
-// errors rather than importing it without one (see countryFlag).
+// The continent only groups the sidebar, so an unlisted country falls back to "Other" (see buildSidebar). The code is
+// required: a route or waypoint whose country has no entry here cannot be flagged, and building a PGSharp backup errors
+// rather than importing it without one (see countryFlag).
 //
-// Codes are alpha-2 so the flag emoji is derived rather than pasted in — "AU"
-// is legible in a diff and two similar flags are not. England is a subdivision
-// rather than a country, and carries the "GB-ENG" tag sequence Unicode gives it
+// Codes are alpha-2 so the flag emoji is derived rather than pasted in — "AU" is legible in a diff and two similar
+// flags are not. England is a subdivision rather than a country, and carries the "GB-ENG" tag sequence Unicode gives it
 // instead of a pair of regional indicators.
 export const COUNTRIES = {
   'Antarctica': { code: 'AQ', continent: 'Antarctica' },
