@@ -1,3 +1,6 @@
+import { COUNTRIES } from './countries.js';
+import { CONTROL_RESETS } from './pgsharp-controls.js';
+
 async function loadManifest() {
   const res = await fetch('gpx.json');
 
@@ -262,57 +265,6 @@ async function loadGpxFile(file) {
 
   return { text, routes, waypoints };
 }
-
-// Every country the GPX files use, each with the continent it groups under in
-// the sidebar and the ISO 3166-1 alpha-2 code its flag is drawn from. One table
-// so a country is added in a single place and its continent and code cannot
-// drift out of step.
-//
-// The continent only groups the sidebar, so an unlisted country falls back to
-// "Other" (see buildSidebar). The code is required: a route or waypoint whose
-// country has no entry here cannot be flagged, and building a PGSharp backup
-// errors rather than importing it without one (see countryFlag).
-//
-// Codes are alpha-2 so the flag emoji is derived rather than pasted in — "AU"
-// is legible in a diff and two similar flags are not. England is a subdivision
-// rather than a country, and carries the "GB-ENG" tag sequence Unicode gives it
-// instead of a pair of regional indicators.
-const COUNTRIES = {
-  'Antarctica': { code: 'AQ', continent: 'Antarctica' },
-  'Argentina': { code: 'AR', continent: 'South America' },
-  'Australia': { code: 'AU', continent: 'Oceania' },
-  'Austria': { code: 'AT', continent: 'Europe' },
-  'Belgium': { code: 'BE', continent: 'Europe' },
-  'Brazil': { code: 'BR', continent: 'South America' },
-  'Canada': { code: 'CA', continent: 'North America' },
-  'Canary Islands': { code: 'IC', continent: 'Africa' },
-  'Czechia': { code: 'CZ', continent: 'Europe' },
-  'Denmark': { code: 'DK', continent: 'Europe' },
-  'Ecuador': { code: 'EC', continent: 'South America' },
-  'England': { code: 'GB-ENG', continent: 'Europe' },
-  'France': { code: 'FR', continent: 'Europe' },
-  'Germany': { code: 'DE', continent: 'Europe' },
-  'Hungary': { code: 'HU', continent: 'Europe' },
-  'India': { code: 'IN', continent: 'Asia' },
-  'Ireland': { code: 'IE', continent: 'Europe' },
-  'Italy': { code: 'IT', continent: 'Europe' },
-  'Japan': { code: 'JP', continent: 'Asia' },
-  'Mexico': { code: 'MX', continent: 'North America' },
-  'Netherlands': { code: 'NL', continent: 'Europe' },
-  'New Zealand': { code: 'NZ', continent: 'Oceania' },
-  'North Korea': { code: 'KP', continent: 'Asia' },
-  'Norway': { code: 'NO', continent: 'Europe' },
-  'Peru': { code: 'PE', continent: 'South America' },
-  'Portugal': { code: 'PT', continent: 'Europe' },
-  'Romania': { code: 'RO', continent: 'Europe' },
-  'Russia': { code: 'RU', continent: 'Europe' },
-  'Singapore': { code: 'SG', continent: 'Asia' },
-  'South Korea': { code: 'KR', continent: 'Asia' },
-  'Spain': { code: 'ES', continent: 'Europe' },
-  'Taiwan': { code: 'TW', continent: 'Asia' },
-  'United Arab Emirates': { code: 'AE', continent: 'Asia' },
-  'United States': { code: 'US', continent: 'North America' },
-};
 
 function clearMarkers(entry) {
   if (entry.markers) {
@@ -1314,27 +1266,6 @@ function encodeRoutes(entries) {
   }));
   return escSlashes(JSON.stringify(arr));
 }
-
-// On-screen controls, taken verbatim from a known-good backup. Each checkbox
-// includes one control's keys in the synthesized backup: x/y are fixed Java
-// Floats, and the radar also carries its filter config (a plain string). The
-// values are not user-editable.
-// The floating control and both fast-snipe buttons sit in one row along the
-// bottom of the screen, so they share a Y. Dragging each into place by hand
-// left them a pixel or so apart (the floating control was higher still, at
-// 535.75); naming the row's Y once keeps them level.
-const CONTROL_ROW_Y = 785.09375;
-const SNIPE2 = { x: 916.2529296875, y: CONTROL_ROW_Y }; // fast-snipe button 2
-const SCAN_CONFIG =
-  '{"shiny":true,"minlv":1,"maxlv":36,"miniv":0,"maxiv":100,"checkAll":true,"onlyShiny":true,"name":"Nearby Radar","birds":true,"attrMode":0,"minatk":0,"maxatk":15,"mindef":0,"maxdef":15,"minsta":0,"maxsta":15,"showShinyOnly":false,"loadShiny":true,"notify":true,"stop":true,"pgp":true}';
-const CONTROL_RESETS = [
-  { id: 'resetIcon', keys: { iconX: 0.0, iconY: CONTROL_ROW_Y } },
-  { id: 'resetSnipe1', keys: { hlfastsnipex: 816.33203125, hlfastsnipey: CONTROL_ROW_Y } },
-  { id: 'resetSnipe2', keys: { hlfastsnipe2x: SNIPE2.x, hlfastsnipe2y: SNIPE2.y } },
-  { id: 'resetCdpos', keys: { hlcdposx: 0.0, hlcdposy: 306.25 } },
-  // The radar button shares fast-snipe button 2's position; hlscan is its filter.
-  { id: 'resetScan', keys: { hlscanx: SNIPE2.x, hlscany: SNIPE2.y, hlscan: SCAN_CONFIG } },
-];
 
 // A favourite's whole name — the sidebar's "<name>, <locality>" plus the
 // country and, for one of a short/long pair, the variant: "Kings Park, Perth,
