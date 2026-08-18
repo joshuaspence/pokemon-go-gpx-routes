@@ -1,4 +1,4 @@
-import { COUNTRIES } from './countries.js';
+import COUNTRIES from './countries.js';
 import { entryCountry, extText, loadManifest, placeName } from './gpx.js';
 
 const cssVar = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();

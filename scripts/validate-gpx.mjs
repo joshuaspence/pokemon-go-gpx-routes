@@ -7,7 +7,7 @@
  * nothing to gain by making this check depend on a twenty-year-old site staying up.
  */
 
-import { COUNTRIES } from '../countries.js';
+import COUNTRIES from '../countries.js';
 import { DOMParser } from '@xmldom/xmldom';
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';

@@ -9,7 +9,7 @@
 // Codes are alpha-2 so the flag emoji is derived rather than pasted in — "AU" is legible in a diff and two similar
 // flags are not. England is a subdivision rather than a country, and carries the "GB-ENG" tag sequence Unicode gives it
 // instead of a pair of regional indicators.
-export const COUNTRIES = {
+export default {
   'Antarctica': { code: 'AQ', continent: 'Antarctica' },
   'Argentina': { code: 'AR', continent: 'South America' },
   'Australia': { code: 'AU', continent: 'Oceania' },
