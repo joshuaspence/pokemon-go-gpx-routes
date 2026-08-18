@@ -19,7 +19,9 @@ async function loadManifest() {
 
 const cssVar = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 
-const map = L.map('map', { worldCopyJump: true }).setView([20, 0], 2);
+// zoomSnap: 0 lets fitBounds land on a fractional zoom. Snapping to whole levels rounds down, which can leave the
+// fitted layers filling as little as half the map — a lot of dead space on a narrow phone viewport.
+const map = L.map('map', { worldCopyJump: true, zoomSnap: 0 }).setView([20, 0], 2);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   maxZoom: 19,
   attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
@@ -319,7 +321,7 @@ function selectRoute(entry, { pan = true } = {}) {
   entry.line.bindPopup(buildPopup(entry.name, detail, 'Copy GPX', (btn) => copyRoute(entry, btn)));
 
   if (pan) {
-    map.fitBounds(entry.line.getBounds(), { padding: [40, 40], maxZoom: 17 });
+    map.fitBounds(entry.line.getBounds(), { padding: [24, 24], maxZoom: 17 });
     entry.line.openPopup();
   }
 
@@ -622,7 +624,7 @@ async function init() {
   }
 
   const all = L.featureGroup([...store.map((s) => s.line), ...cityStore.map((c) => c.marker)]);
-  map.fitBounds(all.getBounds(), { padding: [30, 30] });
+  map.fitBounds(all.getBounds(), { padding: [16, 16] });
 }
 
 init();
