@@ -1,12 +1,16 @@
 async function loadManifest() {
   const res = await fetch('gpx.json');
+
   if (!res.ok) {
     throw new Error(`${res.status} ${res.statusText}`);
   }
+
   const files = await res.json();
+
   if (!Array.isArray(files) || files.some((f) => typeof f !== 'string')) {
     throw new Error('is not a list of paths');
   }
+
   return files;
 }
 
@@ -72,6 +76,7 @@ function flashButton(btn, ok) {
   if (!btn) {
     return;
   }
+
   const original = btn.textContent;
   btn.textContent = ok ? 'Copied' : 'Failed';
   btn.classList.add('done');
@@ -98,9 +103,11 @@ function haversine(a, b) {
 
 function routeDistance(latlngs) {
   let d = 0;
+
   for (let i = 1; i < latlngs.length; i++) {
     d += haversine(latlngs[i - 1], latlngs[i]);
   }
+
   return d;
 }
 
@@ -117,6 +124,7 @@ function childText(el, tag) {
       return child.textContent.trim();
     }
   }
+
   return null;
 }
 
@@ -142,9 +150,11 @@ function extText(el, tag) {
 // each caller already knows which file it is reading, and says so once.
 function placeName(el) {
   const name = childText(el, 'name');
+
   if (!name) {
     throw new Error(`<${el.localName}> has no <name>`);
   }
+
   const city = extText(el, 'city');
   return city ? `${name}, ${city}` : name;
 }
@@ -154,9 +164,11 @@ function placeName(el) {
 // over this file format exists to avoid.
 function entryCountry(el) {
   const country = extText(el, 'country');
+
   if (!country) {
     throw new Error(`<${el.localName}> has no <pgr:country>`);
   }
+
   return country;
 }
 
@@ -173,18 +185,23 @@ function entryCountry(el) {
 // whole file text is returned once, for the copy button to hand over.
 async function loadGpxFile(file) {
   const res = await fetch(encodeURI(file));
+
   if (!res.ok) {
     throw new Error(`${res.status} ${res.statusText}`);
   }
+
   const text = await res.text();
   const doc = new DOMParser().parseFromString(text, 'application/xml');
+
   if (doc.querySelector('parsererror')) {
     throw new Error('not valid XML');
   }
 
   const routes = [];
+
   for (const trk of doc.getElementsByTagName('trk')) {
     const trkpts = trk.getElementsByTagName('trkpt');
+
     // An emptied <trk> is what gpx.studio writes for a cleared track; skip it
     // rather than report it, matching parseGpxFavourites. A <trk> that kept a
     // single point is a different thing — a track that cannot be drawn — and is
@@ -192,10 +209,13 @@ async function loadGpxFile(file) {
     if (trkpts.length === 0) {
       continue;
     }
+
     const latlngs = [];
+
     for (const p of trkpts) {
       const lat = parseFloat(p.getAttribute('lat'));
       const lon = parseFloat(p.getAttribute('lon'));
+
       if (Number.isFinite(lat) && Number.isFinite(lon)) {
         latlngs.push([lat, lon]);
       }
@@ -204,6 +224,7 @@ async function loadGpxFile(file) {
     if (latlngs.length < 2) {
       throw new Error('<trk> has fewer than two usable <trkpt>');
     }
+
     routes.push({
       latlngs,
       name: placeName(trk),
@@ -214,14 +235,17 @@ async function loadGpxFile(file) {
 
   // coordStr preserves the file's exact lat/lon text for copying.
   const waypoints = [];
+
   for (const w of doc.getElementsByTagName('wpt')) {
     const latStr = w.getAttribute('lat'),
       lonStr = w.getAttribute('lon');
     const lat = parseFloat(latStr),
       lon = parseFloat(lonStr);
+
     if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
       throw new Error(`<wpt> at ${latStr},${lonStr} has an unparseable coordinate`);
     }
+
     waypoints.push({
       country: entryCountry(w),
       name: placeName(w),
@@ -309,6 +333,7 @@ function deselectRoute() {
   if (!active) {
     return;
   }
+
   active.line.setStyle({ color: cssVar('--track'), weight: 2, opacity: 0.55 });
   active.line.bringToBack();
   clearMarkers(active);
@@ -339,10 +364,12 @@ function selectRoute(entry, { pan = true } = {}) {
 
   const detail = `${entry.country} · ${entry.latlngs.length} points · ${fmtDist(entry.distance)}`;
   entry.line.bindPopup(buildPopup(entry.name, detail, 'Copy GPX', (btn) => copyRoute(entry, btn)));
+
   if (pan) {
     map.fitBounds(entry.line.getBounds(), { padding: [40, 40], maxZoom: 17 });
     entry.line.openPopup();
   }
+
   entry.el.closest('.country-group')?.classList.remove('collapsed');
   entry.el.closest('.continent-group')?.classList.remove('collapsed');
   entry.el.scrollIntoView({ block: 'nearest' });
@@ -352,6 +379,7 @@ function deselectCity() {
   if (!activeCity) {
     return;
   }
+
   activeCity.marker.setStyle({ radius: 5, fillColor: cssVar('--city') });
   activeCity.el.classList.remove('active');
   activeCity = null;
@@ -374,6 +402,7 @@ function selectCity(c, { pan = true } = {}) {
     map.setView(c.coords, Math.max(map.getZoom(), 12));
     c.marker.openPopup();
   }
+
   c.el.closest('.country-group')?.classList.remove('collapsed');
   c.el.closest('.continent-group')?.classList.remove('collapsed');
   c.el.scrollIntoView({ block: 'nearest' });
@@ -446,6 +475,7 @@ function buildSidebar() {
     : `${store.length} tracks across ${new Set(store.map((s) => s.country)).size} countries`;
 
   const byCountry = {};
+
   for (const s of store) {
     (byCountry[s.country] ||= []).push({
       name: s.name,
@@ -463,6 +493,7 @@ function buildSidebar() {
   }
 
   const byContinent = {};
+
   for (const country of Object.keys(byCountry)) {
     (byContinent[CONTINENTS[country] || 'Other'] ||= []).push(country);
   }
@@ -499,9 +530,11 @@ function buildSidebar() {
       group.appendChild(head);
       const items = document.createElement('div');
       items.className = 'country-items';
+
       for (const item of byCountry[country].sort((a, b) => a.name.localeCompare(b.name) || a.dist - b.dist)) {
         items.appendChild(item.build());
       }
+
       group.appendChild(items);
       citems.appendChild(group);
     }
@@ -544,6 +577,7 @@ function appendRejected(rejected) {
   const head = document.createElement('b');
   head.textContent = `${rejected.length} file(s) rejected — fix the GPX metadata:`;
   const list = document.createElement('ul');
+
   for (const { file, reason } of rejected) {
     console.error(`${file}: ${reason}`);
     const item = document.createElement('li');
@@ -552,6 +586,7 @@ function appendRejected(rejected) {
     item.append(path, document.createTextNode(` — ${reason}`));
     list.appendChild(item);
   }
+
   bannerEl.append(head, list);
   bannerEl.style.display = 'block';
 }
@@ -563,6 +598,7 @@ async function init() {
   // Nothing can be drawn without the list, and reading it is the page's first
   // fetch — so this is also where opening the page from disk lands.
   let files;
+
   try {
     files = await loadManifest();
   } catch (e) {
@@ -580,10 +616,12 @@ async function init() {
   const results = await Promise.allSettled(files.map((file) => loadGpxFile(file)));
   results.forEach((res, i) => {
     const file = files[i];
+
     if (res.status === 'rejected') {
       note(file, res.reason);
       return;
     }
+
     const { text, routes, waypoints } = res.value;
 
     for (const route of routes) {
@@ -620,6 +658,7 @@ async function init() {
   });
 
   buildSidebar();
+
   if (rejected.length) {
     appendRejected(rejected);
   }
@@ -690,8 +729,10 @@ const JavaSer = (() => {
   // UTF-16 code units rather than code points.
   function encodeMutf8(s) {
     const out = [];
+
     for (let i = 0; i < s.length; i++) {
       const c = s.charCodeAt(i);
+
       if (c === 0) {
         out.push(0xc0, 0x80);
       } else if (c < 0x80) {
@@ -702,6 +743,7 @@ const JavaSer = (() => {
         out.push(0xe0 | (c >> 12), 0x80 | ((c >> 6) & 0x3f), 0x80 | (c & 0x3f));
       }
     }
+
     return out;
   }
 
@@ -709,8 +751,10 @@ const JavaSer = (() => {
     let s = '',
       i = 0;
     const n = bytes.length;
+
     while (i < n) {
       const c = bytes[i];
+
       if (c < 0x80) {
         s += String.fromCharCode(c);
         i += 1;
@@ -718,18 +762,21 @@ const JavaSer = (() => {
         if (i + 1 >= n) {
           throw err('truncated modified UTF-8 sequence');
         }
+
         s += String.fromCharCode(((c & 0x1f) << 6) | (bytes[i + 1] & 0x3f));
         i += 2;
       } else if ((c & 0xf0) === 0xe0) {
         if (i + 2 >= n) {
           throw err('truncated modified UTF-8 sequence');
         }
+
         s += String.fromCharCode(((c & 0x0f) << 12) | ((bytes[i + 1] & 0x3f) << 6) | (bytes[i + 2] & 0x3f));
         i += 3;
       } else {
         throw err(`invalid modified UTF-8 byte 0x${c.toString(16)}`);
       }
     }
+
     return s;
   }
 
@@ -744,6 +791,7 @@ const JavaSer = (() => {
       if (this.p >= this.b.length) {
         throw err('truncated stream');
       }
+
       return this.b[this.p++];
     }
     u2() {
@@ -773,9 +821,11 @@ const JavaSer = (() => {
     }
     raw(n) {
       const v = this.b.subarray(this.p, this.p + n);
+
       if (v.length !== n) {
         throw err('truncated stream');
       }
+
       this.p += n;
       return v;
     }
@@ -798,9 +848,11 @@ const JavaSer = (() => {
     }
     ref() {
       const h = this.i4() - BASE_HANDLE;
+
       if (h < 0 || h >= this.handles.length) {
         throw err(`bad handle reference ${h}`);
       }
+
       return this.handles[h];
     }
     utf() {
@@ -812,6 +864,7 @@ const JavaSer = (() => {
 
     classDesc() {
       const tag = this.u1();
+
       if (tag === TC_NULL) {
         return null;
       }
@@ -823,19 +876,24 @@ const JavaSer = (() => {
       if (tag !== TC_CLASSDESC) {
         throw err(`expected classdesc, got 0x${tag.toString(16)} at ${this.p - 1}`);
       }
+
       const name = this.utf();
       const uid = this.i8();
       const flags = this.u1();
       const desc = this.newHandle({ name, uid, flags, fields: [] });
       const nfields = this.u2();
+
       for (let i = 0; i < nfields; i++) {
         const tcode = String.fromCharCode(this.u1());
         const fname = this.utf();
+
         if (tcode === 'L' || tcode === '[') {
           this.content();
         } // field type string; unused
+
         desc.fields.push([tcode, fname]);
       }
+
       this.skipAnnotation();
       desc.super = this.classDesc();
       return desc;
@@ -846,6 +904,7 @@ const JavaSer = (() => {
           this.p += 1;
           return;
         }
+
         this.content();
       }
     }
@@ -863,6 +922,7 @@ const JavaSer = (() => {
           return this.u1() !== 0;
         case 'B':
           return this.u1();
+
         case 'S': {
           const v = this.dv.getInt16(this.p);
           this.p += 2;
@@ -874,12 +934,14 @@ const JavaSer = (() => {
           this.p += 2;
           return String.fromCharCode(v);
         }
+
         default:
           throw err(`unsupported field type '${tcode}'`);
       }
     }
     content() {
       const tag = this.u1();
+
       if (tag === TC_NULL) {
         return null;
       }
@@ -907,16 +969,20 @@ const JavaSer = (() => {
       if (tag === TC_OBJECT) {
         return this.object();
       }
+
       throw err(`unsupported tag 0x${tag.toString(16)} at offset ${this.p - 1}`);
     }
     object() {
       const desc = this.classDesc();
       const slot = this.claimHandle();
       const chain = [];
+
       for (let d = desc; d; d = d.super) {
         chain.push(d);
       }
+
       chain.reverse(); // superclass fields come first
+
       for (const d of chain) {
         for (const [tcode, fname] of d.fields) {
           d.values ||= {};
@@ -929,7 +995,9 @@ const JavaSer = (() => {
           d.custom = this.customData(d.name);
         }
       }
+
       const name = desc.name;
+
       if (name in BOX_BY_CLASS) {
         const t = BOX_BY_CLASS[name];
         return this.resolveHandle(slot, { box: t, value: chain[chain.length - 1].values.value });
@@ -937,13 +1005,16 @@ const JavaSer = (() => {
 
       if (name === 'java.util.HashMap') {
         let entries = null;
+
         for (const d of chain) {
           if (d.custom !== undefined) {
             entries = d.custom;
           }
         }
+
         return this.resolveHandle(slot, entries);
       }
+
       throw err(`unsupported class ${name}`);
     }
     customData(className) {
@@ -954,10 +1025,12 @@ const JavaSer = (() => {
       if (this.u1() !== TC_BLOCKDATA) {
         throw err('expected HashMap block data');
       }
+
       const payload = this.raw(this.u1());
       const pdv = new DataView(payload.buffer, payload.byteOffset, payload.byteLength);
       const size = pdv.getInt32(4); // [capacity, size]; capacity is recomputed on write
       const m = new Map();
+
       for (let i = 0; i < size; i++) {
         const k = this.content();
         m.set(k, this.content());
@@ -966,19 +1039,24 @@ const JavaSer = (() => {
       if (this.u1() !== TC_ENDBLOCKDATA) {
         throw err('expected TC_ENDBLOCKDATA after HashMap');
       }
+
       return m;
     }
   }
 
   function loads(bytes) {
     const r = new Reader(bytes);
+
     if (r.u2() !== STREAM_MAGIC || r.u2() !== STREAM_VERSION) {
       throw err('not a Java serialization stream (bad magic/version)');
     }
+
     const root = r.content();
+
     if (r.p !== bytes.length) {
       throw err(`${bytes.length - r.p} trailing bytes after root object`);
     }
+
     return root;
   }
 
@@ -1010,10 +1088,12 @@ const JavaSer = (() => {
     i8(v) {
       let x = BigInt.asUintN(64, BigInt(v));
       const bytes = new Array(8);
+
       for (let i = 7; i >= 0; i--) {
         bytes[i] = Number(x & 0xffn);
         x >>= 8n;
       }
+
       this.push(bytes);
     }
     f4(v) {
@@ -1023,9 +1103,11 @@ const JavaSer = (() => {
     }
     utf(s) {
       const b = encodeMutf8(s);
+
       if (b.length > 0xffff) {
         throw err('string too long for TC_STRING');
       }
+
       this.u2(b.length);
       this.push(b);
     }
@@ -1035,11 +1117,14 @@ const JavaSer = (() => {
     }
     string(s) {
       const h = this.strHandles.get(s);
+
       if (h !== undefined) {
         this.ref(h);
         return;
       }
+
       const b = encodeMutf8(s);
+
       if (b.length <= 0xffff) {
         this.u1(TC_STRING);
         this.u2(b.length);
@@ -1047,26 +1132,32 @@ const JavaSer = (() => {
         this.u1(TC_LONGSTRING);
         this.i8(BigInt(b.length));
       }
+
       this.push(b);
       this.strHandles.set(s, this.claim());
     }
     classDesc(name, uid, flags, fields, superName, superUid) {
       const h = this.classHandles.get(name);
+
       if (h !== undefined) {
         this.ref(h);
         return;
       }
+
       this.u1(TC_CLASSDESC);
       this.utf(name);
       this.i8(uid);
       this.u1(flags);
       this.u2(fields.length);
+
       for (const [tc, fn] of fields) {
         this.u1(tc.charCodeAt(0));
         this.utf(fn);
       }
+
       this.u1(TC_ENDBLOCKDATA); // empty classAnnotation
       this.classHandles.set(name, this.claim());
+
       if (superName == null) {
         this.u1(TC_NULL);
       } else {
@@ -1076,12 +1167,15 @@ const JavaSer = (() => {
     box(b) {
       const info = BOX[b.box];
       this.u1(TC_OBJECT);
+
       if (b.box === 'Z') {
         this.classDesc(info.cls, info.uid, SC_SERIALIZABLE, [['Z', 'value']]);
       } else {
         this.classDesc(info.cls, info.uid, SC_SERIALIZABLE, [[b.box, 'value']], NUMBER.name, NUMBER.uid);
       }
+
       this.boxHandles.set(b, this.claim());
+
       if (b.box === 'Z') {
         this.u1(b.value ? 1 : 0);
       } else if (b.box === 'I') {
@@ -1099,6 +1193,7 @@ const JavaSer = (() => {
         this.string(v);
       } else if (v.box) {
         const h = this.boxHandles.get(v);
+
         if (h !== undefined) {
           this.ref(h);
         } else {
@@ -1125,10 +1220,12 @@ const JavaSer = (() => {
       this.u1(8);
       this.i4(capacity);
       this.i4(m.size);
+
       for (const [k, val] of m) {
         this.value(k);
         this.value(val);
       }
+
       this.u1(TC_ENDBLOCKDATA);
     }
   }
@@ -1136,9 +1233,11 @@ const JavaSer = (() => {
   // Mirror HashMap's power-of-two capacity growth for a given entry count.
   function tableSizeFor(size, loadFactor) {
     let capacity = 16;
+
     while (size > capacity * loadFactor) {
       capacity <<= 1;
     }
+
     return capacity;
   }
 
@@ -1183,9 +1282,11 @@ const asciiEscape = (s) => s.replace(/[\u0080-\uFFFF]/g, (c) => '\\u' + c.charCo
 function encodePoints(entries) {
   const arr = entries.map((e) => {
     const o = { name: e.name, lat: e.lat, lng: e.lng };
+
     if (e.tz) {
       o.tz = e.tz;
     }
+
     return o;
   });
   return escSlashes(asciiEscape(JSON.stringify(arr)));
@@ -1290,6 +1391,7 @@ const BLACK_FLAG = '\u{1F3F4}';
 
 function countryFlag(country) {
   const code = COUNTRY_CODES[country];
+
   if (!code) {
     throw new Error(`no flag for "${country}" — add it to COUNTRY_CODES`);
   }
@@ -1298,6 +1400,7 @@ function countryFlag(country) {
     const tags = [...code.replace('-', '').toLowerCase()].map((c) => String.fromCodePoint(TAG_BLOCK + c.charCodeAt(0)));
     return BLACK_FLAG + tags.join('') + String.fromCodePoint(CANCEL_TAG);
   }
+
   return [...code].map((c) => String.fromCodePoint(REGIONAL_INDICATOR_A + c.charCodeAt(0) - 65)).join('');
 }
 
@@ -1309,9 +1412,11 @@ function flaggedName(el) {
 function coord(el) {
   const lat = parseFloat(el.getAttribute('lat'));
   const lng = parseFloat(el.getAttribute('lon'));
+
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
     throw new Error(`<${el.localName}> has an unparseable coordinate`);
   }
+
   return [lat, lng];
 }
 
@@ -1323,11 +1428,14 @@ function coord(el) {
 // lists read alike in the app even though PGSharp shows them on separate tabs.
 function parseGpxFavourites(text) {
   const doc = new DOMParser().parseFromString(text, 'application/xml');
+
   if (doc.querySelector('parsererror')) {
     throw new Error('not valid XML');
   }
+
   const points = [],
     routes = [];
+
   for (const wpt of doc.getElementsByTagName('wpt')) {
     const [lat, lng] = coord(wpt);
     points.push({ name: flaggedName(wpt), lat, lng });
@@ -1335,16 +1443,21 @@ function parseGpxFavourites(text) {
 
   for (const trk of doc.getElementsByTagName('trk')) {
     const trkpts = trk.getElementsByTagName('trkpt');
+
     if (trkpts.length === 0) {
       continue;
     }
+
     const pts = [];
+
     for (const p of trkpts) {
       const [lat, lng] = coord(p);
       pts.push([lat, lng, ROUTE_POINT_FLAG]);
     }
+
     routes.push({ name: flaggedName(trk), points: pts, mode: ROUTE_MODE, state: newRouteState() });
   }
+
   return { points, routes };
 }
 
@@ -1359,32 +1472,40 @@ async function buildRepoFavourites() {
   // Read the list again rather than reuse what the map loaded, so a backup is
   // built from every file the repository has, not only the ones that drew.
   let files;
+
   try {
     files = await loadManifest();
   } catch (e) {
     throw new Error(`gpx.json: ${e.message}`, { cause: e });
   }
+
   const texts = await Promise.all(
     files.map(async (file) => {
       const res = await fetch(encodeURI(file));
+
       if (!res.ok) {
         throw new Error(`${file}: ${res.status} ${res.statusText}`);
       }
+
       return [file, await res.text()];
     }),
   );
   const points = [],
     routes = [];
+
   for (const [file, text] of texts) {
     let parsed;
+
     try {
       parsed = parseGpxFavourites(text);
     } catch (e) {
       throw new Error(`${file}: ${e.message}`, { cause: e });
     }
+
     points.push(...parsed.points);
     routes.push(...parsed.routes);
   }
+
   return { points, routes };
 }
 
@@ -1399,8 +1520,10 @@ async function buildRepoFavourites() {
 // once rather than per point. PGSharp accepts entries with no tz.
 function applyTimezones(points) {
   let unknown = 0;
+
   for (const p of points) {
     let tz = null;
+
     if (typeof tzlookup === 'function') {
       try {
         tz = tzlookup(p.lat, p.lng);
@@ -1415,6 +1538,7 @@ function applyTimezones(points) {
       unknown++;
     }
   }
+
   return unknown;
 }
 
@@ -1424,14 +1548,17 @@ function dedupeByName(entries) {
   const seen = new Set();
   const out = [];
   let dropped = 0;
+
   for (const e of entries) {
     if (seen.has(e.name)) {
       dropped++;
       continue;
     }
+
     seen.add(e.name);
     out.push(e);
   }
+
   return { out, dropped };
 }
 
@@ -1449,9 +1576,11 @@ const sortKey = (name) =>
     .normalize('NFKD')
     .replace(/\p{M}/gu, '')
     .toLowerCase();
+
 function byName(a, b) {
   const ka = sortKey(a.name),
     kb = sortKey(b.name);
+
   if (ka !== kb) {
     return ka < kb ? -1 : 1;
   }
@@ -1459,6 +1588,7 @@ function byName(a, b) {
   if (a.name !== b.name) {
     return a.name < b.name ? -1 : 1;
   }
+
   return 0;
 }
 
@@ -1489,6 +1619,7 @@ function downloadBytes(bytes, name) {
 backupRunEl.addEventListener('click', async () => {
   backupRunEl.disabled = true;
   backupStatus('Building backup…');
+
   try {
     const repo = await buildRepoFavourites();
     const notes = [];
@@ -1499,6 +1630,7 @@ backupRunEl.addEventListener('click', async () => {
     const r = dedupeByName(repo.routes);
     const points = p.out,
       routes = r.out;
+
     if (p.dropped) {
       notes.push(`${p.dropped} duplicate waypoint name(s) skipped`);
     }
@@ -1506,10 +1638,12 @@ backupRunEl.addEventListener('click', async () => {
     if (r.dropped) {
       notes.push(`${r.dropped} duplicate route name(s) skipped`);
     }
+
     points.sort(byName);
     routes.sort(byName);
 
     const noTz = applyTimezones(points);
+
     if (noTz) {
       notes.push(`${noTz} waypoint(s) without a timezone`);
     }
@@ -1521,6 +1655,7 @@ backupRunEl.addEventListener('click', async () => {
     // Include whichever controls are ticked, set to fixed values. A number
     // is written as a Java Float; a string (the radar's filter) as-is.
     let positions = 0;
+
     for (const { id, keys } of CONTROL_RESETS) {
       if (!document.getElementById(id).checked) {
         continue;
@@ -1529,6 +1664,7 @@ backupRunEl.addEventListener('click', async () => {
       for (const [k, v] of Object.entries(keys)) {
         root.set(k, typeof v === 'string' ? v : JavaSer.box('F', v));
       }
+
       positions++;
     }
 

@@ -56,6 +56,7 @@ let entryCount = 0;
 
 for (const { fileName, contents } of sources) {
   let doc;
+
   try {
     doc = new DOMParser({
       onError: (level, msg) => {
