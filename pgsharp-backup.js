@@ -334,7 +334,7 @@ backupRunEl.addEventListener('click', async () => {
     // radar's filter) as-is.
     let positions = 0;
 
-    for (const { id, keys } of CONTROL_RESETS) {
+    for (const [id, keys] of Object.entries(CONTROL_RESETS)) {
       if (!document.getElementById(id).checked) {
         continue;
       }

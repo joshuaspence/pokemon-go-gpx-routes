@@ -33,12 +33,15 @@ const SCAN_CONFIG = {
   pgp: true,
 };
 
-export const CONTROL_RESETS = [
-  { id: 'resetIcon', keys: { iconX: 0.0, iconY: CONTROL_ROW_Y } },
-  { id: 'resetSnipe1', keys: { hlfastsnipex: 816.33203125, hlfastsnipey: CONTROL_ROW_Y } },
-  { id: 'resetSnipe2', keys: { hlfastsnipe2x: SNIPE2.x, hlfastsnipe2y: SNIPE2.y } },
-  { id: 'resetCdpos', keys: { hlcdposx: 0.0, hlcdposy: 306.25 } },
+// Keyed by the checkbox's DOM id, so each control appears once and its ticked state is a direct lookup. Iteration order
+// is preserved (these ids are non-integer string keys), and it decides the order the keys land in the backup, so the
+// entries stay in the order PGSharp wrote them.
+export const CONTROL_RESETS = {
+  resetIcon: { iconX: 0.0, iconY: CONTROL_ROW_Y },
+  resetSnipe1: { hlfastsnipex: 816.33203125, hlfastsnipey: CONTROL_ROW_Y },
+  resetSnipe2: { hlfastsnipe2x: SNIPE2.x, hlfastsnipe2y: SNIPE2.y },
+  resetCdpos: { hlcdposx: 0.0, hlcdposy: 306.25 },
   // The radar button shares fast-snipe button 2's position; hlscan is its filter, serialized to the string PGSharp
   // stores.
-  { id: 'resetScan', keys: { hlscanx: SNIPE2.x, hlscany: SNIPE2.y, hlscan: JSON.stringify(SCAN_CONFIG) } },
-];
+  resetScan: { hlscanx: SNIPE2.x, hlscany: SNIPE2.y, hlscan: JSON.stringify(SCAN_CONFIG) },
+};
