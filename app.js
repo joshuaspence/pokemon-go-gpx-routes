@@ -64,17 +64,25 @@ async function copyText(text) {
   }
 }
 
+// Flash a copy button through its outcome — "Copied" or "Failed" — then restore
+// its label a moment later. The button is optional, so a caller with none to
+// flash still shares this path.
+function flashButton(btn, ok) {
+  if (!btn) {
+    return;
+  }
+  const original = btn.textContent;
+  btn.textContent = ok ? 'Copied' : 'Failed';
+  btn.classList.add('done');
+  setTimeout(() => {
+    btn.textContent = original;
+    btn.classList.remove('done');
+  }, 1400);
+}
+
 async function copyRoute(entry, btn) {
   const ok = await copyText(entry.gpx);
-  if (btn) {
-    const original = btn.textContent;
-    btn.textContent = ok ? 'Copied' : 'Failed';
-    btn.classList.add('done');
-    setTimeout(() => {
-      btn.textContent = original;
-      btn.classList.remove('done');
-    }, 1400);
-  }
+  flashButton(btn, ok);
   toast(ok ? `Copied “${entry.name}” GPX to clipboard` : 'Copy failed');
 }
 
@@ -272,14 +280,41 @@ function clearMarkers(entry) {
   }
 }
 
+// Build a map popup: a bold title, a detail line, and a copy button. The copy
+// handler is handed the button so it can flash it (see flashButton). Returns
+// the element to bind to a layer.
+function buildPopup(name, detail, copyLabel, onCopy) {
+  const popup = document.createElement('div');
+  const title = document.createElement('b');
+  title.textContent = name;
+  const info = document.createElement('div');
+  info.textContent = detail;
+  const btn = document.createElement('button');
+  btn.className = 'popup-copy';
+  btn.type = 'button';
+  btn.textContent = copyLabel;
+  btn.addEventListener('click', () => onCopy(btn));
+  popup.append(title, info, btn);
+  return popup;
+}
+
+// Return the active route to its resting style, drop its start/end markers and
+// un-highlight its row. Mirrors deselectCity, so selecting either kind can
+// clear the other with a single call.
+function deselectRoute() {
+  if (!active) {
+    return;
+  }
+  active.line.setStyle({ color: cssVar('--track'), weight: 2, opacity: 0.55 });
+  active.line.bringToBack();
+  clearMarkers(active);
+  active.el.classList.remove('active');
+  active = null;
+}
+
 function selectRoute(entry, { pan = true } = {}) {
   deselectCity();
-  if (active && active !== entry) {
-    active.line.setStyle({ color: cssVar('--track'), weight: 2, opacity: 0.55 });
-    active.line.bringToBack();
-    clearMarkers(active);
-    active.el.classList.remove('active');
-  }
+  deselectRoute();
   active = entry;
   entry.el.classList.add('active');
   entry.line.setStyle({ color: cssVar('--accent'), weight: 4, opacity: 1 });
@@ -298,18 +333,8 @@ function selectRoute(entry, { pan = true } = {}) {
     }).bindTooltip(label);
   entry.markers = [dot(a, cssVar('--start'), 'Start').addTo(map), dot(b, cssVar('--end'), 'End').addTo(map)];
 
-  const popup = document.createElement('div');
-  const title = document.createElement('b');
-  title.textContent = entry.name;
-  const info = document.createElement('div');
-  info.textContent = `${entry.country} · ${entry.latlngs.length} points · ${fmtDist(entry.distance)}`;
-  const pCopy = document.createElement('button');
-  pCopy.className = 'popup-copy';
-  pCopy.type = 'button';
-  pCopy.textContent = 'Copy GPX';
-  pCopy.addEventListener('click', () => copyRoute(entry, pCopy));
-  popup.append(title, info, pCopy);
-  entry.line.bindPopup(popup);
+  const detail = `${entry.country} · ${entry.latlngs.length} points · ${fmtDist(entry.distance)}`;
+  entry.line.bindPopup(buildPopup(entry.name, detail, 'Copy GPX', (btn) => copyRoute(entry, btn)));
   if (pan) {
     map.fitBounds(entry.line.getBounds(), { padding: [40, 40], maxZoom: 17 });
     entry.line.openPopup();
@@ -330,31 +355,16 @@ function deselectCity() {
 
 function selectCity(c, { pan = true } = {}) {
   // Clear any active route selection so only one thing is highlighted.
-  if (active) {
-    active.line.setStyle({ color: cssVar('--track'), weight: 2, opacity: 0.55 });
-    active.line.bringToBack();
-    clearMarkers(active);
-    active.el.classList.remove('active');
-    active = null;
-  }
+  deselectRoute();
   deselectCity();
   activeCity = c;
   c.el.classList.add('active');
   c.marker.setStyle({ radius: 8, fillColor: cssVar('--accent') });
   c.marker.bringToFront();
 
-  const popup = document.createElement('div');
-  const title = document.createElement('b');
-  title.textContent = c.name;
-  const info = document.createElement('div');
-  info.textContent = `${c.country} · ${c.coordStr}`;
-  const btn = document.createElement('button');
-  btn.className = 'popup-copy';
-  btn.type = 'button';
-  btn.textContent = 'Copy coordinates';
-  btn.addEventListener('click', () => copyCoords(c, btn));
-  popup.append(title, info, btn);
-  c.marker.bindPopup(popup);
+  c.marker.bindPopup(
+    buildPopup(c.name, `${c.country} · ${c.coordStr}`, 'Copy coordinates', (btn) => copyCoords(c, btn)),
+  );
 
   if (pan) {
     map.setView(c.coords, Math.max(map.getZoom(), 12));
@@ -367,15 +377,7 @@ function selectCity(c, { pan = true } = {}) {
 
 async function copyCoords(c, btn) {
   const ok = await copyText(c.coordStr);
-  if (btn) {
-    const original = btn.textContent;
-    btn.textContent = ok ? 'Copied' : 'Failed';
-    btn.classList.add('done');
-    setTimeout(() => {
-      btn.textContent = original;
-      btn.classList.remove('done');
-    }, 1400);
-  }
+  flashButton(btn, ok);
   toast(ok ? `Copied ${c.name} coordinates to clipboard` : 'Copy failed');
 }
 
