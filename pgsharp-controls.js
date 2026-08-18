@@ -4,7 +4,10 @@
 // screen, so they share a Y. Dragging each into place by hand left them a pixel or so apart (the floating control was
 // higher still, at 535.75); naming the row's Y once keeps them level.
 const CONTROL_ROW_Y = 785.09375;
-const SNIPE2 = { x: 916.2529296875, y: CONTROL_ROW_Y }; // fast-snipe button 2
+const SNIPE2 = {
+  x: 916.2529296875,
+  y: CONTROL_ROW_Y,
+};
 
 // The radar's filter — the one control value PGSharp stores as a JSON string rather than a Float. Kept as an object so
 // each field reads and diffs on its own; JSON.stringify re-emits it as the compact string PGSharp wrote, so the fields
@@ -37,11 +40,30 @@ const SCAN_CONFIG = {
 // is preserved (these ids are non-integer string keys), and it decides the order the keys land in the backup, so the
 // entries stay in the order PGSharp wrote them.
 export const CONTROL_RESETS = {
-  resetIcon: { iconX: 0.0, iconY: CONTROL_ROW_Y },
-  resetSnipe1: { hlfastsnipex: 816.33203125, hlfastsnipey: CONTROL_ROW_Y },
-  resetSnipe2: { hlfastsnipe2x: SNIPE2.x, hlfastsnipe2y: SNIPE2.y },
-  resetCdpos: { hlcdposx: 0.0, hlcdposy: 306.25 },
-  // The radar button shares fast-snipe button 2's position; hlscan is its filter, serialized to the string PGSharp
-  // stores.
-  resetScan: { hlscanx: SNIPE2.x, hlscany: SNIPE2.y, hlscan: JSON.stringify(SCAN_CONFIG) },
+  resetIcon: {
+    iconX: 0.0,
+    iconY: CONTROL_ROW_Y,
+  },
+
+  resetSnipe1: {
+    hlfastsnipex: 816.33203125,
+    hlfastsnipey: CONTROL_ROW_Y,
+  },
+
+  resetSnipe2: {
+    hlfastsnipe2x: SNIPE2.x,
+    hlfastsnipe2y: SNIPE2.y,
+  },
+
+  resetCdpos: {
+    hlcdposx: 0.0,
+    hlcdposy: 306.25,
+  },
+
+  // The radar button shares fast-snipe button 2's position; hlscan is its filter, serialized to the string PGSharp stores.
+  resetScan: {
+    hlscanx: SNIPE2.x,
+    hlscany: SNIPE2.y,
+    hlscan: JSON.stringify(SCAN_CONFIG),
+  },
 };
