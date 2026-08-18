@@ -7,7 +7,11 @@ export default [
   prettier,
   {
     rules: {
-      curly: ['error', 'all'],
+      'curly': ['error', 'all'],
+      'padding-line-between-statements': [
+        'error',
+        { blankLine: 'always', prev: 'multiline-block-like', next: 'multiline-block-like' },
+      ],
     },
   },
 

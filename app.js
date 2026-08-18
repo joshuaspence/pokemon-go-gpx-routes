@@ -48,6 +48,7 @@ async function copyText(text) {
   } catch {
     /* fall through to legacy path */
   }
+
   try {
     const ta = document.createElement('textarea');
     ta.value = text;
@@ -94,6 +95,7 @@ function haversine(a, b) {
   const s = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(a[0])) * Math.cos(toRad(b[0])) * Math.sin(dLon / 2) ** 2;
   return 2 * R * Math.asin(Math.sqrt(s));
 }
+
 function routeDistance(latlngs) {
   let d = 0;
   for (let i = 1; i < latlngs.length; i++) {
@@ -101,6 +103,7 @@ function routeDistance(latlngs) {
   }
   return d;
 }
+
 function fmtDist(m) {
   return m >= 1000 ? (m / 1000).toFixed(2) + ' km' : Math.round(m) + ' m';
 }
@@ -197,6 +200,7 @@ async function loadGpxFile(file) {
         latlngs.push([lat, lon]);
       }
     }
+
     if (latlngs.length < 2) {
       throw new Error('<trk> has fewer than two usable <trkpt>');
     }
@@ -449,6 +453,7 @@ function buildSidebar() {
       build: () => buildRouteRow(s),
     });
   }
+
   for (const c of cityStore) {
     (byCountry[c.country] ||= []).push({
       name: c.name,
@@ -699,6 +704,7 @@ const JavaSer = (() => {
     }
     return out;
   }
+
   function decodeMutf8(bytes) {
     let s = '',
       i = 0;
@@ -809,9 +815,11 @@ const JavaSer = (() => {
       if (tag === TC_NULL) {
         return null;
       }
+
       if (tag === TC_REFERENCE) {
         return this.ref();
       }
+
       if (tag !== TC_CLASSDESC) {
         throw err(`expected classdesc, got 0x${tag.toString(16)} at ${this.p - 1}`);
       }
@@ -860,6 +868,7 @@ const JavaSer = (() => {
           this.p += 2;
           return v;
         }
+
         case 'C': {
           const v = this.dv.getUint16(this.p);
           this.p += 2;
@@ -874,21 +883,27 @@ const JavaSer = (() => {
       if (tag === TC_NULL) {
         return null;
       }
+
       if (tag === TC_REFERENCE) {
         return this.ref();
       }
+
       if (tag === TC_STRING) {
         return this.newHandle(this.utf());
       }
+
       if (tag === TC_LONGSTRING) {
         return this.newHandle(this.longUtf());
       }
+
       if (tag === TC_BLOCKDATA) {
         return { blockdata: this.raw(this.u1()) };
       }
+
       if (tag === TC_BLOCKDATALONG) {
         return { blockdata: this.raw(this.i4()) };
       }
+
       if (tag === TC_OBJECT) {
         return this.object();
       }
@@ -909,6 +924,7 @@ const JavaSer = (() => {
           // read to advance the stream but not otherwise used here.
           d.values[fname] = tcode === 'L' || tcode === '[' ? this.content() : this.readPrimitive(tcode);
         }
+
         if (d.flags & SC_WRITE_METHOD) {
           d.custom = this.customData(d.name);
         }
@@ -918,6 +934,7 @@ const JavaSer = (() => {
         const t = BOX_BY_CLASS[name];
         return this.resolveHandle(slot, { box: t, value: chain[chain.length - 1].values.value });
       }
+
       if (name === 'java.util.HashMap') {
         let entries = null;
         for (const d of chain) {
@@ -933,6 +950,7 @@ const JavaSer = (() => {
       if (className !== 'java.util.HashMap') {
         throw err(`no custom-data handler for ${className}`);
       }
+
       if (this.u1() !== TC_BLOCKDATA) {
         throw err('expected HashMap block data');
       }
@@ -944,6 +962,7 @@ const JavaSer = (() => {
         const k = this.content();
         m.set(k, this.content());
       }
+
       if (this.u1() !== TC_ENDBLOCKDATA) {
         throw err('expected TC_ENDBLOCKDATA after HashMap');
       }
@@ -1171,6 +1190,7 @@ function encodePoints(entries) {
   });
   return escSlashes(asciiEscape(JSON.stringify(arr)));
 }
+
 function encodeRoutes(entries) {
   const arr = entries.map((e) => ({
     points: e.points,
@@ -1273,6 +1293,7 @@ function countryFlag(country) {
   if (!code) {
     throw new Error(`no flag for "${country}" — add it to COUNTRY_CODES`);
   }
+
   if (code.includes('-')) {
     const tags = [...code.replace('-', '').toLowerCase()].map((c) => String.fromCodePoint(TAG_BLOCK + c.charCodeAt(0)));
     return BLACK_FLAG + tags.join('') + String.fromCodePoint(CANCEL_TAG);
@@ -1311,6 +1332,7 @@ function parseGpxFavourites(text) {
     const [lat, lng] = coord(wpt);
     points.push({ name: flaggedName(wpt), lat, lng });
   }
+
   for (const trk of doc.getElementsByTagName('trk')) {
     const trkpts = trk.getElementsByTagName('trkpt');
     if (trkpts.length === 0) {
@@ -1386,6 +1408,7 @@ function applyTimezones(points) {
         tz = null;
       }
     }
+
     if (tz) {
       p.tz = tz;
     } else {
@@ -1432,6 +1455,7 @@ function byName(a, b) {
   if (ka !== kb) {
     return ka < kb ? -1 : 1;
   }
+
   if (a.name !== b.name) {
     return a.name < b.name ? -1 : 1;
   }
@@ -1478,6 +1502,7 @@ backupRunEl.addEventListener('click', async () => {
     if (p.dropped) {
       notes.push(`${p.dropped} duplicate waypoint name(s) skipped`);
     }
+
     if (r.dropped) {
       notes.push(`${r.dropped} duplicate route name(s) skipped`);
     }
@@ -1500,11 +1525,13 @@ backupRunEl.addEventListener('click', async () => {
       if (!document.getElementById(id).checked) {
         continue;
       }
+
       for (const [k, v] of Object.entries(keys)) {
         root.set(k, typeof v === 'string' ? v : JavaSer.box('F', v));
       }
       positions++;
     }
+
     if (positions) {
       notes.push(`${positions} control(s)`);
     }
