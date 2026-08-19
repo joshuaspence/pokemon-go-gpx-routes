@@ -1,14 +1,18 @@
-// The filters PGSharp saves — which spawns the radar and the nearby feed are looking for. Unlike a control's position,
-// which is a Java Float, each of these is stored as one JSON string; they are kept as objects here so every field reads
-// and diffs on its own, and JSON.stringify re-emits the compact string PGSharp wrote where they are put in the backup.
-// That re-emission goes field by field in source order, so the order below is part of the value and must not be
-// rearranged. Every value is taken verbatim from a known-good backup and none is user-editable.
+/**
+ * The filters PGSharp saves — which spawns the radar and the nearby feed are looking for. Unlike a control's position,
+ * which is a Java Float, each of these is stored as one JSON string; they are kept as objects here so every field reads
+ * and diffs on its own, and JSON.stringify re-emits the compact string PGSharp wrote where they are put in the backup.
+ * That re-emission goes field by field in source order, so the order below is part of the value and must not be
+ * rearranged. Every value is taken verbatim from a known-good backup and none is user-editable.
+ */
 
 import POKEMON from './pokemon.js';
 
-// A filter's species list, checked. A constant pokemon.js does not define reads as undefined rather than failing, and
-// would reach the backup as a null where a species should be, so it stops here instead. The value is all we are handed
-// — the constant's name is gone by then — so the error gives the position to look at.
+/**
+ * A filter's species list, checked. A constant pokemon.js does not define reads as undefined rather than failing, and
+ * would reach the backup as a null where a species should be, so it stops here instead. The value is all we are handed
+ * — the constant's name is gone by then — so the error gives the position to look at.
+ */
 function species(numbers) {
   const at = numbers.findIndex((n) => !Number.isInteger(n));
 
@@ -19,8 +23,10 @@ function species(numbers) {
   return numbers;
 }
 
-// The nearby radar's own filter, stored under "hlscan" — it rides along with the radar button's position rather than
-// ticking separately, since the button is what carries it.
+/**
+ * The nearby radar's own filter, stored under "hlscan" — it rides along with the radar button's position rather than
+ * ticking separately, since the button is what carries it.
+ */
 export const SCAN_CONFIG = {
   shiny: true,
   minlv: 1,
@@ -45,11 +51,13 @@ export const SCAN_CONFIG = {
   pgp: true,
 };
 
-// The nearby feed's filter list, stored under "hlfeeds" — the named filters the feed matches spawns against, as one
-// JSON array. "Shiny Hunting" watches its own list of species for a shiny within 5 km; "100%" watches every species for
-// a perfect one within 10 km and is the only one that notifies. That species list is written in dex order; PGSharp
-// wrote it in neither dex nor alphabetical order, and reads it back as the set of species it holds, so the order it is
-// stored in is ours to pick.
+/**
+ * The nearby feed's filter list, stored under "hlfeeds" — the named filters the feed matches spawns against, as one
+ * JSON array. "Shiny Hunting" watches its own list of species for a shiny within 5 km; "100%" watches every species for
+ * a perfect one within 10 km and is the only one that notifies. That species list is written in dex order; PGSharp
+ * wrote it in neither dex nor alphabetical order, and reads it back as the set of species it holds, so the order it is
+ * stored in is ours to pick.
+ */
 export const FEED_FILTERS = [
   {
     checkAll: false,
@@ -73,21 +81,26 @@ export const FEED_FILTERS = [
     distance: 5,
     priority: 0,
     pokemons: species([
+      // Generation 1
       POKEMON.PARAS,
       POKEMON.SLOWPOKE,
+      POKEMON.SLOWBRO,
       POKEMON.DODUO,
+      POKEMON.DODRIO,
       POKEMON.GOLDEEN,
       POKEMON.SEAKING,
       POKEMON.STARYU,
       POKEMON.STARMIE,
       POKEMON.SNORLAX,
+
+      // Generation 2
+      POKEMON.UNOWN,
       POKEMON.GIRAFARIG,
-      POKEMON.CORSOLA,
       POKEMON.REMORAID,
       POKEMON.STANTLER,
+      
+      // Generation 3
       POKEMON.NOSEPASS,
-      POKEMON.NUMEL,
-      POKEMON.CAMERUPT,
       POKEMON.TORKOAL,
       POKEMON.SEVIPER,
       POKEMON.BARBOACH,
@@ -95,18 +108,20 @@ export const FEED_FILTERS = [
       POKEMON.CORPHISH,
       POKEMON.CRAWDAUNT,
       POKEMON.TROPIUS,
-      POKEMON.CHIMECHO,
       POKEMON.RELICANTH,
+      
+      // Generation 4
       POKEMON.CRANIDOS,
+      POKEMON.RAMPARDOS,
       POKEMON.BURMY,
       POKEMON.PACHIRISU,
       POKEMON.BUIZEL,
       POKEMON.FLOATZEL,
       POKEMON.CHERUBI,
       POKEMON.CHERRIM,
-      POKEMON.SHELLOS,
-      POKEMON.GASTRODON,
       POKEMON.CARNIVINE,
+      
+      // Generation 5
       POKEMON.PURRLOIN,
       POKEMON.LIEPARD,
       POKEMON.PANPOUR,
@@ -115,8 +130,8 @@ export const FEED_FILTERS = [
       POKEMON.UNFEZANT,
       POKEMON.ROGGENROLA,
       POKEMON.BOLDORE,
-      POKEMON.GIGALITH,
       POKEMON.WOOBAT,
+      POKEMON.SWOOBAT,
       POKEMON.DRILBUR,
       POKEMON.EXCADRILL,
       POKEMON.AUDINO,
@@ -138,8 +153,6 @@ export const FEED_FILTERS = [
       POKEMON.COFAGRIGUS,
       POKEMON.TIRTOUGA,
       POKEMON.ARCHEN,
-      POKEMON.TRUBBISH,
-      POKEMON.GARBODOR,
       POKEMON.ZORUA,
       POKEMON.DEERLING,
       POKEMON.SAWSBUCK,
@@ -153,34 +166,39 @@ export const FEED_FILTERS = [
       POKEMON.ELGYEM,
       POKEMON.BEHEEYEM,
       POKEMON.AXEW,
+      POKEMON.FRAXURE,
       POKEMON.HAXORUS,
       POKEMON.SHELMET,
       POKEMON.MIENFOO,
       POKEMON.MIENSHAO,
       POKEMON.GOLETT,
+      POKEMON.BISHARP,
       POKEMON.RUFFLET,
       POKEMON.BRAVIARY,
       POKEMON.DURANT,
+      POKEMON.LARVESTA,
+
+      // Generation 6
       POKEMON.FENNEKIN,
       POKEMON.FROAKIE,
       POKEMON.GRENINJA,
       POKEMON.BUNNELBY,
       POKEMON.DIGGERSBY,
+      POKEMON.VIVILLON,
       POKEMON.FLABEBE,
       POKEMON.FLOETTE,
-      POKEMON.FLORGES,
       POKEMON.SKIDDO,
       POKEMON.GOGOAT,
       POKEMON.PANCHAM,
       POKEMON.FURFROU,
-      POKEMON.ESPURR,
-      POKEMON.HONEDGE,
       POKEMON.SPRITZEE,
+      POKEMON.AROMATISSE,
       POKEMON.SWIRLIX,
+      POKEMON.SLURPUFF,
       POKEMON.BINACLE,
+      POKEMON.BARBARACLE,
       POKEMON.SKRELP,
       POKEMON.CLAUNCHER,
-      POKEMON.CLAWITZER,
       POKEMON.HELIOPTILE,
       POKEMON.TYRUNT,
       POKEMON.TYRANTRUM,
@@ -190,13 +208,15 @@ export const FEED_FILTERS = [
       POKEMON.CARBINK,
       POKEMON.GOOMY,
       POKEMON.SLIGGOO,
+      POKEMON.GOODRA,
       POKEMON.KLEFKI,
       POKEMON.PHANTUMP,
       POKEMON.PUMPKABOO,
       POKEMON.BERGMITE,
       POKEMON.AVALUGG,
       POKEMON.NOIBAT,
-      POKEMON.NOIVERN,
+      
+      // Generation 7
       POKEMON.ROWLET,
       POKEMON.DARTRIX,
       POKEMON.DECIDUEYE,
@@ -209,23 +229,26 @@ export const FEED_FILTERS = [
       POKEMON.TRUMBEAK,
       POKEMON.GRUBBIN,
       POKEMON.CHARJABUG,
+      POKEMON.VIKAVOLT,
       POKEMON.ORICORIO,
       POKEMON.CUTIEFLY,
       POKEMON.RIBOMBEE,
       POKEMON.MORELULL,
       POKEMON.SHIINOTIC,
       POKEMON.BOUNSWEET,
-      POKEMON.STEENEE,
       POKEMON.TSAREENA,
       POKEMON.ORANGURU,
       POKEMON.PASSIMIAN,
       POKEMON.WIMPOD,
+      POKEMON.GOLISOPOD,
       POKEMON.SANDYGAST,
       POKEMON.PALOSSAND,
       POKEMON.KOMALA,
       POKEMON.TOGEDEMARU,
       POKEMON.BRUXISH,
       POKEMON.JANGMO_O,
+
+      // Generation 8
       POKEMON.GROOKEY,
       POKEMON.THWACKEY,
       POKEMON.RILLABOOM,
@@ -235,7 +258,6 @@ export const FEED_FILTERS = [
       POKEMON.SOBBLE,
       POKEMON.DRIZZILE,
       POKEMON.INTELEON,
-      POKEMON.GREEDENT,
       POKEMON.ROOKIDEE,
       POKEMON.CORVISQUIRE,
       POKEMON.CORVIKNIGHT,
@@ -249,10 +271,16 @@ export const FEED_FILTERS = [
       POKEMON.IMPIDIMP,
       POKEMON.MORGREM,
       POKEMON.GRIMMSNARL,
+      POKEMON.SIRFETCHD,
+      POKEMON.RUNERIGUES,
+      POKEMON.SNOM,
+      POKEMON.FROSMOTH,
       POKEMON.SNEASLER,
+      POKEMON.OVERQWIL,
+
+      // Generation 9
       POKEMON.SPRIGATITO,
       POKEMON.FLORAGATO,
-      POKEMON.MEOWSCARADA,
       POKEMON.FUECOCO,
       POKEMON.CROCALOR,
       POKEMON.SKELEDIRGE,
@@ -262,24 +290,22 @@ export const FEED_FILTERS = [
       POKEMON.LECHONK,
       POKEMON.OINKOLOGNE,
       POKEMON.NYMBLE,
-      POKEMON.LOKIX,
       POKEMON.PAWMI,
       POKEMON.PAWMO,
       POKEMON.FIDOUGH,
       POKEMON.DACHSBUN,
       POKEMON.SMOLIV,
       POKEMON.DOLLIV,
-      POKEMON.ARBOLIVA,
-      POKEMON.CHARCADET,
-      POKEMON.CERULEDGE,
       POKEMON.TADBULB,
       POKEMON.BELLIBOLT,
       POKEMON.TOEDSCOOL,
+      POKEMON.TOEDSCRUEL,
       POKEMON.WIGLETT,
-      POKEMON.WUGTRIO,
-      POKEMON.CETITAN,
-      POKEMON.KINGAMBIT,
-      POKEMON.BAXCALIBUR,
+      POKEMON.ANNIHILAPE,
+      POKEMON.CLODSIRE,
+      POKEMON.FRIGIBAX,
+      POKEMON.ARCTIBAX,
+      POKEMON.BAXCALIBUR
     ]),
   },
   {
