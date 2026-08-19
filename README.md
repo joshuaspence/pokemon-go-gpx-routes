@@ -4,7 +4,7 @@ A collection of GPX walking tracks and teleport waypoints for Pokémon GO, brows
 
 **➡️ [Open the map](https://joshuaspence.github.io/pokemon-go-gpx-routes/)**
 
-Tracks (`<trk>`) and waypoints (`<wpt>`) are stored as `.gpx` files grouped by country — the files themselves are the
+Tracks (`<trk>`) and waypoints (`<wpt>`) are stored as `*.gpx` files grouped by country — the files themselves are the
 source of truth. The viewer ([`index.html`](index.html)) reads them directly, so to run it locally serve the repository
 over HTTP (the files are loaded via `fetch`):
 
@@ -17,8 +17,7 @@ Static hosting cannot list a directory, so the viewer is handed the paths in [`g
 generated rather than kept by hand — regenerate it after adding or removing a `.gpx`:
 
 ```sh
-git ls-files -z '*.gpx' | tr '\0' '\n' |
-  jq -Rs 'split("\n") | map(select(length > 0))' > gpx.json
+git ls-files -z '*.gpx' | tr '\0' '\n' | jq --raw-input --slurp 'split("\n") | map(select(length > 0))' > gpx.json
 ```
 
 Nothing but the paths comes from it. Each listed file is read for what it holds: a `<trk>` becomes a track and a `<wpt>`
