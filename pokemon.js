@@ -35,10 +35,10 @@ export default {
   RAICHU: 26,
   SANDSHREW: 27,
   SANDSLASH: 28,
-  NIDORAN_F: 29, // Nidoran♀
+  NIDORAN_F: 29,
   NIDORINA: 30,
   NIDOQUEEN: 31,
-  NIDORAN_M: 32, // Nidoran♂
+  NIDORAN_M: 32,
   NIDORINO: 33,
   NIDOKING: 34,
   CLEFAIRY: 35,
@@ -89,7 +89,7 @@ export default {
   SLOWBRO: 80,
   MAGNEMITE: 81,
   MAGNETON: 82,
-  FARFETCHD: 83, // Farfetch'd
+  FARFETCHD: 83,
   DODUO: 84,
   DODRIO: 85,
   SEEL: 86,
@@ -128,7 +128,7 @@ export default {
   SEAKING: 119,
   STARYU: 120,
   STARMIE: 121,
-  MR_MIME: 122, // Mr. Mime
+  MR_MIME: 122,
   SCYTHER: 123,
   JYNX: 124,
   ELECTABUZZ: 125,
@@ -256,7 +256,7 @@ export default {
   PUPITAR: 247,
   TYRANITAR: 248,
   LUGIA: 249,
-  HO_OH: 250, // Ho-Oh
+  HO_OH: 250,
   CELEBI: 251,
   TREECKO: 252,
   GROVYLE: 253,
@@ -445,7 +445,7 @@ export default {
   BRONZOR: 436,
   BRONZONG: 437,
   BONSLY: 438,
-  MIME_JR: 439, // Mime Jr.
+  MIME_JR: 439,
   HAPPINY: 440,
   CHATOT: 441,
   SPIRITOMB: 442,
@@ -480,7 +480,7 @@ export default {
   GLACEON: 471,
   GLISCOR: 472,
   MAMOSWINE: 473,
-  PORYGON_Z: 474, // Porygon-Z
+  PORYGON_Z: 474,
   GALLADE: 475,
   PROBOPASS: 476,
   DUSKNOIR: 477,
@@ -675,7 +675,7 @@ export default {
   VIVILLON: 666,
   LITLEO: 667,
   PYROAR: 668,
-  FLABEBE: 669, // Flabébé
+  FLABEBE: 669,
   FLOETTE: 670,
   FLORGES: 671,
   SKIDDO: 672,
@@ -778,7 +778,7 @@ export default {
   SANDYGAST: 769,
   PALOSSAND: 770,
   PYUKUMUKU: 771,
-  TYPE_NULL: 772, // Type: Null
+  TYPE_NULL: 772,
   SILVALLY: 773,
   MINIOR: 774,
   KOMALA: 775,
@@ -788,13 +788,13 @@ export default {
   BRUXISH: 779,
   DRAMPA: 780,
   DHELMISE: 781,
-  JANGMO_O: 782, // Jangmo-o
-  HAKAMO_O: 783, // Hakamo-o
-  KOMMO_O: 784, // Kommo-o
-  TAPU_KOKO: 785, // Tapu Koko
-  TAPU_LELE: 786, // Tapu Lele
-  TAPU_BULU: 787, // Tapu Bulu
-  TAPU_FINI: 788, // Tapu Fini
+  JANGMO_O: 782,
+  HAKAMO_O: 783,
+  KOMMO_O: 784,
+  TAPU_KOKO: 785,
+  TAPU_LELE: 786,
+  TAPU_BULU: 787,
+  TAPU_FINI: 788,
   COSMOG: 789,
   COSMOEM: 790,
   SOLGALEO: 791,
@@ -871,8 +871,8 @@ export default {
   OBSTAGOON: 862,
   PERRSERKER: 863,
   CURSOLA: 864,
-  SIRFETCHD: 865, // Sirfetch'd
-  MR_RIME: 866, // Mr. Rime
+  SIRFETCHD: 865,
+  MR_RIME: 866,
   RUNERIGUS: 867,
   MILCERY: 868,
   ALCREMIE: 869,
@@ -990,33 +990,33 @@ export default {
   FARIGIRAF: 981,
   DUDUNSPARCE: 982,
   KINGAMBIT: 983,
-  GREAT_TUSK: 984, // Great Tusk
-  SCREAM_TAIL: 985, // Scream Tail
-  BRUTE_BONNET: 986, // Brute Bonnet
-  FLUTTER_MANE: 987, // Flutter Mane
-  SLITHER_WING: 988, // Slither Wing
-  SANDY_SHOCKS: 989, // Sandy Shocks
-  IRON_TREADS: 990, // Iron Treads
-  IRON_BUNDLE: 991, // Iron Bundle
-  IRON_HANDS: 992, // Iron Hands
-  IRON_JUGULIS: 993, // Iron Jugulis
-  IRON_MOTH: 994, // Iron Moth
-  IRON_THORNS: 995, // Iron Thorns
+  GREAT_TUSK: 984,
+  SCREAM_TAIL: 985,
+  BRUTE_BONNET: 986,
+  FLUTTER_MANE: 987,
+  SLITHER_WING: 988,
+  SANDY_SHOCKS: 989,
+  IRON_TREADS: 990,
+  IRON_BUNDLE: 991,
+  IRON_HANDS: 992,
+  IRON_JUGULIS: 993,
+  IRON_MOTH: 994,
+  IRON_THORNS: 995,
   FRIGIBAX: 996,
   ARCTIBAX: 997,
   BAXCALIBUR: 998,
   GIMMIGHOUL: 999,
   GHOLDENGO: 1000,
-  WO_CHIEN: 1001, // Wo-Chien
-  CHIEN_PAO: 1002, // Chien-Pao
-  TING_LU: 1003, // Ting-Lu
-  CHI_YU: 1004, // Chi-Yu
-  ROARING_MOON: 1005, // Roaring Moon
-  IRON_VALIANT: 1006, // Iron Valiant
+  WO_CHIEN: 1001,
+  CHIEN_PAO: 1002,
+  TING_LU: 1003,
+  CHI_YU: 1004,
+  ROARING_MOON: 1005,
+  IRON_VALIANT: 1006,
   KORAIDON: 1007,
   MIRAIDON: 1008,
-  WALKING_WAKE: 1009, // Walking Wake
-  IRON_LEAVES: 1010, // Iron Leaves
+  WALKING_WAKE: 1009,
+  IRON_LEAVES: 1010,
   DIPPLIN: 1011,
   POLTCHAGEIST: 1012,
   SINISTCHA: 1013,
@@ -1026,10 +1026,10 @@ export default {
   OGERPON: 1017,
   ARCHALUDON: 1018,
   HYDRAPPLE: 1019,
-  GOUGING_FIRE: 1020, // Gouging Fire
-  RAGING_BOLT: 1021, // Raging Bolt
-  IRON_BOULDER: 1022, // Iron Boulder
-  IRON_CROWN: 1023, // Iron Crown
+  GOUGING_FIRE: 1020,
+  RAGING_BOLT: 1021,
+  IRON_BOULDER: 1022,
+  IRON_CROWN: 1023,
   TERAPAGOS: 1024,
   PECHARUNT: 1025,
 };
