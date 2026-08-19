@@ -38,7 +38,7 @@ export const SCAN_CONFIG = {
   maxdef: 15,
   minsta: 0,
   maxsta: 15,
-  showShinyOnly: false,
+  showShinyOnly: true,
   loadShiny: true,
   notify: true,
   stop: true,
