@@ -1,7 +1,7 @@
 // Building a PGSharp backup from the repository's GPX files, ported from the pgsedit tool. PGSData.dat is a serialized
 // java.util.HashMap<String,Object>; two of its favourite keys hold JSON — "hlfavor" is Points (one coordinate each,
 // from <wpt>) and "hlfavorRoute" is Routes (a whole path, from <trk>). This synthesizes a partial backup from scratch,
-// holding only those two keys plus whichever control positions are ticked, and serializes it with the codec in
+// holding only those two keys plus whichever controls and filters are ticked, and serializes it with the codec in
 // java-serialization.js — nothing is read from an existing backup, so importing it leaves the rest of the profile be.
 
 import COUNTRIES from './countries.js';
@@ -292,8 +292,8 @@ function downloadBytes(bytes, name) {
 }
 
 // Synthesize a partial PGSData.dat from scratch — a HashMap holding only the keys we set (the favourites, plus
-// whichever control positions are ticked). Nothing is read from an existing backup; every other preference is omitted,
-// so importing this leaves the rest of the profile as PGSharp had it.
+// whichever controls and filters are ticked). Nothing is read from an existing backup; every other preference is
+// omitted, so importing this leaves the rest of the profile as PGSharp had it.
 backupRunEl.addEventListener('click', async () => {
   backupRunEl.disabled = true;
   backupStatus('Building backup…');
@@ -330,9 +330,9 @@ backupRunEl.addEventListener('click', async () => {
     root.set(POINTS_KEY, encodePoints(points));
     root.set(ROUTES_KEY, encodeRoutes(routes));
 
-    // Include whichever controls are ticked, set to fixed values. A number is written as a Java Float; a string (the
-    // radar's filter) as-is.
-    let positions = 0;
+    // Include whichever controls are ticked, set to fixed values. A number is written as a Java Float; a string (a
+    // filter, the radar's or the feed list's) as-is.
+    let controls = 0;
 
     for (const [id, keys] of Object.entries(CONTROL_RESETS)) {
       if (!document.getElementById(id).checked) {
@@ -343,11 +343,11 @@ backupRunEl.addEventListener('click', async () => {
         root.set(k, typeof v === 'string' ? v : JavaSer.box('F', v));
       }
 
-      positions++;
+      controls++;
     }
 
-    if (positions) {
-      notes.push(`${positions} control(s)`);
+    if (controls) {
+      notes.push(`${controls} control(s)`);
     }
 
     const outBytes = JavaSer.dumps(root);

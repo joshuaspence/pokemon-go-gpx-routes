@@ -27,16 +27,18 @@
         <div class="body">
           <p>
             Build a partial PGSharp backup holding every route and waypoint on this map (and, if ticked, a fixed control
-            layout) — nothing else. Import the downloaded file into PGSharp; your other settings are left untouched.
+            layout and feed filters) — nothing else. Import the downloaded file into PGSharp; your other settings are
+            left untouched.
           </p>
           <details class="subgroup">
-            <summary>Include control positions</summary>
+            <summary>Include controls &amp; filters</summary>
             <div class="group">
               <label class="opt"><input type="checkbox" id="resetIcon" checked /> Floating control</label>
               <label class="opt"><input type="checkbox" id="resetSnipe1" checked /> Fast-snipe button</label>
               <label class="opt"><input type="checkbox" id="resetSnipe2" checked /> Second fast-snipe button</label>
               <label class="opt"><input type="checkbox" id="resetCdpos" checked /> Cooldown indicator</label>
               <label class="opt"><input type="checkbox" id="resetScan" checked /> Nearby radar</label>
+              <label class="opt"><input type="checkbox" id="resetFeeds" checked /> Nearby feed filters</label>
             </div>
           </details>
           <button id="backupRun" class="run" type="button">Generate &amp; download</button>

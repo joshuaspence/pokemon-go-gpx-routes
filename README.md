@@ -67,10 +67,10 @@ added again.
 
 The map's **PGSharp backup** panel (in the sidebar) builds a _partial_ `PGSData.dat` containing only every route and
 waypoint here — plus, if ticked, a fixed control layout (floating control, fast-snipe buttons, cooldown indicator,
-nearby radar). No existing backup is needed: click **Generate & download**, then import the file into PGSharp to add
-them as favourites. Because the file holds only those keys, importing it leaves the rest of your PGSharp profile as it
-was. Everything runs in the browser. The favourite encoding is a client-side port of
-[`pgsedit`](https://github.com/joshuaspence/pgsedit).
+nearby radar) and the nearby feed's filter list (`Shiny Hunting` and `100%`). No existing backup is needed: click
+**Generate & download**, then import the file into PGSharp to add them as favourites. Because the file holds only those
+keys, importing it leaves the rest of your PGSharp profile as it was. Everything runs in the browser. The favourite
+encoding is a client-side port of [`pgsedit`](https://github.com/joshuaspence/pgsedit).
 
 Every favourite is named with its country's flag in front — `🇳🇱 Amsterdam, Netherlands`, `🇯🇵 Ueno Park, Tokyo, Japan` —
 matching PGSharp's own hot places (`🇺🇸 Pier 39, California, USA`). The favourite format has no icon field, so the flag
