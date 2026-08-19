@@ -30,22 +30,28 @@ const { valid, errors } = await validateXML({
 if (valid) {
   console.log(`${files.length} files validate against GPX 1.1.`);
 } else {
-  // A malformed file reports the offending source line with no position to hang it on, so the location is printed
-  // only when there is one.
+  /**
+   * A malformed file reports the offending source line with no position to hang it on, so the location is printed
+   * only when there is one.
+   */
   for (const { loc, message } of errors) {
     problems.push(loc ? `${loc.fileName}:${loc.lineNumber}: ${message}` : message);
   }
 }
 
-// The `pgr` fields the viewer reads, matched by local name. An element that is in the `pgr` namespace but is not one
-// of these is a misspelling the viewer would silently ignore, leaving a countryless entry the banner then complains
-// about — the very failure this pass moves forward to here.
+/**
+ * The `pgr` fields the viewer reads, matched by local name. An element that is in the `pgr` namespace but is not one
+ * of these is a misspelling the viewer would silently ignore, leaving a countryless entry the banner then complains
+ * about — the very failure this pass moves forward to here.
+ */
 const PGR_NS = 'https://joshuaspence.github.io/pokemon-go-gpx-routes/gpx/1';
 const PGR_FIELDS = new Set(['country', 'city', 'variant']);
 const VARIANTS = new Set(['short', 'long']);
 
-// The element children of `el`, in document order. `childNodes` carries the whitespace between tags too, so the
-// text nodes are filtered out (nodeType 1 is an element).
+/**
+ * The element children of `el`, in document order. `childNodes` carries the whitespace between tags too, so the
+ * text nodes are filtered out (nodeType 1 is an element).
+ */
 const elementChildren = (el) => Array.from(el.childNodes).filter((node) => node.nodeType === 1);
 
 // Report against the file, at the element's own line where there is one, matching the schema pass's `file:line:` form.
@@ -71,9 +77,11 @@ for (const { fileName, contents } of sources) {
     continue;
   }
 
-  // A `<trk>` and a `<wpt>` are the two things the viewer turns into entries, and each must name its country. An
-  // emptied `<trk>` (no `<trkpt>`) is what a cleared track looks like on export; the viewer skips it, so its `pgr`
-  // fields are not required and nothing is checked for it here.
+  /**
+   * A `<trk>` and a `<wpt>` are the two things the viewer turns into entries, and each must name its country. An
+   * emptied `<trk>` (no `<trkpt>`) is what a cleared track looks like on export; the viewer skips it, so its `pgr`
+   * fields are not required and nothing is checked for it here.
+   */
   const entries = [
     ...Array.from(doc.getElementsByTagName('trk')).filter((trk) => trk.getElementsByTagName('trkpt').length > 0),
     ...Array.from(doc.getElementsByTagName('wpt')),
@@ -87,8 +95,10 @@ for (const { fileName, contents } of sources) {
     for (const field of ext ? elementChildren(ext) : []) {
       const name = field.localName;
 
-      // A `pgr`-namespace element the viewer has no field for is a misspelling. A foreign element from another tool
-      // is not ours to judge — the viewer leaves it be, and so does this.
+      /**
+       * A `pgr`-namespace element the viewer has no field for is a misspelling. A foreign element from another tool
+       * is not ours to judge — the viewer leaves it be, and so does this.
+       */
       if (field.namespaceURI === PGR_NS && !PGR_FIELDS.has(name)) {
         report(fileName, field, `<${field.tagName}> is not a pgr field — expected country, city or variant`);
         continue;
@@ -106,14 +116,18 @@ for (const { fileName, contents } of sources) {
       } else if (name === 'variant' && !VARIANTS.has(text)) {
         report(fileName, field, `<${field.tagName}> is "${text}" — expected short or long`);
       } else if (name === 'country' && !Object.hasOwn(COUNTRIES, text)) {
-        // The viewer groups by continent and flags each favourite from this table (countries.js); a country missing
-        // from it has no continent and no flag, so the backup build throws rather than importing it. Catch it here.
+        /**
+         * The viewer groups by continent and flags each favourite from this table (countries.js); a country missing
+         * from it has no continent and no flag, so the backup build throws rather than importing it. Catch it here.
+         */
         report(fileName, field, `<${field.tagName}> is "${text}" — not a country in COUNTRIES (countries.js)`);
       }
     }
 
-    // Each field is one value, not a list: a second `<pgr:country>` is a silent contradiction, since the viewer keeps
-    // only the first and ignores the rest.
+    /**
+     * Each field is one value, not a list: a second `<pgr:country>` is a silent contradiction, since the viewer keeps
+     * only the first and ignores the rest.
+     */
     for (const name of PGR_FIELDS) {
       if (counts[name] > 1) {
         report(fileName, ext, `<${entry.localName}> has ${counts[name]} <pgr:${name}> fields — expected one`);
@@ -130,9 +144,11 @@ if (problems.length === beforePgr) {
   console.log(`${entryCount} entries carry the pgr fields the viewer needs.`);
 }
 
-// Static hosting cannot list a directory, so the viewer is handed its paths in `gpx.json`. Nothing else notices
-// when that file falls out of step with the repository, and the failure is silent in the worst way: a route that
-// is perfectly good GPX, and that this script has just validated, simply never appears on the map.
+/**
+ * Static hosting cannot list a directory, so the viewer is handed its paths in `gpx.json`. Nothing else notices
+ * when that file falls out of step with the repository, and the failure is silent in the worst way: a route that
+ * is perfectly good GPX, and that this script has just validated, simply never appears on the map.
+ */
 const listed = JSON.parse(readFileSync('gpx.json', 'utf8'));
 const unlisted = files.filter((file) => !listed.includes(file));
 const phantom = listed.filter((file) => !files.includes(file));

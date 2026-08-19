@@ -1,11 +1,13 @@
-// The National Pokédex — every species as a constant naming it, valued at its dex number. PGSharp stores a species as
-// that number, which says nothing on its own, so the filters in pgsharp-filters.js are written with these constants
-// instead: POKEMON.PANPOUR reads as the species it is, and a misspelling is a name the table does not define rather
-// than a number nothing checks.
-//
-// The whole dex is here rather than only the species in use, so a filter can name any of them without the table having
-// to be extended first. A constant is its English name uppercased, with the punctuation the games spell it with dropped
-// or turned into an underscore — FARFETCHD, MR_MIME, NIDORAN_F, FLABEBE, TYPE_NULL — which keeps all 1025 distinct.
+/**
+ * The National Pokédex — every species as a constant naming it, valued at its dex number. PGSharp stores a species as
+ * that number, which says nothing on its own, so the filters in pgsharp-filters.js are written with these constants
+ * instead: POKEMON.PANPOUR reads as the species it is, and a misspelling is a name the table does not define rather
+ * than a number nothing checks.
+ *
+ * The whole dex is here rather than only the species in use, so a filter can name any of them without the table having
+ * to be extended first. A constant is its English name uppercased, with the punctuation the games spell it with dropped
+ * or turned into an underscore — FARFETCHD, MR_MIME, NIDORAN_F, FLABEBE, TYPE_NULL — which keeps all 1025 distinct.
+ */
 export default {
   BULBASAUR: 1,
   IVYSAUR: 2,

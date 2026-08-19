@@ -98,7 +98,7 @@ export const FEED_FILTERS = [
       POKEMON.GIRAFARIG,
       POKEMON.REMORAID,
       POKEMON.STANTLER,
-      
+
       // Generation 3
       POKEMON.NOSEPASS,
       POKEMON.TORKOAL,
@@ -109,7 +109,7 @@ export const FEED_FILTERS = [
       POKEMON.CRAWDAUNT,
       POKEMON.TROPIUS,
       POKEMON.RELICANTH,
-      
+
       // Generation 4
       POKEMON.CRANIDOS,
       POKEMON.RAMPARDOS,
@@ -120,7 +120,7 @@ export const FEED_FILTERS = [
       POKEMON.CHERUBI,
       POKEMON.CHERRIM,
       POKEMON.CARNIVINE,
-      
+
       // Generation 5
       POKEMON.PURRLOIN,
       POKEMON.LIEPARD,
@@ -215,7 +215,7 @@ export const FEED_FILTERS = [
       POKEMON.BERGMITE,
       POKEMON.AVALUGG,
       POKEMON.NOIBAT,
-      
+
       // Generation 7
       POKEMON.ROWLET,
       POKEMON.DARTRIX,
@@ -305,7 +305,7 @@ export const FEED_FILTERS = [
       POKEMON.CLODSIRE,
       POKEMON.FRIGIBAX,
       POKEMON.ARCTIBAX,
-      POKEMON.BAXCALIBUR
+      POKEMON.BAXCALIBUR,
     ]),
   },
   {

@@ -1,10 +1,12 @@
-// A minimal codec for Java's Object Serialization Stream Protocol — just the slice PGSData.dat uses — ported from the
-// pgsedit tool. `loads` reads a stream into a live object graph and `dumps` writes one back; `box` wraps a JS value as
-// a boxed Java primitive (an Integer, Long, Float or Boolean) for the map values that are not strings.
-//
-// The whole stream is re-emitted from scratch rather than patched in place: back-references are positional handles, so
-// changing one value shifts every handle after it, and only a full re-serialization keeps them consistent. See the
-// pgsedit README for the wire format this mirrors.
+/**
+ * A minimal codec for Java's Object Serialization Stream Protocol — just the slice PGSData.dat uses — ported from the
+ * pgsedit tool. `loads` reads a stream into a live object graph and `dumps` writes one back; `box` wraps a JS value as
+ * a boxed Java primitive (an Integer, Long, Float or Boolean) for the map values that are not strings.
+ *
+ * The whole stream is re-emitted from scratch rather than patched in place: back-references are positional handles, so
+ * changing one value shifts every handle after it, and only a full re-serialization keeps them consistent. See the
+ * pgsedit README for the wire format this mirrors.
+ */
 export const JavaSer = (() => {
   // ObjectStreamConstants.
   const STREAM_MAGIC = 0xaced,
@@ -22,8 +24,10 @@ export const JavaSer = (() => {
   const SC_WRITE_METHOD = 0x01,
     SC_SERIALIZABLE = 0x02;
 
-  // Boxed primitives, keyed by JVM field-type code. The value carried is a Number for I/F, a BigInt for J (a 64-bit
-  // long won't fit a JS number and must round-trip exactly — PGSharp hides doubles inside longs), and a boolean for Z.
+  /**
+   * Boxed primitives, keyed by JVM field-type code. The value carried is a Number for I/F, a BigInt for J (a 64-bit
+   * long won't fit a JS number and must round-trip exactly — PGSharp hides doubles inside longs), and a boolean for Z.
+   */
   const BOX = {
     I: { cls: 'java.lang.Integer', uid: 0x12e2a0a4f7818738n },
     J: { cls: 'java.lang.Long', uid: 0x3b8be490cc8f23dfn },
@@ -41,8 +45,10 @@ export const JavaSer = (() => {
 
   const err = (m) => new Error(m);
 
-  // Java's "modified UTF-8": U+0000 is C0 80 and non-BMP characters are written as their two UTF-16 surrogates (3 bytes
-  // each), so we iterate UTF-16 code units rather than code points.
+  /**
+   * Java's "modified UTF-8": U+0000 is C0 80 and non-BMP characters are written as their two UTF-16 surrogates (3 bytes
+   * each), so we iterate UTF-16 code units rather than code points.
+   */
   function encodeMutf8(s) {
     const out = [];
 
@@ -152,8 +158,10 @@ export const JavaSer = (() => {
       this.handles.push(obj);
       return obj;
     }
-    // The JVM assigns an object's handle before its fields are read, so a self-referential object can cite itself;
-    // reserve the slot, back-patch it.
+    /**
+     * The JVM assigns an object's handle before its fields are read, so a self-referential object can cite itself;
+     * reserve the slot, back-patch it.
+     */
     claimHandle() {
       this.handles.push(null);
       return this.handles.length - 1;
@@ -302,8 +310,10 @@ export const JavaSer = (() => {
       for (const d of chain) {
         for (const [tcode, fname] of d.fields) {
           d.values ||= {};
-          // We only need HashMap's writeObject payload; a field's value is read to advance the stream but not otherwise
-          // used here.
+          /**
+           * We only need HashMap's writeObject payload; a field's value is read to advance the stream but not otherwise
+           * used here.
+           */
           d.values[fname] = tcode === 'L' || tcode === '[' ? this.content() : this.readPrimitive(tcode);
         }
 

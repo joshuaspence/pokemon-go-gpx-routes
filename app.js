@@ -3,8 +3,10 @@ import { entryCountry, extText, loadManifest, placeName } from './gpx.js';
 
 const cssVar = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 
-// zoomSnap: 0 lets fitBounds land on a fractional zoom. Snapping to whole levels rounds down, which can leave the
-// fitted layers filling as little as half the map — a lot of dead space on a narrow phone viewport.
+/**
+ * zoomSnap: 0 lets fitBounds land on a fractional zoom. Snapping to whole levels rounds down, which can leave the
+ * fitted layers filling as little as half the map — a lot of dead space on a narrow phone viewport.
+ */
 const map = L.map('map', { worldCopyJump: true, zoomSnap: 0 }).setView([20, 0], 2);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   maxZoom: 19,
@@ -30,8 +32,10 @@ function toast(msg) {
   toastTimer = setTimeout(() => toastEl.classList.remove('show'), 1800);
 }
 
-// Copy text to the clipboard, falling back to `execCommand` for insecure contexts (e.g. served over plain HTTP, where
-// the async Clipboard API is unavailable). Returns a promise that resolves to true on success.
+/**
+ * Copy text to the clipboard, falling back to `execCommand` for insecure contexts (e.g. served over plain HTTP, where
+ * the async Clipboard API is unavailable). Returns a promise that resolves to true on success.
+ */
 async function copyText(text) {
   try {
     if (navigator.clipboard && window.isSecureContext) {
@@ -58,8 +62,10 @@ async function copyText(text) {
   }
 }
 
-// Flash a copy button through its outcome — "Copied" or "Failed" — then restore its label a moment later. The button is
-// optional, so a caller with none to flash still shares this path.
+/**
+ * Flash a copy button through its outcome — "Copied" or "Failed" — then restore its label a moment later. The button is
+ * optional, so a caller with none to flash still shares this path.
+ */
 function flashButton(btn, ok) {
   if (!btn) {
     return;
@@ -103,15 +109,17 @@ function fmtDist(m) {
   return m >= 1000 ? (m / 1000).toFixed(2) + ' km' : Math.round(m) + ' m';
 }
 
-// Read one file, splitting it into routes and waypoints by element rather than by where it sits: a <trk> is a path to
-// walk, a <wpt> is one place to stand, and a file may hold either or both. This is how the backup writer has always
-// read these files (see parseGpxFavourites), so the two now agree about what a file contains instead of the viewer
-// being told separately.
-//
-// Name, locality, country and variant all come from the file's own metadata; an entry missing what it needs is rejected
-// rather than guessed at, so the gap shows up in the banner instead of quietly reading back the path. The variant stays
-// optional — it is empty for a route with no short/long counterpart. The whole file text is returned once, for the copy
-// button to hand over.
+/**
+ * Read one file, splitting it into routes and waypoints by element rather than by where it sits: a <trk> is a path to
+ * walk, a <wpt> is one place to stand, and a file may hold either or both. This is how the backup writer has always
+ * read these files (see parseGpxFavourites), so the two now agree about what a file contains instead of the viewer
+ * being told separately.
+ *
+ * Name, locality, country and variant all come from the file's own metadata; an entry missing what it needs is rejected
+ * rather than guessed at, so the gap shows up in the banner instead of quietly reading back the path. The variant stays
+ * optional — it is empty for a route with no short/long counterpart. The whole file text is returned once, for the copy
+ * button to hand over.
+ */
 async function loadGpxFile(file) {
   const res = await fetch(encodeURI(file));
 
@@ -131,9 +139,11 @@ async function loadGpxFile(file) {
   for (const trk of doc.getElementsByTagName('trk')) {
     const trkpts = trk.getElementsByTagName('trkpt');
 
-    // An emptied <trk> is what gpx.studio writes for a cleared track; skip it rather than report it, matching
-    // parseGpxFavourites. A <trk> that kept a single point is a different thing — a track that cannot be drawn — and is
-    // still an error.
+    /**
+     * An emptied <trk> is what gpx.studio writes for a cleared track; skip it rather than report it, matching
+     * parseGpxFavourites. A <trk> that kept a single point is a different thing — a track that cannot be drawn — and is
+     * still an error.
+     */
     if (trkpts.length === 0) {
       continue;
     }
@@ -197,8 +207,10 @@ function clearMarkers(entry) {
   }
 }
 
-// Build a map popup: a bold title, a detail line, and a copy button. The copy handler is handed the button so it can
-// flash it (see flashButton). Returns the element to bind to a layer.
+/**
+ * Build a map popup: a bold title, a detail line, and a copy button. The copy handler is handed the button so it can
+ * flash it (see flashButton). Returns the element to bind to a layer.
+ */
 function buildPopup(name, detail, copyLabel, onCopy) {
   const popup = document.createElement('div');
   const title = document.createElement('b');
@@ -214,8 +226,10 @@ function buildPopup(name, detail, copyLabel, onCopy) {
   return popup;
 }
 
-// Return the active route to its resting style, drop its start/end markers and un-highlight its row. Mirrors
-// deselectCity, so selecting either kind can clear the other with a single call.
+/**
+ * Return the active route to its resting style, drop its start/end markers and un-highlight its row. Mirrors
+ * deselectCity, so selecting either kind can clear the other with a single call.
+ */
 function deselectRoute() {
   if (!active) {
     return;
@@ -354,8 +368,10 @@ function buildCityRow(c, country) {
   return el;
 }
 
-// Render one list grouped by country. Within each country, tracks and waypoints are interleaved and sorted
-// alphabetically by name.
+/**
+ * Render one list grouped by country. Within each country, tracks and waypoints are interleaved and sorted
+ * alphabetically by name.
+ */
 function buildSidebar() {
   countEl.textContent = cityStore.length
     ? `${store.length} tracks \u00b7 ${cityStore.length} waypoints`
@@ -438,8 +454,10 @@ filterEl.addEventListener('input', () => {
     el.classList.toggle('hidden', !hit);
   });
 
-  // Hide groups with no matches; while searching, auto-expand those that have matches so the results are visible. With
-  // no query, collapse everything.
+  /**
+   * Hide groups with no matches; while searching, auto-expand those that have matches so the results are visible. With
+   * no query, collapse everything.
+   */
   document.querySelectorAll('.country-group').forEach((group) => {
     const anyVisible = [...group.querySelectorAll('.route')].some((r) => !r.classList.contains('hidden'));
     group.classList.toggle('hidden', !anyVisible);
@@ -458,8 +476,10 @@ function showBanner(html) {
   bannerEl.style.display = 'block';
 }
 
-// Name every file that could not be read, and why. The banner stays up: a file whose metadata is missing is a defect to
-// fix, not a transient hiccup to time out, and the map now has no way to show a placeholder for it.
+/**
+ * Name every file that could not be read, and why. The banner stays up: a file whose metadata is missing is a defect to
+ * fix, not a transient hiccup to time out, and the map now has no way to show a placeholder for it.
+ */
 function appendRejected(rejected) {
   const head = document.createElement('b');
   head.textContent = `${rejected.length} file(s) rejected — fix the GPX metadata:`;
@@ -482,8 +502,10 @@ async function init() {
   const rejected = [];
   const note = (file, e) => rejected.push({ file, reason: e.message });
 
-  // Nothing can be drawn without the list, and reading it is the page's first fetch — so this is also where opening the
-  // page from disk lands.
+  /**
+   * Nothing can be drawn without the list, and reading it is the page's first fetch — so this is also where opening the
+   * page from disk lands.
+   */
   let files;
 
   try {
