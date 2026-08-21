@@ -80,6 +80,7 @@ export const FEED_FILTERS = [
     name: 'Shiny Hunting',
     distance: 5,
     priority: 0,
+    // prettier-ignore
     pokemons: species([
       // Generation 1
       POKEMON.PARAS, POKEMON.PARASECT,
