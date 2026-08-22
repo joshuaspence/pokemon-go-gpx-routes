@@ -110,6 +110,13 @@ function fmtDist(m) {
 }
 
 /**
+ * A file the server would not hand over — a status the fetch rejected on, or a connection that never got there. The
+ * banner keeps these apart from the defects loadGpxFile throws for below: a 503 is a hiccup to reload through, not
+ * metadata anyone can go and fix.
+ */
+class FetchError extends Error {}
+
+/**
  * Read one file, splitting it into routes and waypoints by element rather than by where it sits: a <trk> is a path to
  * walk, a <wpt> is one place to stand, and a file may hold either or both. This is how the backup writer has always
  * read these files (see parseGpxFavourites), so the two now agree about what a file contains instead of the viewer
@@ -121,10 +128,17 @@ function fmtDist(m) {
  * button to hand over.
  */
 async function loadGpxFile(file) {
-  const res = await fetch(encodeURI(file));
+  let res;
+
+  try {
+    res = await fetch(encodeURI(file));
+  } catch (e) {
+    throw new FetchError(e.message);
+  }
 
   if (!res.ok) {
-    throw new Error(`${res.status} ${res.statusText}`);
+    // HTTP/2 sends no reason phrase, so a bare status is all there is to say — trim rather than print a trailing space.
+    throw new FetchError(`${res.status} ${res.statusText}`.trim());
   }
 
   const text = await res.text();
@@ -477,15 +491,17 @@ function showBanner(html) {
 }
 
 /**
- * Name every file that could not be read, and why. The banner stays up: a file whose metadata is missing is a defect to
- * fix, not a transient hiccup to time out, and the map now has no way to show a placeholder for it.
+ * Name every file that could not be read, and why, under a heading that says what kind of failure it was — the two
+ * kinds want opposite things from the reader, so a server that is down must not read as metadata to go and correct.
+ * The banner stays up for both: a defect is there to fix, and a file that never arrived is not something the map can
+ * show a placeholder for either.
  */
-function appendRejected(rejected) {
+function appendFailures(heading, failures) {
   const head = document.createElement('b');
-  head.textContent = `${rejected.length} file(s) rejected — fix the GPX metadata:`;
+  head.textContent = heading;
   const list = document.createElement('ul');
 
-  for (const { file, reason } of rejected) {
+  for (const { file, reason } of failures) {
     console.error(`${file}: ${reason}`);
     const item = document.createElement('li');
     const path = document.createElement('code');
@@ -499,8 +515,9 @@ function appendRejected(rejected) {
 }
 
 async function init() {
+  const unreachable = [];
   const rejected = [];
-  const note = (file, e) => rejected.push({ file, reason: e.message });
+  const note = (file, e) => (e instanceof FetchError ? unreachable : rejected).push({ file, reason: e.message });
 
   /**
    * Nothing can be drawn without the list, and reading it is the page's first fetch — so this is also where opening the
@@ -568,11 +585,15 @@ async function init() {
 
   buildSidebar();
 
-  if (rejected.length) {
-    appendRejected(rejected);
+  if (unreachable.length) {
+    appendFailures(`${unreachable.length} file(s) could not be fetched — try reloading:`, unreachable);
   }
 
-  // Every file listed was rejected; the banner already names each one, and there is no layer to fit the map to.
+  if (rejected.length) {
+    appendFailures(`${rejected.length} file(s) rejected — fix the GPX metadata:`, rejected);
+  }
+
+  // Every file listed failed; the banner already names each one, and there is no layer to fit the map to.
   if (store.length === 0 && cityStore.length === 0) {
     return;
   }
