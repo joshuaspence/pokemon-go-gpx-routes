@@ -55,10 +55,9 @@ export const SCAN_CONFIG = {
  * The nearby feed's filter list, stored under "hlfeeds" — the named filters the feed matches spawns against, as one
  * JSON array. "Shiny Hunting" watches its own list of species for a shiny within 5 km; "100%" watches every species for
  * a perfect one within 10 km and is the only one that notifies; "Regional Shiny Hunting" watches the nine region-locked
- * species, at distance 0 rather than a radius. Its name notwithstanding, its onlyShiny is false — that is what the
- * backup holds, and a regional is worth surfacing whether or not it is shiny. Those species lists are written in dex
- * order; PGSharp wrote them in neither dex nor alphabetical order, and reads them back as the set of species they hold,
- * so the order they are stored in is ours to pick.
+ * species, at distance 0 rather than a radius. Those species lists are written in dex order; PGSharp wrote them in
+ * neither dex nor alphabetical order, and reads them back as the set of species they hold, so the order they are stored
+ * in is ours to pick.
  */
 export const FEED_FILTERS = [
   {
@@ -82,6 +81,7 @@ export const FEED_FILTERS = [
     name: 'Shiny Hunting',
     distance: 5,
     priority: 0,
+
     // prettier-ignore
     pokemons: species([
       // Generation 1
@@ -124,25 +124,20 @@ export const FEED_FILTERS = [
       POKEMON.COTTONEE, POKEMON.WHIMSICOTT,
       POKEMON.PETILIL, POKEMON.LILLIGANT,
       POKEMON.BASCULIN,
-      POKEMON.MARACTUS,
       POKEMON.SCRAGGY, POKEMON.SCRAFTY,
-      POKEMON.SIGILYPH,
       POKEMON.YAMASK, POKEMON.COFAGRIGUS,
       POKEMON.TIRTOUGA, POKEMON.CARRACOSTA,
       POKEMON.ARCHEN, POKEMON.ARCHEOPS,
       POKEMON.ZORUA, POKEMON.ZOROARK,
       POKEMON.DEERLING, POKEMON.SAWSBUCK,
       POKEMON.KARRABLAST, POKEMON.ESCAVALIER,
-      POKEMON.JOLTIK, POKEMON.GALVANTULA,
       POKEMON.TYNAMO, POKEMON.EELEKTRIK, POKEMON.EELEKTROSS,
-      POKEMON.ELGYEM, POKEMON.BEHEEYEM,
       POKEMON.AXEW, POKEMON.FRAXURE, POKEMON.HAXORUS,
       POKEMON.SHELMET, POKEMON.ACCELGOR,
       POKEMON.MIENFOO, POKEMON.MIENSHAO,
       POKEMON.GOLETT, POKEMON.GOLURK,
       POKEMON.PAWNIARD, POKEMON.BISHARP,
       POKEMON.RUFFLET, POKEMON.BRAVIARY,
-      POKEMON.DURANT,
       POKEMON.LARVESTA, POKEMON.VOLCARONA,
 
       // Generation 6
@@ -157,7 +152,6 @@ export const FEED_FILTERS = [
       POKEMON.FURFROU,
       POKEMON.ESPURR, POKEMON.MEOWSTIC,
       POKEMON.HONEDGE, POKEMON.DOUBLADE, POKEMON.AEGISLASH,
-      POKEMON.SPRITZEE, POKEMON.AROMATISSE,
       POKEMON.SWIRLIX, POKEMON.SLURPUFF,
       POKEMON.BINACLE, POKEMON.BARBARACLE,
       POKEMON.SKRELP, POKEMON.DRAGALGE,
@@ -216,10 +210,51 @@ export const FEED_FILTERS = [
       POKEMON.SMOLIV, POKEMON.DOLLIV, POKEMON.ARBOLIVA,
       POKEMON.TADBULB, POKEMON.BELLIBOLT,
       POKEMON.TOEDSCOOL, POKEMON.TOEDSCRUEL,
-      POKEMON.WIGLETT, POKEMON.WUGTRIO,
       POKEMON.ANNIHILAPE,
       POKEMON.CLODSIRE,
       POKEMON.FRIGIBAX, POKEMON.ARCTIBAX, POKEMON.BAXCALIBUR,
+    ]),
+  },
+  {
+    checkAll: false,
+    level: 1,
+    lvmax: 36,
+    minIV: 0,
+    maxIV: 100,
+    onlyShiny: true,
+    attrMode: 0,
+    minatk: 0,
+    maxatk: 15,
+    mindef: 0,
+    maxdef: 15,
+    minsta: 0,
+    maxsta: 15,
+    gender: 0,
+    form: 0,
+    size: 0,
+    notif: false,
+    name: 'Regional Shiny Hunting',
+    distance: 0,
+    priority: 0,
+
+    // prettier-ignore
+    pokemons: species([
+      // Generation 3
+      POKEMON.TORKOAL,
+      POKEMON.SEVIPER,
+      POKEMON.TROPIUS,
+      POKEMON.RELICANTH,
+
+      // Generation 4
+      POKEMON.PACHIRISU,
+      POKEMON.CARNIVINE,
+
+      // Generation 6
+      POKEMON.HAWLUCHA,
+      POKEMON.KLEFKI,
+
+      // Generation 7
+      POKEMON.ORICORIO,
     ]),
   },
   {
@@ -243,46 +278,5 @@ export const FEED_FILTERS = [
     name: '100%',
     distance: 10,
     priority: 0,
-  },
-  {
-    checkAll: false,
-    level: 1,
-    lvmax: 36,
-    minIV: 0,
-    maxIV: 100,
-    onlyShiny: false,
-    attrMode: 0,
-    minatk: 0,
-    maxatk: 15,
-    mindef: 0,
-    maxdef: 15,
-    minsta: 0,
-    maxsta: 15,
-    gender: 0,
-    form: 0,
-    size: 0,
-    notif: false,
-    name: 'Regional Shiny Hunting',
-    distance: 0,
-    priority: 0,
-    // prettier-ignore
-    pokemons: species([
-      // Generation 3
-      POKEMON.TORKOAL,
-      POKEMON.SEVIPER,
-      POKEMON.TROPIUS,
-      POKEMON.RELICANTH,
-
-      // Generation 4
-      POKEMON.PACHIRISU,
-      POKEMON.CARNIVINE,
-
-      // Generation 6
-      POKEMON.HAWLUCHA,
-      POKEMON.KLEFKI,
-
-      // Generation 7
-      POKEMON.ORICORIO,
-    ]),
   },
 ];
