@@ -90,7 +90,6 @@ export const FEED_FILTERS = [
       POKEMON.STANTLER,
 
       // Generation 3
-      POKEMON.NOSEPASS,
       POKEMON.TORKOAL,
       POKEMON.SEVIPER,
       POKEMON.BARBOACH, POKEMON.WHISCASH,
