@@ -53,11 +53,11 @@ export const SCAN_CONFIG = {
 
 /**
  * The nearby feed's filter list, stored under "hlfeeds" — the named filters the feed matches spawns against, as one
- * JSON array. "Shiny Hunting" watches its own list of species for a shiny within 5 km; "100%" watches every species for
- * a perfect one within 10 km and is the only one that notifies; "Regional Shiny Hunting" watches the nine region-locked
- * species, at distance 0 rather than a radius. Those species lists are written in dex order; PGSharp wrote them in
- * neither dex nor alphabetical order, and reads them back as the set of species they hold, so the order they are stored
- * in is ours to pick.
+ * JSON array. "Shiny Hunting" watches its own list of species for a shiny within 80 km and carries the one non-zero
+ * priority; "100%" watches every species for a perfect one within 10 km and is the only one that notifies; "Regional
+ * Shiny Hunting" watches the nine region-locked species, at distance 0 rather than a radius. Those species lists are
+ * written in dex order; PGSharp wrote them in neither dex nor alphabetical order, and reads them back as the set of
+ * species they hold, so the order they are stored in is ours to pick.
  */
 export const FEED_FILTERS = [
   {
@@ -79,8 +79,8 @@ export const FEED_FILTERS = [
     size: 0,
     notif: false,
     name: 'Shiny Hunting',
-    distance: 5,
-    priority: 0,
+    distance: 80,
+    priority: 1,
 
     // prettier-ignore
     pokemons: species([
