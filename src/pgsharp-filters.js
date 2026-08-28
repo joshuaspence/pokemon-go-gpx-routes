@@ -3,9 +3,7 @@
  * which is a Java Float, each of these is stored as one JSON string; they are kept as objects here so every field reads
  * and diffs on its own, and JSON.stringify re-emits the compact string PGSharp wrote where they are put in the backup.
  * That re-emission goes field by field in source order, so the order below is part of the value and must not be
- * rearranged. Every value is a known-good backup's except in "Regional Shiny Hunting", whose distance and priority are
- * set to match "Shiny Hunting" — 80 and 1 where the backup has 0 and 0 — and whose SHELLOS the backup carries only in
- * "Shiny Hunting". None is user-editable.
+ * rearranged.
  */
 
 import POKEMON from './pokemon.js';
@@ -53,14 +51,6 @@ export const SCAN_CONFIG = {
   pgp: true,
 };
 
-/**
- * The nearby feed's filter list, stored under "hlfeeds" — the named filters the feed matches spawns against, as one
- * JSON array. "Shiny Hunting" watches its own list of species for a shiny and "Regional Shiny Hunting" the ten
- * region-locked ones for any encounter, both within 80 km and both at priority 1; "100%" watches every species for a
- * perfect one within 10 km, at priority 0, and is the only one that notifies. Those species lists are written in dex
- * order; PGSharp wrote them in neither dex nor alphabetical order, and reads them back as the set of species they hold,
- * so the order they are stored in is ours to pick.
- */
 export const FEED_FILTERS = [
   {
     checkAll: false,
