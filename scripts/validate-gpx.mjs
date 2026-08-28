@@ -1,13 +1,13 @@
 /**
  * Checks the GPX files in the repository are in order: that each one is well-formed and really is GPX 1.1 against the
  * schema (resources/gpx.xsd); that its `pgr` extension fields are the ones the viewer reads and that its country is
- * one the viewer knows (countries.js); and that gpx.json still lists exactly the files the viewer should fetch.
+ * one the viewer knows (src/countries.js); and that gpx.json still lists exactly the files the viewer should fetch.
  *
  * The schema is vendored rather than fetched. GPX 1.1 has not moved since 2004 and the file is 26 KB, so there is
  * nothing to gain by making this check depend on a twenty-year-old site staying up.
  */
 
-import COUNTRIES from '../countries.js';
+import COUNTRIES from '../src/countries.js';
 import { DOMParser } from '@xmldom/xmldom';
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
@@ -117,10 +117,10 @@ for (const { fileName, contents } of sources) {
         report(fileName, field, `<${field.tagName}> is "${text}" — expected short or long`);
       } else if (name === 'country' && !Object.hasOwn(COUNTRIES, text)) {
         /**
-         * The viewer groups by continent and flags each favourite from this table (countries.js); a country missing
+         * The viewer groups by continent and flags each favourite from this table (src/countries.js); a country missing
          * from it has no continent and no flag, so the backup build throws rather than importing it. Catch it here.
          */
-        report(fileName, field, `<${field.tagName}> is "${text}" — not a country in COUNTRIES (countries.js)`);
+        report(fileName, field, `<${field.tagName}> is "${text}" — not a country in COUNTRIES (src/countries.js)`);
       }
     }
 
