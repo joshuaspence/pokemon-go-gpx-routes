@@ -3,7 +3,8 @@
  * which is a Java Float, each of these is stored as one JSON string; they are kept as objects here so every field reads
  * and diffs on its own, and JSON.stringify re-emits the compact string PGSharp wrote where they are put in the backup.
  * That re-emission goes field by field in source order, so the order below is part of the value and must not be
- * rearranged. Every value is taken verbatim from a known-good backup and none is user-editable.
+ * rearranged. Every value is a known-good backup's except "Regional Shiny Hunting"'s distance and priority, which are
+ * set to match "Shiny Hunting" and so read 80 and 1 where the backup has 0 and 0. None is user-editable.
  */
 
 import POKEMON from './pokemon.js';
@@ -53,11 +54,11 @@ export const SCAN_CONFIG = {
 
 /**
  * The nearby feed's filter list, stored under "hlfeeds" — the named filters the feed matches spawns against, as one
- * JSON array. "Shiny Hunting" watches its own list of species for a shiny within 80 km and carries the one non-zero
- * priority; "100%" watches every species for a perfect one within 10 km and is the only one that notifies; "Regional
- * Shiny Hunting" watches the nine region-locked species, at distance 0 rather than a radius. Those species lists are
- * written in dex order; PGSharp wrote them in neither dex nor alphabetical order, and reads them back as the set of
- * species they hold, so the order they are stored in is ours to pick.
+ * JSON array. "Shiny Hunting" watches its own list of species for a shiny and "Regional Shiny Hunting" the nine
+ * region-locked ones for any encounter, both within 80 km and both at priority 1; "100%" watches every species for a
+ * perfect one within 10 km, at priority 0, and is the only one that notifies. Those species lists are written in dex
+ * order; PGSharp wrote them in neither dex nor alphabetical order, and reads them back as the set of species they hold,
+ * so the order they are stored in is ours to pick.
  */
 export const FEED_FILTERS = [
   {
@@ -234,8 +235,8 @@ export const FEED_FILTERS = [
     size: 0,
     notif: false,
     name: 'Regional Shiny Hunting',
-    distance: 0,
-    priority: 0,
+    distance: 80,
+    priority: 1,
 
     // prettier-ignore
     pokemons: species([
