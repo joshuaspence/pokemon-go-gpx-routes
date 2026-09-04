@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx xmlns="http://www.topografix.com/GPX/1/1"
+     xmlns:pgr="https://joshuaspence.github.io/pokemon-go-gpx-routes/gpx/1"
+     version="1.1"
+     creator="https://github.com/joshuaspence/pokemon-go-gpx-routes">
+  <wpt lat="33.756025" lon="-84.388758">
+    <name>Atlanta, GA</name>
+    <extensions>
+      <pgr:country>United States</pgr:country>
+    </extensions>
+  </wpt>
+  <wpt lat="42.358814" lon="-71.056500">
+    <name>Boston, MA</name>
+    <extensions>
+      <pgr:country>United States</pgr:country>
+    </extensions>
+  </wpt>
+  <wpt lat="41.876136" lon="-87.629140">
+    <name>Chicago, IL</name>
+    <extensions>
+      <pgr:country>United States</pgr:country>
+    </extensions>
+  </wpt>
+  <wpt lat="34.053331" lon="-118.242341">
+    <name>Los Angeles, CA</name>
+    <extensions>
+      <pgr:country>United States</pgr:country>
+    </extensions>
+  </wpt>
+  <wpt lat="40.755931" lon="-73.984606">
+    <name>New York City, NY</name>
+    <extensions>
+      <pgr:country>United States</pgr:country>
+    </extensions>
+  </wpt>
+  <wpt lat="39.954647" lon="-75.164452">
+    <name>Philadelphia, PA</name>
+    <extensions>
+      <pgr:country>United States</pgr:country>
+    </extensions>
+  </wpt>
+  <wpt lat="37.785583" lon="-122.415337">
+    <name>San Francisco, CA</name>
+    <extensions>
+      <pgr:country>United States</pgr:country>
+    </extensions>
+  </wpt>
+  <wpt lat="38.635791" lon="-90.288158">
+    <name>St. Louis, MO</name>
+    <extensions>
+      <pgr:country>United States</pgr:country>
+    </extensions>
+  </wpt>
+</gpx>

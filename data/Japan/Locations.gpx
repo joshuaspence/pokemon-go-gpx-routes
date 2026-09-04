@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx xmlns="http://www.topografix.com/GPX/1/1"
+     xmlns:pgr="https://joshuaspence.github.io/pokemon-go-gpx-routes/gpx/1"
+     version="1.1"
+     creator="https://github.com/joshuaspence/pokemon-go-gpx-routes">
+  <wpt lat="34.693759" lon="135.501064">
+    <name>Osaka</name>
+    <extensions>
+      <pgr:country>Japan</pgr:country>
+    </extensions>
+  </wpt>
+  <wpt lat="35.691619" lon="139.696914">
+    <name>Tokyo</name>
+    <extensions>
+      <pgr:country>Japan</pgr:country>
+    </extensions>
+  </wpt>
+</gpx>
