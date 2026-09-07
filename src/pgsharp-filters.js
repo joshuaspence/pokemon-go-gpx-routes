@@ -155,7 +155,6 @@ export const FEED_FILTERS = [
       POKEMON.SKRELP, POKEMON.DRAGALGE,
       POKEMON.HAWLUCHA,
       POKEMON.GOOMY, POKEMON.SLIGGOO, POKEMON.GOODRA,
-      POKEMON.KLEFKI,
       POKEMON.XERNEAS,
       POKEMON.YVELTAL,
 
@@ -275,7 +274,6 @@ export const FEED_FILTERS = [
 
       // Generation 6
       POKEMON.HAWLUCHA,
-      POKEMON.KLEFKI,
 
       // Generation 7
       POKEMON.ORICORIO,
