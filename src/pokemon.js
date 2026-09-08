@@ -172,6 +172,11 @@ export class Pokemon {
     return variant;
   }
 
+  /** Its name, for reading in a message or a log — a string coercion, where valueOf below hands back the number. */
+  toString() {
+    return this.#name;
+  }
+
   toJSON() {
     return this.#dex;
   }
