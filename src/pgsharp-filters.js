@@ -6,7 +6,7 @@
  * be rearranged.
  */
 
-import POKEMON, { Pokemon, shinyEligible, spawns, GALAR, HISUI, PALDEA } from './pokemon.js';
+import POKEMON, { Pokemon, filterShinyEligible, filterWildSpawns, GALAR, HISUI, PALDEA } from './pokemon.js';
 
 /**
  * A filter's species list, checked, narrowed and collapsed to one entry per species. A form or a region the species
@@ -335,7 +335,7 @@ export const FEED_FILTERS = [
       POKEMON.CLODSIRE,
       POKEMON.FRIGIBAX, POKEMON.ARCTIBAX, POKEMON.BAXCALIBUR,
       POKEMON.GIMMIGHOUL, POKEMON.GHOLDENGO,
-    ], shinyEligible, spawns),
+    ], filterShinyEligible, filterWildSpawns),
   },
   {
     checkAll: false,

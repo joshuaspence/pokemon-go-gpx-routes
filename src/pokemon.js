@@ -4,10 +4,10 @@
  * `POKEMON.PANPOUR` reads as the species it is, and a misspelling is a name the table does not define rather than a
  * number nothing checks.
  *
- * The whole dex is here rather than only the species in use, so a filter can name any of them without the table having
- * to be extended first. A constant is its English name uppercased, with the punctuation the games spell it with
- * dropped or turned into an underscore — `FARFETCHD`, `MR_MIME`, `NIDORAN_F`, `FLABEBE`, `TYPE_NULL` — which keeps all
- * 1025 distinct.
+ * The whole dex is here rather than only the species in use, so a filter can name any of them without the table
+ * having to be extended first. A constant is its English name uppercased, with the punctuation the games spell it
+ * with dropped or turned into an underscore — `FARFETCHD`, `MR_MIME`, `NIDORAN_F`, `FLABEBE`, `TYPE_NULL` — which
+ * keeps all  1025 distinct.
  *
  * A species also carries the forms and regional variants it comes in, declared on the entry itself, so everything
  * about a species is in one place rather than in a table off to the side.
@@ -25,15 +25,14 @@ export const PALDEA = 'Paldean';
  * one number PGSharp stores: `toJSON` sees to that, leaving `JSON.stringify` to emit the dex number and nothing else.
  *
  * Whether a shiny exists, and whether the wild turns one up at all, are properties of the form rather than of the
- * species, since a species can have a shiny where its regional variant does not. Declaring them walks with the
- * entry: `isShinyEligible`, `notShinyEligible`, `doesSpawn` and `doesNotSpawn` apply to
- * whatever was declared last — the species itself before any form is named, and the forms or regions of the
- * declaration just above otherwise. Undeclared reads as eligible, so a species says nothing until it has something to
- * say.
+ * species, since a species can have a shiny where its regional variant does not. Declaring them walks with the entry:
+ * `isShinyEligible`, `notShinyEligible`, `doesSpawn` and `doesNotSpawn` apply to whatever was declared last — the
+ * species itself before any form is named, and the forms or regions of the declaration just above otherwise.
+ * Undeclared reads as eligible, so a species says nothing until it has something to say.
  *
- *   ZORUA: new Pokemon(570).isShinyEligible().withRegions(HISUI).notShinyEligible(),
- *
- * leaves Zorua eligible and its Hisuian variant not.
+ * ```js
+ * const ZORUA = new Pokemon(570).isShinyEligible().withRegions(HISUI).notShinyEligible();
+ * ```
  */
 export class Pokemon {
   #dex;
@@ -43,7 +42,7 @@ export class Pokemon {
   #shinyEligible = true;
   #spawns = true;
 
-  // What the next isShinyEligible or notShinyEligible applies to: the species until a form or a region is declared.
+  // What the next `isShinyEligible` or `notShinyEligible` applies to: the species until a form or a region is declared.
   #declared;
 
   constructor(dex) {
@@ -70,9 +69,11 @@ export class Pokemon {
    * One region this species has a variant in, settled on the spot. The callback is handed that variant, so what is
    * true of it is said where it is declared rather than by what came last:
    *
-   *   FOO: new Pokemon(999).notShinyEligible().withRegion(ALOLA, (alolan) => alolan.isShinyEligible()),
+   * ```js
+   * new Pokemon(999).notShinyEligible().withRegion(ALOLA, (alolan) => alolan.isShinyEligible());
+   * ```
    *
-   * Left off, this is withRegions with one region, and what follows applies to that region as it would there.
+   * Left off, this is `withRegions` with one region, and what follows applies to that region as it would there.
    */
   withRegion(region, configure) {
     this.withRegions(region);
@@ -186,11 +187,12 @@ export class Pokemon {
   }
 }
 
-/** Reads as a filter's predicate: `species([...], shinyEligible)` drops the ones with no shiny to find. */
-export const shinyEligible = (pokemon) => pokemon.shinyEligible;
+/** Reads as a filter's predicate: `species([...], filterShinyEligible)` drops the ones with no shiny to find. */
+export const filterShinyEligible = (pokemon) => pokemon.shinyEligible;
 
-/** The same, for the ones the wild never turns up: `species([...], spawns)` drops those. */
-export const spawns = (pokemon) => pokemon.spawns;
+/** The same, for the ones the wild never turns up: `species([...], filterWildSpawns)` drops those. */
+export const filterWildSpawns = (pokemon) => pokemon.spawns;
+
 
 const POKEMON = {
   BULBASAUR: new Pokemon(1),
