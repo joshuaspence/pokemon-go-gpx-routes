@@ -24,11 +24,12 @@ export const PALDEA = 'Paldean';
  * actually has and hands back the Pokemon that form is, so a filter can say which form it means and still write the
  * one number PGSharp stores: `toJSON` sees to that, leaving `JSON.stringify` to emit the dex number and nothing else.
  *
- * Whether a shiny exists, and whether the wild turns one up at all, are properties of the form rather than of the
- * species, since a species can have a shiny where its regional variant does not. Declaring them walks with the entry:
- * `isShinyEligible`, `notShinyEligible`, `doesSpawn` and `doesNotSpawn` apply to whatever was declared last — the
- * species itself before any form is named, and the forms or regions of the declaration just above otherwise.
- * Undeclared reads as eligible, so a species says nothing until it has something to say.
+ * Whether a shiny exists, whether the wild turns one up at all, and whether it is in Pokémon GO yet, are properties of
+ * the form rather than of the species, since a species can have a shiny where its regional variant does not. Declaring
+ * them walks with the entry: `isShinyEligible`, `notShinyEligible`, `doesSpawn`, `doesNotSpawn`, `isReleased` and
+ * `isNotReleased` apply to whatever was declared last — the species itself before any form is named, and the forms or
+ * regions of the declaration just above otherwise. Undeclared reads as eligible, so a species says nothing until it has
+ * something to say.
  *
  * ```js
  * const ZORUA = new Pokemon(570).isShinyEligible().withRegions(HISUI).notShinyEligible();
@@ -41,6 +42,7 @@ export class Pokemon {
   #regions = new Map();
   #shinyEligible = true;
   #spawns = true;
+  #released = true;
 
   // What the next `isShinyEligible` or `notShinyEligible` applies to: the species until a form or a region is declared.
   #declared;
@@ -121,6 +123,24 @@ export class Pokemon {
     return this;
   }
 
+  /** Marks what was declared last as out in Pokémon GO — in the game to be had at all. */
+  isReleased() {
+    for (const variant of this.#declared) {
+      variant.#released = true;
+    }
+
+    return this;
+  }
+
+  /** Marks what was declared last as not in Pokémon GO yet, which keeps it out of a filter for what you can get. */
+  isNotReleased() {
+    for (const variant of this.#declared) {
+      variant.#released = false;
+    }
+
+    return this;
+  }
+
   /** Names this species for the errors below, from the constant it is bound to, and renames its forms with it. */
   as(name) {
     this.#name = name;
@@ -164,12 +184,18 @@ export class Pokemon {
     return this.#spawns;
   }
 
+  /** Whether this one is in Pokémon GO yet. */
+  get released() {
+    return this.#released;
+  }
+
   /** A form of this species, starting from where the species stands. */
   #variant(name) {
     const variant = new Pokemon(this.#dex);
     variant.#name = name;
     variant.#shinyEligible = this.#shinyEligible;
     variant.#spawns = this.#spawns;
+    variant.#released = this.#released;
     return variant;
   }
 
@@ -192,6 +218,9 @@ export const filterShinyEligible = (pokemon) => pokemon.shinyEligible;
 
 /** The same, for the ones the wild never turns up: `species([...], filterWildSpawns)` drops those. */
 export const filterWildSpawns = (pokemon) => pokemon.spawns;
+
+/** The same, for the ones not in Pokémon GO yet: `species([...], filterReleased)` drops those. */
+export const filterReleased = (pokemon) => pokemon.released;
 
 
 const POKEMON = {
