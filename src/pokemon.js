@@ -24,8 +24,9 @@ export const PALDEA = 'Paldean';
  * actually has and hands back the Pokemon that form is, so a filter can say which form it means and still write the
  * one number PGSharp stores: `toJSON` sees to that, leaving `JSON.stringify` to emit the dex number and nothing else.
  *
- * Whether a shiny exists is a property of the form rather than of the species, since a species can have one where its
- * regional variant does not. Declaring it walks with the entry: `isShinyEligible` and `notShinyEligible` apply to
+ * Whether a shiny exists, and whether the wild turns one up at all, are properties of the form rather than of the
+ * species, since a species can have a shiny where its regional variant does not. Declaring them walks with the
+ * entry: `isShinyEligible`, `notShinyEligible`, `doesSpawn` and `doesNotSpawn` apply to
  * whatever was declared last — the species itself before any form is named, and the forms or regions of the
  * declaration just above otherwise. Undeclared reads as eligible, so a species says nothing until it has something to
  * say.
@@ -40,6 +41,7 @@ export class Pokemon {
   #forms = new Map();
   #regions = new Map();
   #shinyEligible = true;
+  #spawns = true;
 
   // What the next isShinyEligible or notShinyEligible applies to: the species until a form or a region is declared.
   #declared;
@@ -100,6 +102,24 @@ export class Pokemon {
     return this;
   }
 
+  /** Marks what was declared last as something the wild turns up, which is what the feed filters watch for. */
+  doesSpawn() {
+    for (const variant of this.#declared) {
+      variant.#spawns = true;
+    }
+
+    return this;
+  }
+
+  /** Marks what was declared last as something the wild never turns up — a raid, a trade or an egg only. */
+  doesNotSpawn() {
+    for (const variant of this.#declared) {
+      variant.#spawns = false;
+    }
+
+    return this;
+  }
+
   /** Names this species for the errors below, from the constant it is bound to, and renames its forms with it. */
   as(name) {
     this.#name = name;
@@ -138,11 +158,17 @@ export class Pokemon {
     return this.#shinyEligible;
   }
 
+  /** Whether the wild turns this one up at all. */
+  get spawns() {
+    return this.#spawns;
+  }
+
   /** A form of this species, starting from where the species stands. */
   #variant(name) {
     const variant = new Pokemon(this.#dex);
     variant.#name = name;
     variant.#shinyEligible = this.#shinyEligible;
+    variant.#spawns = this.#spawns;
     return variant;
   }
 
@@ -157,6 +183,9 @@ export class Pokemon {
 
 /** Reads as a filter's predicate: `species([...], shinyEligible)` drops the ones with no shiny to find. */
 export const shinyEligible = (pokemon) => pokemon.shinyEligible;
+
+/** The same, for the ones the wild never turns up: `species([...], spawns)` drops those. */
+export const spawns = (pokemon) => pokemon.spawns;
 
 const POKEMON = {
   BULBASAUR: new Pokemon(1),

@@ -6,7 +6,7 @@
  * be rearranged.
  */
 
-import POKEMON, { Pokemon, shinyEligible, GALAR, HISUI, PALDEA } from './pokemon.js';
+import POKEMON, { Pokemon, shinyEligible, spawns, GALAR, HISUI, PALDEA } from './pokemon.js';
 
 /**
  * A filter's species list, checked, narrowed and collapsed to one entry per species. A form or a region the species
@@ -14,23 +14,25 @@ import POKEMON, { Pokemon, shinyEligible, GALAR, HISUI, PALDEA } from './pokemon
  * define at all, which reads as undefined and would reach the backup as a null where a species should be. The value is
  * all we are handed — the constant's name is gone by then — so the error gives the position to look at.
  *
- * `keep` narrows the list before it collapses, which is how the shiny filters drop what has no shiny to find. It runs
- * first so that a species listed twice — once as a form with a shiny and once as one without — keeps the form that
- * survives rather than whichever came first.
+ * Every `keep` given has to hold for an entry to stay, which is how a filter drops what has no shiny to find or what
+ * the wild never turns up. They run before the list collapses, so a species listed twice — once as a form that
+ * survives them and once as one that does not — keeps the form that survives rather than whichever came first.
  *
  * A form is a Pokemon of its own carrying the dex number of the species it belongs to, since that number is all
  * PGSharp stores, so a list naming several forms of one species names that number several times. The names are worth
  * keeping — they say which forms the list is for — but the repeats are not, so the first of each number survives and
  * the rest go, leaving the list PGSharp itself would write.
  */
-function species(entries, keep = () => true) {
+function species(entries, ...keep) {
   const at = entries.findIndex((entry) => !(entry instanceof Pokemon));
 
   if (at !== -1) {
     throw new Error(`species #${at + 1} is not a POKEMON constant — check it against pokemon.js`);
   }
 
-  return [...new Map(entries.filter(keep).map((entry) => [Number(entry), entry])).values()];
+  const kept = entries.filter((entry) => keep.every((predicate) => predicate(entry)));
+
+  return [...new Map(kept.map((entry) => [Number(entry), entry])).values()];
 }
 
 /**
@@ -333,7 +335,7 @@ export const FEED_FILTERS = [
       POKEMON.CLODSIRE,
       POKEMON.FRIGIBAX, POKEMON.ARCTIBAX, POKEMON.BAXCALIBUR,
       POKEMON.GIMMIGHOUL, POKEMON.GHOLDENGO,
-    ], shinyEligible),
+    ], shinyEligible, spawns),
   },
   {
     checkAll: false,
