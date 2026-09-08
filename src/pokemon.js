@@ -64,6 +64,24 @@ export class Pokemon {
     return this;
   }
 
+  /**
+   * One region this species has a variant in, settled on the spot. The callback is handed that variant, so what is
+   * true of it is said where it is declared rather than by what came last:
+   *
+   *   FOO: new Pokemon(999).notShinyEligible().withRegion(ALOLA, (alolan) => alolan.isShinyEligible()),
+   *
+   * Left off, this is withRegions with one region, and what follows applies to that region as it would there.
+   */
+  withRegion(region, configure) {
+    this.withRegions(region);
+
+    if (configure) {
+      configure(this.#regions.get(region));
+    }
+
+    return this;
+  }
+
   /** Marks what was declared last as having a shiny in the game. */
   isShinyEligible() {
     for (const variant of this.#declared) {
