@@ -1358,3 +1358,9 @@ export const VIVILLON = {
 };
 
 export const WORMADAM = Object.fromEntries(Object.keys(BURMY).map((cloak) => [cloak, POKEMON.WORMADAM]));
+
+export const ZYGARDE = {
+  FIFTY_PERCENT_FORME: POKEMON.ZYGARDE,
+  TEN_PERCENT_FORME: POKEMON.ZYGARDE,
+  COMPLETE_FORME: POKEMON.ZYGARDE,
+};
