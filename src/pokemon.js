@@ -20,42 +20,80 @@ export const HISUI = 'Hisuian';
 export const PALDEA = 'Paldean';
 
 /**
- * One species: a dex number wearing the names of everything it can look like. Naming a form or a region asks for one
- * the species actually has and hands the species back, so a filter can say which form it means and still write the one
- * number PGSharp stores — `toJSON` sees to that, leaving `JSON.stringify` to emit the dex number and nothing else.
+ * One species, or one of its forms — a dex number wearing a name. Naming a form or a region asks for one the species
+ * actually has and hands back the Pokemon that form is, so a filter can say which form it means and still write the
+ * one number PGSharp stores: `toJSON` sees to that, leaving `JSON.stringify` to emit the dex number and nothing else.
+ *
+ * Whether a shiny exists is a property of the form rather than of the species, since a species can have one where its
+ * regional variant does not. Declaring it walks with the entry: `isShinyEligible` and `notShinyEligible` apply to
+ * whatever was declared last — the species itself before any form is named, and the forms or regions of the
+ * declaration just above otherwise. Undeclared reads as eligible, so a species says nothing until it has something to
+ * say.
+ *
+ *   ZORUA: new Pokemon(570).isShinyEligible().withRegions(HISUI).notShinyEligible(),
+ *
+ * leaves Zorua eligible and its Hisuian variant not.
  */
 export class Pokemon {
   #dex;
-  #name = `#${0}`;
-  #forms = new Set();
-  #regions = new Set();
+  #name;
+  #forms = new Map();
+  #regions = new Map();
+  #shinyEligible = true;
+
+  // What the next isShinyEligible or notShinyEligible applies to: the species until a form or a region is declared.
+  #declared;
 
   constructor(dex) {
     this.#dex = dex;
     this.#name = `#${dex}`;
+    this.#declared = [this];
   }
 
-  /** The forms this species comes in, spelled as the games spell them. */
+  /** The forms this species comes in, spelled as the games spell them. Each is a Pokemon of its own. */
   withForms(...names) {
-    for (const name of names) {
-      this.#forms.add(name);
-    }
-
+    this.#declared = names.map((name) => this.#variant(`${this.#name} (${name})`));
+    names.forEach((name, i) => this.#forms.set(name, this.#declared[i]));
     return this;
   }
 
-  /** The regions this species has a variant in. */
+  /** The regions this species has a variant in. Each is a Pokemon of its own. */
   withRegions(...regions) {
-    for (const region of regions) {
-      this.#regions.add(region);
+    this.#declared = regions.map((region) => this.#variant(`${region} ${this.#name}`));
+    regions.forEach((region, i) => this.#regions.set(region, this.#declared[i]));
+    return this;
+  }
+
+  /** Marks what was declared last as having a shiny in the game. */
+  isShinyEligible() {
+    for (const variant of this.#declared) {
+      variant.#shinyEligible = true;
     }
 
     return this;
   }
 
-  /** Names this species for the errors below, from the constant it is bound to. */
+  /** Marks what was declared last as having none, which keeps it out of a filter that hunts shinies. */
+  notShinyEligible() {
+    for (const variant of this.#declared) {
+      variant.#shinyEligible = false;
+    }
+
+    return this;
+  }
+
+  /** Names this species for the errors below, from the constant it is bound to, and renames its forms with it. */
   as(name) {
     this.#name = name;
+
+    for (const [form, variant] of this.#forms) {
+      variant.as(`${name} (${form})`);
+    }
+
+    for (const [region, variant] of this.#regions) {
+      variant.as(`${region} ${name}`);
+    }
+
     return this;
   }
 
@@ -65,7 +103,7 @@ export class Pokemon {
       throw new Error(`${this.#name} has no ${name} form — check it against pokemon.js`);
     }
 
-    return this;
+    return this.#forms.get(name);
   }
 
   /** This species as one region sees it. A region it has no variant in stops here for the same reason. */
@@ -74,7 +112,20 @@ export class Pokemon {
       throw new Error(`${this.#name} has no ${region} form — check it against pokemon.js`);
     }
 
-    return this;
+    return this.#regions.get(region);
+  }
+
+  /** Whether a shiny of this one exists to be hunted. */
+  get shinyEligible() {
+    return this.#shinyEligible;
+  }
+
+  /** A form of this species, starting from where the species stands. */
+  #variant(name) {
+    const variant = new Pokemon(this.#dex);
+    variant.#name = name;
+    variant.#shinyEligible = this.#shinyEligible;
+    return variant;
   }
 
   toJSON() {
@@ -85,6 +136,9 @@ export class Pokemon {
     return this.#dex;
   }
 }
+
+/** Reads as a filter's predicate: `species([...], shinyEligible)` drops the ones with no shiny to find. */
+export const shinyEligible = (pokemon) => pokemon.shinyEligible;
 
 const POKEMON = {
   BULBASAUR: new Pokemon(1),
