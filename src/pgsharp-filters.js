@@ -91,7 +91,6 @@ export const FEED_FILTERS = [
 
       // Generation 3
       POKEMON.NINCADA, POKEMON.NINJASK, POKEMON.SHEDINJA,
-      POKEMON.TORKOAL,
       POKEMON.BARBOACH, POKEMON.WHISCASH,
       POKEMON.CASTFORM,
       POKEMON.TROPIUS,
@@ -264,7 +263,6 @@ export const FEED_FILTERS = [
     // prettier-ignore
     pokemons: species([
       // Generation 3
-      POKEMON.TORKOAL,
       POKEMON.TROPIUS,
       POKEMON.RELICANTH,
 
