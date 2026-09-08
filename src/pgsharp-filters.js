@@ -6,12 +6,32 @@
  * rearranged.
  */
 
-import POKEMON from './pokemon.js';
+import POKEMON, {
+  BASCULIN,
+  BURMY,
+  CASTFORM,
+  CHERRIM,
+  DEERLING,
+  GALARIAN,
+  HISUIAN,
+  PALDEAN,
+  ROTOM,
+  SAWSBUCK,
+  SHAYMIN,
+  SPINDA,
+  UNOWN,
+  WORMADAM,
+} from './pokemon.js';
 
 /**
- * A filter's species list, checked. A constant pokemon.js does not define reads as undefined rather than failing, and
- * would reach the backup as a null where a species should be, so it stops here instead. The value is all we are handed
- * — the constant's name is gone by then — so the error gives the position to look at.
+ * A filter's species list, checked and collapsed to one entry per species. A constant pokemon.js does not define reads
+ * as undefined rather than failing, and would reach the backup as a null where a species should be, so it stops here
+ * instead. The value is all we are handed — the constant's name is gone by then — so the error gives the position to
+ * look at.
+ *
+ * A form constant carries the dex number of the species it is a form of, since that number is all PGSharp stores, so
+ * naming several forms of one species repeats it. The names are worth keeping — they say which forms the list is for —
+ * but the repeats are not, so the first of each survives and the rest go, leaving the list PGSharp itself would write.
  */
 function species(numbers) {
   const at = numbers.findIndex((n) => !Number.isInteger(n));
@@ -20,7 +40,7 @@ function species(numbers) {
     throw new Error(`species #${at + 1} is not a POKEMON constant — check it against pokemon.js`);
   }
 
-  return numbers;
+  return [...new Set(numbers)];
 }
 
 /**
@@ -196,7 +216,6 @@ export const FEED_FILTERS = [
         BASCULIN.BLUE_STRIPED,
         BASCULIN.WHITE_STRIPED,
       ],
-      POKEMON.BASCULIN,
       GALARIAN.YAMASK,
       POKEMON.TIRTOUGA, POKEMON.CARRACOSTA,
       POKEMON.ARCHEN, POKEMON.ARCHEOPS,
@@ -204,10 +223,9 @@ export const FEED_FILTERS = [
       POKEMON.SOLOSIS, POKEMON.DUOSION, POKEMON.REUNICLUS,
       ...[
         DEERLING.SPRING_FORM, SAWSBUCK.SPRING_FORM,
-        DEERLING.AUTUMN_FORM, SAWSBUCKS.AUTUMN_FORM,
-        DEERLING.WINTER_FORM, SAWSBUCKS.WINTER_FORM,
+        DEERLING.AUTUMN_FORM, SAWSBUCK.AUTUMN_FORM,
+        DEERLING.WINTER_FORM, SAWSBUCK.WINTER_FORM,
       ],
-      POKEMON.DEERLING, POKEMON.SAWSBUCK,
       POKEMON.KARRABLAST, POKEMON.ESCAVALIER,
       POKEMON.FRILLISH, POKEMON.JELLICENT,
       POKEMON.AXEW, POKEMON.FRAXURE, POKEMON.HAXORUS,
