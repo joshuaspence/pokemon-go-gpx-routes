@@ -848,7 +848,10 @@ const POKEMON = {
   KROKOROK: new Pokemon(552),
   KROOKODILE: new Pokemon(553),
   DARUMAKA: new Pokemon(554).withRegions(GALAR),
-  DARMANITAN: new Pokemon(555).withRegions(GALAR).withForm('STANDARD_MODE').withForm('ZEN_MODE', (form) => form.isNotReleased()),
+  DARMANITAN: new Pokemon(555)
+    .withForm('STANDARD_MODE')
+    .withForm('ZEN_MODE', (zen) => zen.isNotReleased())
+    .withRegion(GALAR, (galar) => galar.withForm('STANDARD_MODE').withForm('ZEN_MODE', (zen) => zen.isNotReleased())),
   MARACTUS: new Pokemon(556),
   DWEBBLE: new Pokemon(557),
   CRUSTLE: new Pokemon(558),
