@@ -1304,6 +1304,11 @@ export const PALDEAN_TAUROS = {
   AQUA_BREED: POKEMON.TAUROS,
 };
 
+export const POLTEAGEIST = {
+  PHONY_FORM: POKEMON.POLTEAGEIST,
+  ANTIQUE_FORM: POKEMON.POLTEAGEIST,
+};
+
 export const PUMPKABOO = {
   AVERAGE_SIZE: POKEMON.PUMPKABOO,
   SMALL_SIZE: POKEMON.PUMPKABOO,
@@ -1328,6 +1333,11 @@ export const SHAYMIN = {
 };
 
 export const SILVALLY = Object.fromEntries(Object.keys(ARCEUS).map((type) => [type, POKEMON.SILVALLY]));
+
+export const SINISTEA = {
+  PHONY_FORM: POKEMON.SINISTEA,
+  ANTIQUE_FORM: POKEMON.SINISTEA,
+};
 
 export const SPINDA = {
   PATTERN_1: POKEMON.SPINDA,
