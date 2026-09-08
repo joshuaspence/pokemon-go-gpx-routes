@@ -1,14 +1,14 @@
 /**
  * The National Pokédex — every species as a constant naming it, valued at its dex number. PGSharp stores a species as
  * that number, which says nothing on its own, so the filters in pgsharp-filters.js are written with these constants
- * instead: POKEMON.PANPOUR reads as the species it is, and a misspelling is a name the table does not define rather
+ * instead: `POKEMON.PANPOUR` reads as the species it is, and a misspelling is a name the table does not define rather
  * than a number nothing checks.
  *
  * The whole dex is here rather than only the species in use, so a filter can name any of them without the table having
  * to be extended first. A constant is its English name uppercased, with the punctuation the games spell it with dropped
  * or turned into an underscore — FARFETCHD, MR_MIME, NIDORAN_F, FLABEBE, TYPE_NULL — which keeps all 1025 distinct.
  */
-export default {
+export default const POKEMON = {
   BULBASAUR: 1,
   IVYSAUR: 2,
   VENUSAUR: 3,
@@ -1035,3 +1035,122 @@ export default {
   TERAPAGOS: 1024,
   PECHARUNT: 1025,
 };
+
+export const ALOLAN = {
+  RATTATA: POKEMON.RATTATA,
+  RATICATE: POKEMON.RATICATE,
+  RAICHU: POKEMON.RAICHU,
+  SANDSHREW: POKEMON.SANDSHREW,
+  SANDSLASH: POKEMON.SANDSLASH,
+  VULPIX: POKEMON.VULPIX,
+  NINETAILS: POKEMON.NINETAILS,
+  DIGLETT: POKEMON.DIGLETT,
+  DUGTRIO: POKEMON.DUGTRIO,
+  MEOWTH: POKEMON.MEOWTH,
+  PERSIAN: POKEMON.PERSIAN,
+  GEODUDE: POKEMON.GEODUDE,
+  GRAVELER: POKEMON.GRAVELER,
+  GOLEM: POKEMON.GOLEM,
+  GRIMER: POKEMON.GRIMER,
+  MUK: POKEMON.MUK,
+  EXEGGUTOR: POKEMON.EXEGGUTOR,
+  MAROWAK: POKEMON.MAROWAK,
+};
+
+export const BURMY = {
+  PLANT_CLOAK: POKEMON.BURMY,
+  SANDY_CLOAK: POKEMON.BURMY,
+  TRASH_CLOAK: POKEMON.BURMY,
+};
+
+export const CASTFORM = {
+  NORMAL: POKEMON.CASTFORM,
+  SUNNY: POKEMON.CASTFORM,
+  RAINY: POKEMON.CASTFORM,
+  SNOWY: POKEMON.CASTFORM,
+};
+
+export const DEOXYS = {
+  NORMAL: POKEMON.DEOXYS,
+  ATTACK: POKEMON.DEOXYS,
+  DEFENSE: POKEMON.DEOXYS,
+  SPEED: POKEMON.DEOXYS,
+};
+
+export const GALARIAN = {
+  MEOWTH: POKEMON.MEOWTH,
+  PONYTA: POKEMON.PONYTA,
+  RAPIDASH: POKEMON.RAPIDASH,
+  SLOWPOKE: POKEMON.SLOWPOKE,
+  SLOWBRO: POKEMON.SLOWBRO,
+  FARFETCHD: POKEMON.FARFETCHD,
+  WEEZING: POKEMON.WEEZING,
+  MR_MIME: POKEMON.MR_MIME,
+  ARTICUNO: POKEMON.ARTICUNO,
+  ZAPDOS: POKEMON.ZAPDOS,
+  MOLTRES: POKEMON.MOLTRES,
+  SLOWKING: POKEMON.SLOWKING,
+  CORSOLA: POKEMON.CORSOLA,
+  ZIGZAGOON: POKEMON.ZIGZAGOON,
+  LINOONE: POKEMON.LINOONE,
+};
+
+export const HISUIAN = {
+  GROWLITHE: POKEMON.GROWLITHE,
+  ARCANINE: POKEMON.ARCANINE,
+  VOLTORB: POKEMON.VOLTORB,
+  ELECTRODE: POKEMON.ELECTRODE,
+  TYPHLOSION: POKEMON.TYPHLOSION,
+  QWILFISH: POKEMON.QWILFISH,
+  SNEASEL: POKEMON.SNEASEL,
+};
+
+export const PALDEAN = {
+  TAUROS: POKEMON.TAUROS,
+  WOOPER: POKEMON.WOOPER,
+};
+
+export const SPINDA = {
+  PATTERN_1: POKEMON.SPINDA,
+  PATTERN_2: POKEMON.SPINDA,
+  PATTERN_3: POKEMON.SPINDA,
+  PATTERN_4: POKEMON.SPINDA,
+  PATTERN_5: POKEMON.SPINDA,
+  PATTERN_6: POKEMON.SPINDA,
+  PATTERN_7: POKEMON.SPINDA,
+  PATTERN_8: POKEMON.SPINDA,
+  PATTERN_9: POKEMON.SPINDA,
+};
+
+export const UNOWN = {
+  A: POKEMON.UNOWN,
+  B: POKEMON.UNOWN,
+  C: POKEMON.UNOWN,
+  D: POKEMON.UNOWN,
+  E: POKEMON.UNOWN,
+  F: POKEMON.UNOWN,
+  G: POKEMON.UNOWN,
+  H: POKEMON.UNOWN,
+  I: POKEMON.UNOWN,
+  J: POKEMON.UNOWN,
+  K: POKEMON.UNOWN,
+  L: POKEMON.UNOWN,
+  M: POKEMON.UNOWN,
+  N: POKEMON.UNOWN,
+  O: POKEMON.UNOWN,
+  P: POKEMON.UNOWN,
+  Q: POKEMON.UNOWN,
+  R: POKEMON.UNOWN,
+  S: POKEMON.UNOWN,
+  T: POKEMON.UNOWN,
+  U: POKEMON.UNOWN,
+  V: POKEMON.UNOWN,
+  W: POKEMON.UNOWN,
+  X: POKEMON.UNOWN,
+  Y: POKEMON.UNOWN,
+  Z: POKEMON.UNOWN,
+  EXCLAMATION: POKEMON.UNOWN,
+  QUESTION: POKEMON.UNOWN,
+};
+
+export const WORMADAM = Object.fromEntries(Object.entries(BURMY).map(([key, value]) => [key, POKEMON.WORMADAM]));
