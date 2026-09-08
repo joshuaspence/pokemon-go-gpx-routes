@@ -6,48 +6,26 @@
  * be rearranged.
  */
 
-import POKEMON, {
-  AEGISLASH,
-  BASCULIN,
-  BURMY,
-  CASTFORM,
-  CHERRIM,
-  DEERLING,
-  ENAMORUS,
-  ETERNATUS,
-  FLABEBE,
-  FLOETTE,
-  FLORGES,
-  FRILLISH,
-  GALARIAN,
-  HISUIAN,
-  PALDEAN,
-  ROTOM,
-  SAWSBUCK,
-  SHAYMIN,
-  SPINDA,
-  UNOWN,
-  WORMADAM,
-} from './pokemon.js';
+import POKEMON, { Pokemon, GALAR, HISUI, PALDEA } from './pokemon.js';
 
 /**
- * A filter's species list, checked and collapsed to one entry per species. A constant pokemon.js does not define reads
- * as undefined rather than failing, and would reach the backup as a null where a species should be, so it stops here
- * instead. The value is all we are handed — the constant's name is gone by then — so the error gives the position to
- * look at.
+ * A filter's species list, checked and collapsed to one entry per species. A form or a region the species does not
+ * have has already thrown by the time we are called, so what is left to catch is a name pokemon.js does not define at
+ * all, which reads as undefined and would reach the backup as a null where a species should be. The value is all we
+ * are handed — the constant's name is gone by then — so the error gives the position to look at.
  *
- * A form constant carries the dex number of the species it is a form of, since that number is all PGSharp stores, so
- * naming several forms of one species repeats it. The names are worth keeping — they say which forms the list is for —
- * but the repeats are not, so the first of each survives and the rest go, leaving the list PGSharp itself would write.
+ * Naming a form or a region hands back the species it belongs to, so a list naming several forms of one species names
+ * that species several times. The names are worth keeping — they say which forms the list is for — but the repeats are
+ * not, so the first of each survives and the rest go, leaving the list PGSharp itself would write.
  */
-function species(numbers) {
-  const at = numbers.findIndex((n) => !Number.isInteger(n));
+function species(entries) {
+  const at = entries.findIndex((entry) => !(entry instanceof Pokemon));
 
   if (at !== -1) {
     throw new Error(`species #${at + 1} is not a POKEMON constant — check it against pokemon.js`);
   }
 
-  return [...new Set(numbers)];
+  return [...new Set(entries)];
 }
 
 /**
@@ -104,53 +82,53 @@ export const FEED_FILTERS = [
     // prettier-ignore
     pokemons: species([
       // Generation 1
-      HISUIAN.GROWLITHE, HISUIAN.ARCANINE,
-      GALARIAN.PONYTA, GALARIAN.RAPIDASH,
-      GALARIAN.SLOWPOKE, GALARIAN.SLOWBRO, GALARIAN.SLOWKING,
+      POKEMON.GROWLITHE.region(HISUI), POKEMON.ARCANINE.region(HISUI),
+      POKEMON.PONYTA.region(GALAR), POKEMON.RAPIDASH.region(GALAR),
+      POKEMON.SLOWPOKE.region(GALAR), POKEMON.SLOWBRO.region(GALAR), POKEMON.SLOWKING.region(GALAR),
       POKEMON.DODUO, POKEMON.DODRIO,
       POKEMON.SEEL,
-      HISUIAN.VOLTORB, HISUIAN.ELECTRODE,
-      GALARIAN.WEEZING,
+      POKEMON.VOLTORB.region(HISUI), POKEMON.ELECTRODE.region(HISUI),
+      POKEMON.WEEZING.region(GALAR),
       POKEMON.HORSEA, POKEMON.SEADRA,
-      GALARIAN.MR_MIME,
-      PALDEAN.TAUROS,
+      POKEMON.MR_MIME.region(GALAR),
+      POKEMON.TAUROS.region(PALDEA),
       POKEMON.SNORLAX,
-      GALARIAN.ZAPDOS,
-      GALARIAN.MOLTRES,
+      POKEMON.ZAPDOS.region(GALAR),
+      POKEMON.MOLTRES.region(GALAR),
 
       // Generation 2
-      HISUIAN.TYPHLOSION,
+      POKEMON.TYPHLOSION.region(HISUI),
       ...[
-        UNOWN.A,
-        UNOWN.B,
-        UNOWN.C,
-        UNOWN.D,
-        UNOWN.E,
-        UNOWN.F,
-        UNOWN.H,
-        UNOWN.I,
-        UNOWN.J,
-        UNOWN.K,
-        UNOWN.L,
-        UNOWN.M,
-        UNOWN.N,
-        UNOWN.P,
-        UNOWN.Q,
-        UNOWN.R,
-        UNOWN.S,
-        UNOWN.T,
-        UNOWN.U,
-        UNOWN.V,
-        UNOWN.W,
-        UNOWN.X,
-        UNOWN.Y,
-        UNOWN.Z,
-        UNOWN.EXCLAMATION_MARK,
-        UNOWN.QUESTION_MARK,
+        POKEMON.UNOWN.form('A'),
+        POKEMON.UNOWN.form('B'),
+        POKEMON.UNOWN.form('C'),
+        POKEMON.UNOWN.form('D'),
+        POKEMON.UNOWN.form('E'),
+        POKEMON.UNOWN.form('F'),
+        POKEMON.UNOWN.form('H'),
+        POKEMON.UNOWN.form('I'),
+        POKEMON.UNOWN.form('J'),
+        POKEMON.UNOWN.form('K'),
+        POKEMON.UNOWN.form('L'),
+        POKEMON.UNOWN.form('M'),
+        POKEMON.UNOWN.form('N'),
+        POKEMON.UNOWN.form('P'),
+        POKEMON.UNOWN.form('Q'),
+        POKEMON.UNOWN.form('R'),
+        POKEMON.UNOWN.form('S'),
+        POKEMON.UNOWN.form('T'),
+        POKEMON.UNOWN.form('U'),
+        POKEMON.UNOWN.form('V'),
+        POKEMON.UNOWN.form('W'),
+        POKEMON.UNOWN.form('X'),
+        POKEMON.UNOWN.form('Y'),
+        POKEMON.UNOWN.form('Z'),
+        POKEMON.UNOWN.form('EXCLAMATION_MARK'),
+        POKEMON.UNOWN.form('QUESTION_MARK'),
       ],
       POKEMON.GIRAFARIG,
-      HISUIAN.SNEASEL,
-      GALARIAN.CORSOLA,
+      POKEMON.SNEASEL.region(HISUI),
+      POKEMON.CORSOLA.region(GALAR),
       POKEMON.REMORAID, POKEMON.OCTILLERY,
       POKEMON.MANTINE,
       POKEMON.STANTLER,
@@ -158,21 +136,21 @@ export const FEED_FILTERS = [
       POKEMON.TYROGUE,
 
       // Generation 3
-      GALARIAN.ZIGZAGOON, GALARIAN.LINOONE,
+      POKEMON.ZIGZAGOON.region(GALAR), POKEMON.LINOONE.region(GALAR),
       POKEMON.NINCADA, POKEMON.NINJASK, POKEMON.SHEDINJA,
       ...[
-        SPINDA.PATTERN_1,
-        SPINDA.PATTERN_2,
-        SPINDA.PATTERN_3,
-        SPINDA.PATTERN_5,
-        SPINDA.PATTERN_6,
-        SPINDA.PATTERN_7,
-        SPINDA.PATTERN_9,
+        POKEMON.SPINDA.form('PATTERN_1'),
+        POKEMON.SPINDA.form('PATTERN_2'),
+        POKEMON.SPINDA.form('PATTERN_3'),
+        POKEMON.SPINDA.form('PATTERN_5'),
+        POKEMON.SPINDA.form('PATTERN_6'),
+        POKEMON.SPINDA.form('PATTERN_7'),
+        POKEMON.SPINDA.form('PATTERN_9'),
       ],
       POKEMON.BARBOACH, POKEMON.WHISCASH,
       ...[
-        CASTFORM.SUNNY,
-        CASTFORM.SNOWY,
+        POKEMON.CASTFORM.form('SUNNY'),
+        POKEMON.CASTFORM.form('SNOWY'),
       ],
       POKEMON.TROPIUS,
       POKEMON.RELICANTH,
@@ -181,14 +159,14 @@ export const FEED_FILTERS = [
       // Generation 4
       POKEMON.CRANIDOS, POKEMON.RAMPARDOS,
       ...[
-        BURMY.PLANT_CLOAK, WORMADAM.PLANT_CLOAK,
-        BURMY.SANDY_CLOAK, WORMADAM.SANDY_CLOAK,
-        BURMY.TRASH_CLOAK, WORMADAM.TRASH_CLOAK,
+        POKEMON.BURMY.form('PLANT_CLOAK'), POKEMON.WORMADAM.form('PLANT_CLOAK'),
+        POKEMON.BURMY.form('SANDY_CLOAK'), POKEMON.WORMADAM.form('SANDY_CLOAK'),
+        POKEMON.BURMY.form('TRASH_CLOAK'), POKEMON.WORMADAM.form('TRASH_CLOAK'),
         POKEMON.MOTHIM,
       ],
       POKEMON.PACHIRISU,
       POKEMON.BUIZEL, POKEMON.FLOATZEL,
-      POKEMON.CHERUBI, ...[CHERRIM.OVERCAST, CHERRIM.SUNNY],
+      POKEMON.CHERUBI, ...[POKEMON.CHERRIM.form('OVERCAST'), POKEMON.CHERRIM.form('SUNNY')],
       POKEMON.CHINGLING,
       POKEMON.MIME_JR,
       POKEMON.HAPPINY,
@@ -197,17 +175,17 @@ export const FEED_FILTERS = [
       POKEMON.CARNIVINE,
       POKEMON.MANTYKE,
       ...[
-        ROTOM.NORMAL,
-        ROTOM.HEAT,
-        ROTOM.WASH,
-        ROTOM.FROST,
-        ROTOM.FAN,
-        ROTOM.MOW,
+        POKEMON.ROTOM.form('NORMAL'),
+        POKEMON.ROTOM.form('HEAT'),
+        POKEMON.ROTOM.form('WASH'),
+        POKEMON.ROTOM.form('FROST'),
+        POKEMON.ROTOM.form('FAN'),
+        POKEMON.ROTOM.form('MOW'),
       ],
       POKEMON.PHIONE, POKEMON.MANAPHY,
       ...[
-        SHAYMIN.LAND_FORME,
-        SHAYMIN.SKY_FORME,
+        POKEMON.SHAYMIN.form('LAND_FORME'),
+        POKEMON.SHAYMIN.form('SKY_FORME'),
       ],
       POKEMON.ARCEUS,
 
@@ -217,20 +195,20 @@ export const FEED_FILTERS = [
       POKEMON.PANSEAR, POKEMON.SIMISEAR,
       POKEMON.PIDOVE, POKEMON.TRANQUILL, POKEMON.UNFEZANT,
       POKEMON.ROGGENROLA, POKEMON.BOLDORE, POKEMON.GIGALITH,
-      POKEMON.PETILIL, ...[POKEMON.LILLIGANT, HISUIAN.LILLIGANT],
-      ...[BASCULIN.RED_STRIPED, BASCULIN.BLUE_STRIPED, BASCULIN.WHITE_STRIPED],
-      GALARIAN.YAMASK,
+      POKEMON.PETILIL, ...[POKEMON.LILLIGANT, POKEMON.LILLIGANT.region(HISUI)],
+      ...[POKEMON.BASCULIN.form('RED_STRIPED'), POKEMON.BASCULIN.form('BLUE_STRIPED'), POKEMON.BASCULIN.form('WHITE_STRIPED')],
+      POKEMON.YAMASK.region(GALAR),
       POKEMON.TIRTOUGA, POKEMON.CARRACOSTA,
       POKEMON.ARCHEN, POKEMON.ARCHEOPS,
-      HISUIAN.ZORUA, HISUIAN.ZOROARK,
+      POKEMON.ZORUA.region(HISUI), POKEMON.ZOROARK.region(HISUI),
       POKEMON.SOLOSIS, POKEMON.DUOSION, POKEMON.REUNICLUS,
       ...[
-        DEERLING.SPRING_FORM, SAWSBUCK.SPRING_FORM,
-        DEERLING.AUTUMN_FORM, SAWSBUCK.AUTUMN_FORM,
-        DEERLING.WINTER_FORM, SAWSBUCK.WINTER_FORM,
+        POKEMON.DEERLING.form('SPRING_FORM'), POKEMON.SAWSBUCK.form('SPRING_FORM'),
+        POKEMON.DEERLING.form('AUTUMN_FORM'), POKEMON.SAWSBUCK.form('AUTUMN_FORM'),
+        POKEMON.DEERLING.form('WINTER_FORM'), POKEMON.SAWSBUCK.form('WINTER_FORM'),
       ],
       POKEMON.KARRABLAST, POKEMON.ESCAVALIER,
-      ...[FRILLISH.MALE], POKEMON.JELLICENT,
+      ...[POKEMON.FRILLISH.form('MALE')], POKEMON.JELLICENT,
       POKEMON.AXEW, POKEMON.FRAXURE, POKEMON.HAXORUS,
       POKEMON.CRYOGONAL,
       POKEMON.SHELMET, POKEMON.ACCELGOR,
@@ -249,14 +227,14 @@ export const FEED_FILTERS = [
       POKEMON.BUNNELBY, POKEMON.DIGGERSBY,
       POKEMON.SCATTERBUG, POKEMON.SPEWPA, POKEMON.VIVILLON,
       ...[
-        FLABEBE.RED_FLOWER, FLOETTE.RED_FLOWER, FLORGES.RED_FLOWER,
-        FLABEBE.YELLOW_FLOWER, FLOETTE.YELLOW_FLOWER, FLORGES.YELLOW_FLOWER,
-        FLABEBE.ORANGE_FLOWER, FLOETTE.ORANGE_FLOWER, FLORGES.ORANGE_FLOWER,
-        FLABEBE.BLUE_FLOWER, FLOETTE.BLUE_FLOWER, FLORGES.BLUE_FLOWER,
-        FLABEBE.WHITE_FLOWER, FLOETTE.WHITE_FLOWER, FLORGES.WHITE_FLOWER,
-        FLOETTE.ETERNAL_FLOWER,
+        POKEMON.FLABEBE.form('RED_FLOWER'), POKEMON.FLOETTE.form('RED_FLOWER'), POKEMON.FLORGES.form('RED_FLOWER'),
+        POKEMON.FLABEBE.form('YELLOW_FLOWER'), POKEMON.FLOETTE.form('YELLOW_FLOWER'), POKEMON.FLORGES.form('YELLOW_FLOWER'),
+        POKEMON.FLABEBE.form('ORANGE_FLOWER'), POKEMON.FLOETTE.form('ORANGE_FLOWER'), POKEMON.FLORGES.form('ORANGE_FLOWER'),
+        POKEMON.FLABEBE.form('BLUE_FLOWER'), POKEMON.FLOETTE.form('BLUE_FLOWER'), POKEMON.FLORGES.form('BLUE_FLOWER'),
+        POKEMON.FLABEBE.form('WHITE_FLOWER'), POKEMON.FLOETTE.form('WHITE_FLOWER'), POKEMON.FLORGES.form('WHITE_FLOWER'),
+        POKEMON.FLOETTE.form('ETERNAL_FLOWER'),
       ],
-      POKEMON.HONEDGE, POKEMON.DOUBLADE, ...[AEGISLASH.SHIELD_FORME, AEGISLASH.BLADE_FORME],
+      POKEMON.HONEDGE, POKEMON.DOUBLADE, ...[POKEMON.AEGISLASH.form('SHIELD_FORME'), POKEMON.AEGISLASH.form('BLADE_FORME')],
       POKEMON.SWIRLIX, POKEMON.SLURPUFF,
       POKEMON.SKRELP, POKEMON.DRAGALGE,
       POKEMON.HAWLUCHA,
@@ -315,8 +293,8 @@ export const FEED_FILTERS = [
       POKEMON.MORPEKO,
       POKEMON.DURALUDON,
       ...[
-        ETERNATUS.NORMAL,
-        ETERNATUS.ETERNAMAX,
+        POKEMON.ETERNATUS.form('NORMAL'),
+        POKEMON.ETERNATUS.form('ETERNAMAX'),
       ],
       POKEMON.KUBFU, POKEMON.URSHIFU,
       POKEMON.ZARUDE,
@@ -327,8 +305,8 @@ export const FEED_FILTERS = [
       POKEMON.BASCULEGION,
       POKEMON.SNEASLER,
       ...[
-        ENAMORUS.INCARNATE_FORME,
-        ENAMORUS.THERIAN_FORME,
+        POKEMON.ENAMORUS.form('INCARNATE_FORME'),
+        POKEMON.ENAMORUS.form('THERIAN_FORME'),
       ],
 
       // Generation 9
