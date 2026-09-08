@@ -1299,6 +1299,8 @@ export const SHAYMIN = {
   SKY_FORME: POKEMON.SHAYMIN,
 };
 
+export const SILVALLY = Object.fromEntries(Object.keys(ARCEUS).map((type) => [type, POKEMON.SILVALLY]));
+
 export const SPINDA = {
   PATTERN_1: POKEMON.SPINDA,
   PATTERN_2: POKEMON.SPINDA,
@@ -1373,6 +1375,11 @@ export const VIVILLON = {
   JUNGLE: POKEMON.VIVILLON,
   FANCY: POKEMON.VIVILLON,
   POKE_BALL: POKEMON.VIVILLON,
+};
+
+export const WISHIWASHI = {
+  SOLO_FORM: POKEMON.WISHIWASHI,
+  SCHOOL_FORM: POKEMON.WISHIWASHI,
 };
 
 export const WORMADAM = Object.fromEntries(Object.keys(BURMY).map((cloak) => [cloak, POKEMON.WORMADAM]));
