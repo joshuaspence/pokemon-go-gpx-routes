@@ -78,6 +78,7 @@ export const FEED_FILTERS = [
     pokemons: species([
       // Generation 1
       POKEMON.DODUO, POKEMON.DODRIO,
+      POKEMON.SEEL,
       POKEMON.SNORLAX,
 
       // Generation 2
