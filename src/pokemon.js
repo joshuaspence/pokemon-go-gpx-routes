@@ -1,12 +1,13 @@
 /**
  * The National Pokédex — every species as a constant naming it, valued at its dex number. PGSharp stores a species as
- * that number, which says nothing on its own, so the filters in pgsharp-filters.js are written with these constants
+ * that number, which says nothing on its own, so the filters in `pgsharp-filters.js` are written with these constants
  * instead: `POKEMON.PANPOUR` reads as the species it is, and a misspelling is a name the table does not define rather
  * than a number nothing checks.
  *
  * The whole dex is here rather than only the species in use, so a filter can name any of them without the table having
- * to be extended first. A constant is its English name uppercased, with the punctuation the games spell it with dropped
- * or turned into an underscore — FARFETCHD, MR_MIME, NIDORAN_F, FLABEBE, TYPE_NULL — which keeps all 1025 distinct.
+ * to be extended first. A constant is its English name uppercased, with the punctuation the games spell it with
+ * dropped or turned into an underscore — `FARFETCHD`, `MR_MIME`, `NIDORAN_F`, `FLABEBE`, `TYPE_NULL` — which keeps all
+ * 1025 distinct.
  */
 const POKEMON = {
   BULBASAUR: 1,
@@ -1043,28 +1044,6 @@ export const AEGISLASH = {
   BLADE_FORME: POKEMON.AEGISLASH,
 };
 
-export const ALCREMIE = {
-  VANILLA_CREAM: POKEMON.ALCREMIE,
-  RUBY_CREAM: POKEMON.ALCREMIE,
-  MATCHA_CREAM: POKEMON.ALCREMIE,
-  MINT_CREAM: POKEMON.ALCREMIE,
-  LEMON_CREAM: POKEMON.ALCREMIE,
-  SALTED_CREAM: POKEMON.ALCREMIE,
-  RUBY_SWIRL: POKEMON.ALCREMIE,
-  CARAMEL_SWIRL: POKEMON.ALCREMIE,
-  RAINBOW_SWIRL: POKEMON.ALCREMIE,
-};
-
-export const ALCREMIE_SWEET = {
-  STRAWBERRY_SWEET: POKEMON.ALCREMIE,
-  BERRY_SWEET: POKEMON.ALCREMIE,
-  LOVE_SWEET: POKEMON.ALCREMIE,
-  STAR_SWEET: POKEMON.ALCREMIE,
-  CLOVER_SWEET: POKEMON.ALCREMIE,
-  FLOWER_SWEET: POKEMON.ALCREMIE,
-  RIBBON_SWEET: POKEMON.ALCREMIE,
-};
-
 export const ALOLAN = {
   RATTATA: POKEMON.RATTATA,
   RATICATE: POKEMON.RATICATE,
@@ -1084,27 +1063,6 @@ export const ALOLAN = {
   MUK: POKEMON.MUK,
   EXEGGUTOR: POKEMON.EXEGGUTOR,
   MAROWAK: POKEMON.MAROWAK,
-};
-
-export const ARCEUS = {
-  NORMAL: POKEMON.ARCEUS,
-  FIGHTING: POKEMON.ARCEUS,
-  FLYING: POKEMON.ARCEUS,
-  POISON: POKEMON.ARCEUS,
-  GROUND: POKEMON.ARCEUS,
-  ROCK: POKEMON.ARCEUS,
-  BUG: POKEMON.ARCEUS,
-  GHOST: POKEMON.ARCEUS,
-  STEEL: POKEMON.ARCEUS,
-  FIRE: POKEMON.ARCEUS,
-  WATER: POKEMON.ARCEUS,
-  GRASS: POKEMON.ARCEUS,
-  ELECTRIC: POKEMON.ARCEUS,
-  PSYCHIC: POKEMON.ARCEUS,
-  ICE: POKEMON.ARCEUS,
-  DRAGON: POKEMON.ARCEUS,
-  DARK: POKEMON.ARCEUS,
-  FAIRY: POKEMON.ARCEUS,
 };
 
 export const BASCULIN = {
@@ -1153,11 +1111,6 @@ export const DEOXYS = {
 export const DUDUNSPARCE = {
   TWO_SEGMENT_FORM: POKEMON.DUDUNSPARCE,
   THREE_SEGMENT_FORM: POKEMON.DUDUNSPARCE,
-};
-
-export const EISCUE = {
-  ICE_FACE: POKEMON.EISCUE,
-  NOICE_FACE: POKEMON.EISCUE,
 };
 
 export const ENAMORUS = {
@@ -1305,19 +1258,9 @@ export const LYCANROC = {
   DUSK_FORM: POKEMON.LYCANROC,
 };
 
-export const MAGEARNA = {
-  NORMAL: POKEMON.MAGEARNA,
-  ORIGINAL_COLOR: POKEMON.MAGEARNA,
-};
-
 export const MAUSHOLD = {
   FAMILY_OF_THREE: POKEMON.MAUSHOLD,
   FAMILY_OF_FOUR: POKEMON.MAUSHOLD,
-};
-
-export const MELOETTA = {
-  ARIA_FORME: POKEMON.MELOETTA,
-  PIROUETTE_FORME: POKEMON.MELOETTA,
 };
 
 export const MEOWSTIC = {
@@ -1328,17 +1271,6 @@ export const MEOWSTIC = {
 export const MIMIKYU = {
   DISGUISED_FORM: POKEMON.MIMIKYU,
   BUSTED_FORM: POKEMON.MIMIKYU,
-};
-
-export const MINIOR = {
-  METEOR_FORM: POKEMON.MINIOR,
-  RED_CORE: POKEMON.MINIOR,
-  ORANGE_CORE: POKEMON.MINIOR,
-  YELLOW_CORE: POKEMON.MINIOR,
-  GREEN_CORE: POKEMON.MINIOR,
-  BLUE_CORE: POKEMON.MINIOR,
-  INDIGO_CORE: POKEMON.MINIOR,
-  VIOLET_CORE: POKEMON.MINIOR,
 };
 
 export const MORPEKO = {
@@ -1353,13 +1285,6 @@ export const NECROZMA = {
   ULTRA: POKEMON.NECROZMA,
 };
 
-export const OGERPON = {
-  TEAL_MASK: POKEMON.OGERPON,
-  WELLSPRING_MASK: POKEMON.OGERPON,
-  HEARTHFLAME_MASK: POKEMON.OGERPON,
-  CORNERSTONE_MASK: POKEMON.OGERPON,
-};
-
 export const OINKOLOGNE = {
   MALE: POKEMON.OINKOLOGNE,
   FEMALE: POKEMON.OINKOLOGNE,
@@ -1370,11 +1295,6 @@ export const ORICORIO = {
   POM_POM_STYLE: POKEMON.ORICORIO,
   PAU_STYLE: POKEMON.ORICORIO,
   SENSU_STYLE: POKEMON.ORICORIO,
-};
-
-export const PALAFIN = {
-  ZERO_FORM: POKEMON.PALAFIN,
-  HERO_FORM: POKEMON.PALAFIN,
 };
 
 export const PALDEAN = {
@@ -1426,8 +1346,6 @@ export const SHAYMIN = {
   SKY_FORME: POKEMON.SHAYMIN,
 };
 
-export const SILVALLY = Object.fromEntries(Object.keys(ARCEUS).map((type) => [type, POKEMON.SILVALLY]));
-
 export const SINISTCHA = {
   UNREMARKABLE_FORM: POKEMON.SINISTCHA,
   MASTERPIECE_FORM: POKEMON.SINISTCHA,
@@ -1448,6 +1366,17 @@ export const SPINDA = {
   PATTERN_7: POKEMON.SPINDA,
   PATTERN_8: POKEMON.SPINDA,
   PATTERN_9: POKEMON.SPINDA,
+  PATTERN_10: POKEMON.SPINDA,
+  PATTERN_11: POKEMON.SPINDA,
+  PATTERN_12: POKEMON.SPINDA,
+  PATTERN_13: POKEMON.SPINDA,
+  PATTERN_14: POKEMON.SPINDA,
+  PATTERN_15: POKEMON.SPINDA,
+  PATTERN_16: POKEMON.SPINDA,
+  PATTERN_17: POKEMON.SPINDA,
+  PATTERN_18: POKEMON.SPINDA,
+  PATTERN_19: POKEMON.SPINDA,
+  PATTERN_20: POKEMON.SPINDA,
 };
 
 export const SQUAWKABILLY = {
