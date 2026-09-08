@@ -60,6 +60,26 @@ export class Pokemon {
     return this;
   }
 
+  /**
+   * One form this species comes in, settled on the spot. The callback is handed that form, so what is true of it is
+   * said where it is declared rather than by what came last:
+   *
+   * ```js
+   * new Pokemon(999).notShinyEligible().withForm('SPEED', (speed) => speed.isShinyEligible());
+   * ```
+   *
+   * Left off, this is `withForms` with one form, and what follows applies to that form as it would there.
+   */
+  withForm(name, configure) {
+    this.withForms(name);
+
+    if (configure) {
+      configure(this.#forms.get(name));
+    }
+
+    return this;
+  }
+
   /** The regions this species has a variant in. Each is a Pokemon of its own. */
   withRegions(...regions) {
     this.#declared = regions.map((region) => this.#variant(`${region} ${this.#name}`));
