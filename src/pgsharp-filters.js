@@ -1,12 +1,13 @@
 /**
  * The filters PGSharp saves — which spawns the radar and the nearby feed are looking for. Unlike a control's position,
- * which is a Java Float, each of these is stored as one JSON string; they are kept as objects here so every field reads
- * and diffs on its own, and JSON.stringify re-emits the compact string PGSharp wrote where they are put in the backup.
- * That re-emission goes field by field in source order, so the order below is part of the value and must not be
- * rearranged.
+ * which is a Java Float, each of these is stored as one JSON string; they are kept as objects here so every field
+ * reads and diffs on its own, and JSON.stringify re-emits the compact string PGSharp wrote where they are put in the
+ * backup. That re-emission goes field by field in source order, so the order below is part of the value and must not
+ * be rearranged.
  */
 
 import POKEMON, {
+  AEGISLASH,
   BASCULIN,
   BURMY,
   CASTFORM,
@@ -211,11 +212,7 @@ export const FEED_FILTERS = [
       POKEMON.PIDOVE, POKEMON.TRANQUILL, POKEMON.UNFEZANT,
       POKEMON.ROGGENROLA, POKEMON.BOLDORE, POKEMON.GIGALITH,
       POKEMON.PETILIL, ...[POKEMON.LILLIGANT, HISUIAN.LILLIGANT],
-      ...[
-        BASCULIN.RED_STRIPED,
-        BASCULIN.BLUE_STRIPED,
-        BASCULIN.WHITE_STRIPED,
-      ],
+      ...[BASCULIN.RED_STRIPED, BASCULIN.BLUE_STRIPED, BASCULIN.WHITE_STRIPED],
       GALARIAN.YAMASK,
       POKEMON.TIRTOUGA, POKEMON.CARRACOSTA,
       POKEMON.ARCHEN, POKEMON.ARCHEOPS,
@@ -227,7 +224,7 @@ export const FEED_FILTERS = [
         DEERLING.WINTER_FORM, SAWSBUCK.WINTER_FORM,
       ],
       POKEMON.KARRABLAST, POKEMON.ESCAVALIER,
-      POKEMON.FRILLISH, POKEMON.JELLICENT,
+      ...[FRILLISH.MALE], POKEMON.JELLICENT,
       POKEMON.AXEW, POKEMON.FRAXURE, POKEMON.HAXORUS,
       POKEMON.CRYOGONAL,
       POKEMON.SHELMET, POKEMON.ACCELGOR,
@@ -245,8 +242,15 @@ export const FEED_FILTERS = [
       // Generation 6
       POKEMON.BUNNELBY, POKEMON.DIGGERSBY,
       POKEMON.SCATTERBUG, POKEMON.SPEWPA, POKEMON.VIVILLON,
-      POKEMON.FLABEBE, POKEMON.FLOETTE, POKEMON.FLORGES,
-      POKEMON.HONEDGE, POKEMON.DOUBLADE, POKEMON.AEGISLASH,
+      ...[
+        FLABEBE.RED_FLOWER, FLOETTE.RED_FLOWER, FLORGES.RED_FLOWER,
+        FLABEBE.YELLOW_FLOWER, FLOETTE.YELLOW_FLOWER, FLORGES.YELLOW_FLOWER,
+        FLABEBE.ORANGE_FLOWER, FLOETTE.ORANGE_FLOWER, FLORGES.ORANGE_FLOWER,
+        FLABEBE.BLUE_FLOWER, FLOETTE.BLUE_FLOWER, FLORGES.BLUE_FLOWER,
+        FLABEBE.WHITE_FLOWER, FLOETTE.WHITE_FLOWER, FLORGES.WHITE_FLOWER,
+        FLOETTE.ETERNAL_FLOWER,
+      ],
+      POKEMON.HONEDGE, POKEMON.DOUBLADE, ...[AEGISLASH.SHIELD_FORME, AEGISLASH.BLADE_FORME],
       POKEMON.SWIRLIX, POKEMON.SLURPUFF,
       POKEMON.SKRELP, POKEMON.DRAGALGE,
       POKEMON.HAWLUCHA,
@@ -304,7 +308,10 @@ export const FEED_FILTERS = [
       POKEMON.INDEEDEE,
       POKEMON.MORPEKO,
       POKEMON.DURALUDON,
-      POKEMON.ETERNATUS,
+      ...[
+        ETERNATUS.NORMAL,
+        ETERNATUS.ETERNAMAX,
+      ],
       POKEMON.KUBFU, POKEMON.URSHIFU,
       POKEMON.ZARUDE,
       POKEMON.GLASTRIER,
@@ -313,7 +320,10 @@ export const FEED_FILTERS = [
       POKEMON.URSALUNA,
       POKEMON.BASCULEGION,
       POKEMON.SNEASLER,
-      POKEMON.ENAMORUS,
+      ...[
+        ENAMORUS.INCARNATE_FORME,
+        ENAMORUS.THERIAN_FORME,
+      ],
 
       // Generation 9
       POKEMON.FUECOCO, POKEMON.CROCALOR, POKEMON.SKELEDIRGE,
