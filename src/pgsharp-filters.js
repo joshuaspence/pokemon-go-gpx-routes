@@ -79,6 +79,7 @@ export const FEED_FILTERS = [
       // Generation 1
       POKEMON.DODUO, POKEMON.DODRIO,
       POKEMON.SEEL,
+      POKEMON.HORSEA, POKEMON.SEADRA,
       POKEMON.SNORLAX,
 
       // Generation 2
