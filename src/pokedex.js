@@ -150,7 +150,9 @@ const POKEMON = {
   ELECTABUZZ: new Pokemon(125),
   MAGMAR: new Pokemon(126),
   PINSIR: new Pokemon(127),
-  TAUROS: new Pokemon(128).withRegion(PALDEA).doesNotSpawn().withForms('COMBAT_BREED', 'BLAZE_BREED', 'AQUA_BREED'),
+  TAUROS: new Pokemon(128).withRegion(PALDEA, (paldean) =>
+    paldean.doesNotSpawn().withForms('COMBAT_BREED', 'BLAZE_BREED', 'AQUA_BREED'),
+  ),
   MAGIKARP: new Pokemon(129),
   GYARADOS: new Pokemon(130),
   LAPRAS: new Pokemon(131),
@@ -532,8 +534,8 @@ const POKEMON = {
   MUNCHLAX: new Pokemon(446).isBaby(),
   RIOLU: new Pokemon(447).isBaby(),
   LUCARIO: new Pokemon(448),
-  HIPPOPOTAS: new Pokemon(449),
-  HIPPOWDON: new Pokemon(450),
+  HIPPOPOTAS: new Pokemon(449).withForms('MALE', 'FEMALE'),
+  HIPPOWDON: new Pokemon(450).withForms('MALE', 'FEMALE'),
   SKORUPI: new Pokemon(451),
   DRAPION: new Pokemon(452),
   CROAGUNK: new Pokemon(453),
@@ -1237,4 +1239,4 @@ export const filterShinyEligible = (pokemon) => pokemon.shinyEligible;
 export const filterWildSpawns = (pokemon) => pokemon.spawns;
 
 // The same, for the ones not in Pokémon GO yet: `species([...], filterReleased)` drops those.
-export const filterReleased = (pokemon) => pokemon.released;;
+export const filterReleased = (pokemon) => pokemon.released;

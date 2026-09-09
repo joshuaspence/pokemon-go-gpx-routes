@@ -16,13 +16,13 @@
  * const ZORUA = new Pokemon(570).isShinyEligible().withRegions(HISUI).notShinyEligible();
  * ```
  */
-export default class {
+export default class Pokemon {
   #dex;
   #name;
 
   #forms = new Map();
   #regions = new Map();
-  
+
   #released = true;
   #shinyEligible = true;
   #spawns = true;
@@ -240,10 +240,18 @@ export default class {
    */
   form(name) {
     if (!this.#forms.has(name)) {
-      throw new Error(`${this.#name} has no ${name} form — check it against pokemon.js`);
+      throw new Error(`${this.#name} has no ${name} form — check it against pokedex.js`);
     }
 
     return this.#forms.get(name);
+  }
+
+  /**
+   * Several of this species' forms at once, in the order named — a list to spread into a filter's species list, where
+   * naming each one by hand would say the species over and over.
+   */
+  forms(...names) {
+    return names.map((name) => this.form(name));
   }
 
   /**
@@ -253,7 +261,7 @@ export default class {
    */
   region(region) {
     if (!this.#regions.has(region)) {
-      throw new Error(`${this.#name} has no ${region} form — check it against pokemon.js`);
+      throw new Error(`${this.#name} has no ${region} form — check it against pokedex.js`);
     }
 
     return this.#regions.get(region);
@@ -336,4 +344,4 @@ export default class {
   valueOf() {
     return this.#dex;
   }
-};
+}

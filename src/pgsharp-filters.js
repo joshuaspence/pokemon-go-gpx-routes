@@ -6,7 +6,8 @@
  * be rearranged.
  */
 
-import POKEMON, { Pokemon, filterReleased, filterShinyEligible, filterWildSpawns, GALAR, HISUI, PALDEA } from './pokemon.js';
+import Pokemon from './pokemon.js';
+import POKEMON, { filterReleased, filterShinyEligible, filterWildSpawns, GALAR, HISUI, PALDEA } from './pokedex.js';
 
 /**
  * A filter's species list, checked, narrowed and collapsed to one entry per species. A form or a region the species
@@ -27,7 +28,7 @@ function species(entries, ...keep) {
   const at = entries.findIndex((entry) => !(entry instanceof Pokemon));
 
   if (at !== -1) {
-    throw new Error(`species #${at + 1} is not a POKEMON constant — check it against pokemon.js`);
+    throw new Error(`species #${at + 1} is not a POKEMON constant — check it against pokedex.js`);
   }
 
   const kept = entries.filter((entry) => keep.every((predicate) => predicate(entry)));
@@ -211,8 +212,8 @@ export const FEED_FILTERS = [
       POKEMON.SKRELP, POKEMON.DRAGALGE,
       POKEMON.HAWLUCHA,
       POKEMON.GOOMY, POKEMON.SLIGGOO, POKEMON.SLIGGOO.region(HISUI), POKEMON.GOODRA, POKEMON.GOODRA.region(HISUI),
-      ...POKEMON.PUMPKABOO.forms('SMALL_VARIETY', 'LARGE_VARIETY', 'JUMBO_VARIETY'),
-      ...POKEMON.GOURGEIST.forms('SMALL_VARIETY', 'LARGE_VARIETY', 'JUMBO_VARIETY'),
+      ...POKEMON.PUMPKABOO.forms('SMALL_SIZE', 'LARGE_SIZE', 'SUPER_SIZE'),
+      ...POKEMON.GOURGEIST.forms('SMALL_SIZE', 'LARGE_SIZE', 'SUPER_SIZE'),
       POKEMON.XERNEAS,
       POKEMON.YVELTAL,
       ...POKEMON.ZYGARDE.forms('TEN_PERCENT_FORME', 'FIFTY_PERCENT_FORME', 'COMPLETE_FORME'),
@@ -239,7 +240,7 @@ export const FEED_FILTERS = [
       POKEMON.PYUKUMUKU,
       POKEMON.TYPE_NULL, POKEMON.SILVALLY,
       POKEMON.MINIOR,
-      POKEMON.MIMIKYU.forms('DISGUISED_FORM', 'BUSTED_FORM'),
+      ...POKEMON.MIMIKYU.forms('DISGUISED_FORM', 'BUSTED_FORM'),
       POKEMON.DHELMISE,
       POKEMON.JANGMO_O, POKEMON.HAKAMO_O, POKEMON.KOMMO_O,
       POKEMON.TAPU_KOKO,
@@ -251,7 +252,7 @@ export const FEED_FILTERS = [
       POKEMON.XURKITREE,
       POKEMON.CELESTEELA,
       POKEMON.KARTANA,
-      ...POKEMON.NECROZMA.forms('DUSK_MANE', 'DAWN_WINGS', 'ULTRA')
+      ...POKEMON.NECROZMA.forms('DUSK_MANE', 'DAWN_WINGS', 'ULTRA'),
       POKEMON.POIPOLE, POKEMON.NAGANADEL,
       POKEMON.STAKATAKA,
       POKEMON.BLACEPHALON,
@@ -281,9 +282,9 @@ export const FEED_FILTERS = [
       POKEMON.PINCURCHIN,
       POKEMON.SNOM, POKEMON.FROSMOTH,
       POKEMON.STONJOURNER,
-      POKEMON.EISCUE.forms('ICE_FACE', 'NOICE_FACE'),
+      ...POKEMON.EISCUE.forms('ICE_FACE', 'NOICE_FACE'),
       POKEMON.INDEEDEE,
-      POKEMON.MORPEKO.forms('FULL_BELLY_MODE', 'HANGRY_MODE'),
+      ...POKEMON.MORPEKO.forms('FULL_BELLY_MODE', 'HANGRY_MODE'),
       POKEMON.CUFANT, POKEMON.COPPERAJAH,
       POKEMON.DRACOZOLT,
       POKEMON.ARCTOZOLT,
@@ -316,7 +317,7 @@ export const FEED_FILTERS = [
       POKEMON.CHARCADET, POKEMON.ARMAROUGE, POKEMON.CERULEDGE,
       POKEMON.TADBULB, POKEMON.BELLIBOLT,
       POKEMON.WATTREL, POKEMON.KILOWATTREL,
-      POKEMON.MASCHIEF, POKEMON.MABOSSTIFF,
+      POKEMON.MASCHIFF, POKEMON.MABOSSTIFF,
       POKEMON.SHROODLE, POKEMON.GRAFAIAI,
       POKEMON.BRAMBLIN, POKEMON.BRAMBLEGHAST,
       POKEMON.TOEDSCOOL, POKEMON.TOEDSCRUEL,
@@ -364,11 +365,11 @@ export const FEED_FILTERS = [
       POKEMON.IRON_LEAVES,
       POKEMON.DIPPLIN,
       ...POKEMON.POLTCHAGEIST.forms('COUNTERFEIT_FORM', 'ARTISAN_FORM'),
-      ...POKEMON.SINISTCHA.forms('COUNTERFEIT_FORM', 'ARTISAN_FORM'),
+      ...POKEMON.SINISTCHA.forms('UNREMARKABLE_FORM', 'MASTERPIECE_FORM'),
       POKEMON.OKIDOGI,
-      POKEMON.MUKIDORI,
+      POKEMON.MUNKIDORI,
       POKEMON.FEZANDIPITI,
-      POKEMON.OGERPON.form('TEAL_MASK').
+      POKEMON.OGERPON.form('TEAL_MASK'),
       POKEMON.ARCHALUDON,
       POKEMON.HYDRAPPLE,
       POKEMON.GOUGING_FIRE,
