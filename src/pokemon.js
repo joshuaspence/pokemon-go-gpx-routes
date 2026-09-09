@@ -6,9 +6,10 @@
  * Whether a shiny exists, whether the wild turns one up at all, and whether it is in Pokémon GO yet, are properties of
  * the form rather than of the species, since a species can have a shiny where its regional variant does not. Declaring
  * them walks with the entry: `isShinyEligible`, `notShinyEligible`, `doesSpawn`, `doesNotSpawn`, `isReleased`,
- * `isNotReleased`, `isLegendary`, `isMythical`, `isBaby`, `isUltraBeast` and `isRegional` apply to whatever was
- * declared last — the species itself before any form is named, and the forms or regions of the declaration just above
- * otherwise. A Regional is the odd one out: it still spawns, only somewhere particular, so it leaves spawning alone.
+ * `isNotReleased`, `isLegendary`, `isMythical`, `isBaby`, `isUltraBeast`, `isRegional` and `isNotRegional` apply to
+ * whatever was declared last — the species itself before any form is named, and the forms or regions of the
+ * declaration just above otherwise. A Regional is the odd one out: it still spawns, only somewhere particular, so it
+ * leaves spawning alone. A form inherits it, `isNotRegional` handing one back to the wild at large.
  * Undeclared reads as eligible, so a species says nothing until it has something to say. A Legendary, Mythical, Baby
  * or Ultra Beast is one the wild never turns up, so `isLegendary`, `isMythical`, `isBaby` and `isUltraBeast` stop it
  * spawning as well — Meltan the lone Mythical that does, saying `doesSpawn` after to put it back.
@@ -213,6 +214,18 @@ export default class Pokemon {
   isRegional() {
     for (const variant of this.#declared) {
       variant.#regional = true;
+    }
+
+    return this;
+  }
+
+  /**
+   * Marks what was declared last as no Regional — for a form that turns up anywhere where the species it descends from
+   * does not, so a species can be Regional and hand a form that inherited it back to the wild at large.
+   */
+  isNotRegional() {
+    for (const variant of this.#declared) {
+      variant.#regional = false;
     }
 
     return this;

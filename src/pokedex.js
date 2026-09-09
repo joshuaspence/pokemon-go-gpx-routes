@@ -105,7 +105,7 @@ const POKEMON = {
   SLOWBRO: new Pokemon(80).withRegion(GALAR),
   MAGNEMITE: new Pokemon(81),
   MAGNETON: new Pokemon(82),
-  FARFETCHD: new Pokemon(83).withRegion(GALAR),
+  FARFETCHD: new Pokemon(83).isRegional().withRegion(GALAR, (regional) => regional.isNotRegional()),
   DODUO: new Pokemon(84),
   DODRIO: new Pokemon(85),
   SEEL: new Pokemon(86),
