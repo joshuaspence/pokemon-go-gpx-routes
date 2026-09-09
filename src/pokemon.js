@@ -3,19 +3,23 @@
  * actually has and hands back the Pokemon that form is, so a filter can say which form it means and still write the
  * one number PGSharp stores: `toJSON` sees to that, leaving `JSON.stringify` to emit the dex number and nothing else.
  *
- * Whether a shiny exists, whether the wild turns one up at all, and whether it is in Pokémon GO yet, are properties of
- * the form rather than of the species, since a species can have a shiny where its regional variant does not. Declaring
- * them walks with the entry: `isShinyEligible`, `notShinyEligible`, `doesSpawn`, `doesNotSpawn`, `isReleased`,
- * `isNotReleased`, `isLegendary`, `isMythical`, `isBaby`, `isUltraBeast`, `isRegional` and `isNotRegional` apply to
- * whatever was declared last — the species itself before any form is named, and the forms or regions of the
- * declaration just above otherwise. A Regional is the odd one out: it still spawns, only somewhere particular, so it
- * leaves spawning alone. A form inherits it, `isNotRegional` handing one back to the wild at large.
- * Undeclared reads as eligible, so a species says nothing until it has something to say. A Legendary, Mythical, Baby
- * or Ultra Beast is one the wild never turns up, so `isLegendary`, `isMythical`, `isBaby` and `isUltraBeast` stop it
- * spawning as well — Meltan the lone Mythical that does, saying `doesSpawn` after to put it back.
+ * A species is built up a link at a time, and two things travel down the chain. One is the cursor — what a marker
+ * applies to. `isShinyEligible`, `isNotShinyEligible`, `doesSpawn`, `doesNotSpawn`, `isReleased`, `isNotReleased`,
+ * `isLegendary`, `isMythical`, `isBaby`, `isUltraBeast`, `isRegional` and `isNotRegional` all land on whatever was
+ * declared last — the species itself until a form or a region is named, and that form or region afterwards. These are
+ * properties of the form rather than the species, since a species can have a shiny where its regional variant does
+ * not. Undeclared reads as eligible, so a species says nothing until it has something to say. A Legendary, Mythical,
+ * Baby or Ultra Beast is one the wild never turns up, so those four stop it spawning too — Meltan the lone Mythical
+ * that does, saying `doesSpawn` after to put it back. A Regional is the odd one out: it still spawns, only somewhere
+ * particular, so it leaves spawning alone; a form inherits it, `isNotRegional` handing one back to the wild at large.
+ *
+ * The other is the target — what a new form or region hangs off. `addForm`, `addForms`, `addRegion` and `addRegions`
+ * declare peers at the current target and leave it where it is, so listing several is listing siblings. `withForm`
+ * and `withRegion` declare one and descend into it, moving the target so what follows nests beneath — the Paldean
+ * breeds under Paldean Tauros, the Galarian modes under Galarian Darmanitan.
  *
  * ```js
- * const ZORUA = new Pokemon(570).isShinyEligible().withRegions(HISUI).notShinyEligible();
+ * new Pokemon(128).withRegion(PALDEA).doesNotSpawn().addForms('COMBAT_BREED', 'BLAZE_BREED', 'AQUA_BREED');
  * ```
  */
 export default class Pokemon {
@@ -35,73 +39,108 @@ export default class Pokemon {
   #regional = false;
   #ultraBeast = false;
 
-  // What the next `isShinyEligible` or `notShinyEligible` applies to: the species until a form or a region is declared.
+  // The cursor a marker lands on: the species until a form or region is declared, then whatever was declared last.
   #declared;
+
+  // The target a new form or region hangs off: the species, until `withForm`/`withRegion` descends into a variant.
+  #target;
 
   constructor(dex) {
     this.#dex = dex;
     this.#name = `#${dex}`;
     this.#declared = [this];
+    this.#target = this;
   }
 
   /**
-   * One form this species comes in, settled on the spot.
-   *
-   * The callback is handed that form, so what is true of it is said where it is declared rather than by what came last:
+   * The forms this species comes in as peers of one another, spelled as the games spell them. Each is a Pokemon of its
+   * own, hung off the current target — the species, or a region `withRegion` last descended into. The target does not
+   * move, so a later `addForms` adds more siblings rather than nesting under the first.
+   */
+  addForms(...names) {
+    this.#declared = names.map((name) => this.#target.#createForm(name));
+    return this;
+  }
+
+  /**
+   * One form, as `addForms` with a single name. The callback is handed that form, so what is true of it is said where
+   * it is declared rather than by what came last, and the target stays put:
    *
    * ```js
-   * new Pokemon(999).notShinyEligible().withForm('SPEED', (form) => form.isShinyEligible());
+   * new Pokemon(999).addForm('SPEED', (form) => form.isShinyEligible());
    * ```
+   */
+  addForm(name, configure) {
+    const variant = this.#target.#createForm(name);
+    this.#declared = [variant];
+
+    if (configure) {
+      configure(variant);
+    }
+
+    return this;
+  }
+
+  /**
+   * The regions this species has a variant in, as peers of one another. Each is a Pokemon of its own, hung off the
+   * current target, which does not move — for a single region to descend into, reach for `withRegion`.
+   */
+  addRegions(...regions) {
+    this.#declared = regions.map((region) => this.#target.#createRegion(region));
+    return this;
+  }
+
+  /**
+   * One region, as `addRegions` with a single region. The callback is handed that variant, and the target stays put:
    *
-   * Left off, this is `withForms` with one form, and what follows applies to that form as it would there.
+   * ```js
+   * new Pokemon(999).addRegion(ALOLA, (alolan) => alolan.isShinyEligible());
+   * ```
+   */
+  addRegion(region, configure) {
+    const variant = this.#target.#createRegion(region);
+    this.#declared = [variant];
+
+    if (configure) {
+      configure(variant);
+    }
+
+    return this;
+  }
+
+  /**
+   * One form to descend into: declared as a peer would be, then made the target, so what follows — its own forms, or a
+   * trailing marker — lands on it rather than on the species. Reach for this when a form carries forms of its own.
    */
   withForm(name, configure) {
-    this.withForms(name);
+    const variant = this.#target.#createForm(name);
+    this.#declared = [variant];
 
     if (configure) {
-      configure(this.#forms.get(name));
+      configure(variant);
     }
 
+    this.#target = variant;
     return this;
   }
 
   /**
-   * The forms this species comes in, spelled as the games spell them. Each is a Pokemon of its own.
-   */
-  withForms(...names) {
-    this.#declared = names.map((name) => this.#variant(`${this.#name} (${name})`));
-    names.forEach((name, i) => this.#forms.set(name, this.#declared[i]));
-    return this;
-  }
-
-  /**
-   * One region this species has a variant in, settled on the spot.
-   *
-   * The callback is handed that variant, so what is true of it is said where it is declared rather than by what came
-   * last:
+   * One region to descend into: its variant declared, then made the target, so the forms that follow hang beneath it —
+   * the Paldean breeds under Paldean Tauros, the Galarian modes under Galarian Darmanitan.
    *
    * ```js
-   * new Pokemon(999).notShinyEligible().withRegion(ALOLA, (alolan) => alolan.isShinyEligible());
+   * new Pokemon(128).withRegion(PALDEA).doesNotSpawn().addForms('COMBAT_BREED', 'BLAZE_BREED', 'AQUA_BREED');
    * ```
-   *
-   * Left off, this is `withRegions` with one region, and what follows applies to that region as it would there.
    */
   withRegion(region, configure) {
-    this.withRegions(region);
+    const variant = this.#target.#createRegion(region);
+    this.#declared = [variant];
 
     if (configure) {
-      configure(this.#regions.get(region));
+      configure(variant);
     }
 
-    return this;
-  }
-
-  /**
-   * The regions this species has a variant in. Each is a Pokemon of its own.
-   */
-  withRegions(...regions) {
-    this.#declared = regions.map((region) => this.#variant(`${region} ${this.#name}`));
-    regions.forEach((region, i) => this.#regions.set(region, this.#declared[i]));
+    this.#target = variant;
     return this;
   }
 
@@ -348,6 +387,20 @@ export default class Pokemon {
    */
   get ultraBeast() {
     return this.#ultraBeast;
+  }
+
+  /** Creates a form of this Pokemon and files it under the name the games give it. */
+  #createForm(name) {
+    const variant = this.#variant(`${this.#name} (${name})`);
+    this.#forms.set(name, variant);
+    return variant;
+  }
+
+  /** Creates this Pokemon as one region sees it and files it under that region. */
+  #createRegion(region) {
+    const variant = this.#variant(`${region} ${this.#name}`);
+    this.#regions.set(region, variant);
+    return variant;
   }
 
   /** A form of this species, starting from where the species stands. */
