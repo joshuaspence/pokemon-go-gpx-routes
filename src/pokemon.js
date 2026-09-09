@@ -6,8 +6,9 @@
  * Whether a shiny exists, whether the wild turns one up at all, and whether it is in Pokémon GO yet, are properties of
  * the form rather than of the species, since a species can have a shiny where its regional variant does not. Declaring
  * them walks with the entry: `isShinyEligible`, `notShinyEligible`, `doesSpawn`, `doesNotSpawn`, `isReleased`,
- * `isNotReleased`, `isLegendary`, `isMythical`, `isBaby` and `isUltraBeast` apply to whatever was declared last — the
- * species itself before any form is named, and the forms or regions of the declaration just above otherwise.
+ * `isNotReleased`, `isLegendary`, `isMythical`, `isBaby`, `isUltraBeast` and `isRegional` apply to whatever was
+ * declared last — the species itself before any form is named, and the forms or regions of the declaration just above
+ * otherwise. A Regional is the odd one out: it still spawns, only somewhere particular, so it leaves spawning alone.
  * Undeclared reads as eligible, so a species says nothing until it has something to say. A Legendary, Mythical, Baby
  * or Ultra Beast is one the wild never turns up, so `isLegendary`, `isMythical`, `isBaby` and `isUltraBeast` stop it
  * spawning as well — Meltan the lone Mythical that does, saying `doesSpawn` after to put it back.
@@ -30,6 +31,7 @@ export default class Pokemon {
   #baby = false;
   #legendary = false;
   #mythical = false;
+  #regional = false;
   #ultraBeast = false;
 
   // What the next `isShinyEligible` or `notShinyEligible` applies to: the species until a form or a region is declared.
@@ -205,6 +207,18 @@ export default class Pokemon {
   }
 
   /**
+   * Marks what was declared last as a Regional — one the wild turns up only in its own part of the world. It still
+   * spawns, so unlike the categories above this leaves `#spawns` alone; it only says where.
+   */
+  isRegional() {
+    for (const variant of this.#declared) {
+      variant.#regional = true;
+    }
+
+    return this;
+  }
+
+  /**
    * Marks what was declared last as an Ultra Beast; the wild never turns one up, so it stops spawning too.
    */
   isUltraBeast() {
@@ -289,6 +303,13 @@ export default class Pokemon {
   }
 
   /**
+   * Whether the wild turns this one up only in its own part of the world.
+   */
+  get regional() {
+    return this.#regional;
+  }
+
+  /**
    * Whether this one is in Pokémon GO yet.
    */
   get released() {
@@ -326,6 +347,7 @@ export default class Pokemon {
     variant.#legendary = this.#legendary;
     variant.#mythical = this.#mythical;
     variant.#baby = this.#baby;
+    variant.#regional = this.#regional;
     variant.#ultraBeast = this.#ultraBeast;
     return variant;
   }
