@@ -26,10 +26,12 @@ export const PALDEA = 'Paldean';
  *
  * Whether a shiny exists, whether the wild turns one up at all, and whether it is in Pokémon GO yet, are properties of
  * the form rather than of the species, since a species can have a shiny where its regional variant does not. Declaring
- * them walks with the entry: `isShinyEligible`, `notShinyEligible`, `doesSpawn`, `doesNotSpawn`, `isReleased` and
- * `isNotReleased` apply to whatever was declared last — the species itself before any form is named, and the forms or
- * regions of the declaration just above otherwise. Undeclared reads as eligible, so a species says nothing until it has
- * something to say.
+ * them walks with the entry: `isShinyEligible`, `notShinyEligible`, `doesSpawn`, `doesNotSpawn`, `isReleased`,
+ * `isNotReleased`, `isLegendary` and `isMythical` apply to whatever was declared last — the species itself before any
+ * form is named, and the forms or regions of the declaration just above otherwise. Undeclared reads as eligible, so a
+ * species says nothing until it has something to say. A Legendary or Mythical is one the wild never turns up, so
+ * `isLegendary` and `isMythical` stop it spawning as well — Meltan the lone Mythical that does, saying `doesSpawn`
+ * after to put it back.
  *
  * ```js
  * const ZORUA = new Pokemon(570).isShinyEligible().withRegions(HISUI).notShinyEligible();
@@ -43,6 +45,8 @@ export class Pokemon {
   #shinyEligible = true;
   #spawns = true;
   #released = true;
+  #legendary = false;
+  #mythical = false;
 
   // What the next `isShinyEligible` or `notShinyEligible` applies to: the species until a form or a region is declared.
   #declared;
@@ -161,6 +165,26 @@ export class Pokemon {
     return this;
   }
 
+  /** Marks what was declared last as a Legendary; the wild never turns one up, so it stops spawning too. */
+  isLegendary() {
+    for (const variant of this.#declared) {
+      variant.#legendary = true;
+      variant.#spawns = false;
+    }
+
+    return this;
+  }
+
+  /** The same for a Mythical — Meltan the one that spawns anyway, saying `doesSpawn` after to put it back. */
+  isMythical() {
+    for (const variant of this.#declared) {
+      variant.#mythical = true;
+      variant.#spawns = false;
+    }
+
+    return this;
+  }
+
   /** Names this species for the errors below, from the constant it is bound to, and renames its forms with it. */
   as(name) {
     this.#name = name;
@@ -209,6 +233,16 @@ export class Pokemon {
     return this.#released;
   }
 
+  /** Whether this one is a Legendary. */
+  get legendary() {
+    return this.#legendary;
+  }
+
+  /** Whether this one is Mythical. */
+  get mythical() {
+    return this.#mythical;
+  }
+
   /** A form of this species, starting from where the species stands. */
   #variant(name) {
     const variant = new Pokemon(this.#dex);
@@ -216,6 +250,8 @@ export class Pokemon {
     variant.#shinyEligible = this.#shinyEligible;
     variant.#spawns = this.#spawns;
     variant.#released = this.#released;
+    variant.#legendary = this.#legendary;
+    variant.#mythical = this.#mythical;
     return variant;
   }
 
@@ -1143,7 +1179,7 @@ const POKEMON = {
   STAKATAKA: new Pokemon(805),
   BLACEPHALON: new Pokemon(806),
   ZERAORA: new Pokemon(807),
-  MELTAN: new Pokemon(808),
+  MELTAN: new Pokemon(808).isMythical().doesSpawn(),
   MELMETAL: new Pokemon(809),
   GROOKEY: new Pokemon(810),
   THWACKEY: new Pokemon(811),
