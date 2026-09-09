@@ -28,10 +28,10 @@ export const PALDEA = 'Paldean';
  * the form rather than of the species, since a species can have a shiny where its regional variant does not. Declaring
  * them walks with the entry: `isShinyEligible`, `notShinyEligible`, `doesSpawn`, `doesNotSpawn`, `isReleased`,
  * `isNotReleased`, `isLegendary`, `isMythical`, `isBaby` and `isUltraBeast` apply to whatever was declared last — the
- * species itself before any form is named, and the forms or regions of the declaration just above otherwise. Undeclared
- * reads as eligible, so a species says nothing until it has something to say. A Legendary, Mythical, Baby or Ultra Beast
- * is one the wild never turns up, so `isLegendary`, `isMythical`, `isBaby` and `isUltraBeast` stop it spawning as well —
- * Meltan the lone Mythical that does, saying `doesSpawn` after to put it back.
+ * species itself before any form is named, and the forms or regions of the declaration just above otherwise.
+ * Undeclared reads as eligible, so a species says nothing until it has something to say. A Legendary, Mythical, Baby
+ * or Ultra Beast is one the wild never turns up, so `isLegendary`, `isMythical`, `isBaby` and `isUltraBeast` stop it
+ * spawning as well — Meltan the lone Mythical that does, saying `doesSpawn` after to put it back.
  *
  * ```js
  * const ZORUA = new Pokemon(570).isShinyEligible().withRegions(HISUI).notShinyEligible();
@@ -40,14 +40,17 @@ export const PALDEA = 'Paldean';
 export class Pokemon {
   #dex;
   #name;
+
   #forms = new Map();
   #regions = new Map();
+  
+  #released = true;
   #shinyEligible = true;
   #spawns = true;
-  #released = true;
+
+  #baby = false;
   #legendary = false;
   #mythical = false;
-  #baby = false;
   #ultraBeast = false;
 
   // What the next `isShinyEligible` or `notShinyEligible` applies to: the species until a form or a region is declared.
@@ -59,19 +62,13 @@ export class Pokemon {
     this.#declared = [this];
   }
 
-  /** The forms this species comes in, spelled as the games spell them. Each is a Pokemon of its own. */
-  withForms(...names) {
-    this.#declared = names.map((name) => this.#variant(`${this.#name} (${name})`));
-    names.forEach((name, i) => this.#forms.set(name, this.#declared[i]));
-    return this;
-  }
-
   /**
-   * One form this species comes in, settled on the spot. The callback is handed that form, so what is true of it is
-   * said where it is declared rather than by what came last:
+   * One form this species comes in, settled on the spot.
+   *
+   * The callback is handed that form, so what is true of it is said where it is declared rather than by what came last:
    *
    * ```js
-   * new Pokemon(999).notShinyEligible().withForm('SPEED', (speed) => speed.isShinyEligible());
+   * new Pokemon(999).notShinyEligible().withForm('SPEED', (form) => form.isShinyEligible());
    * ```
    *
    * Left off, this is `withForms` with one form, and what follows applies to that form as it would there.
@@ -86,16 +83,20 @@ export class Pokemon {
     return this;
   }
 
-  /** The regions this species has a variant in. Each is a Pokemon of its own. */
-  withRegions(...regions) {
-    this.#declared = regions.map((region) => this.#variant(`${region} ${this.#name}`));
-    regions.forEach((region, i) => this.#regions.set(region, this.#declared[i]));
+  /**
+   * The forms this species comes in, spelled as the games spell them. Each is a Pokemon of its own.
+   */
+  withForms(...names) {
+    this.#declared = names.map((name) => this.#variant(`${this.#name} (${name})`));
+    names.forEach((name, i) => this.#forms.set(name, this.#declared[i]));
     return this;
   }
 
   /**
-   * One region this species has a variant in, settled on the spot. The callback is handed that variant, so what is
-   * true of it is said where it is declared rather than by what came last:
+   * One region this species has a variant in, settled on the spot.
+   *
+   * The callback is handed that variant, so what is true of it is said where it is declared rather than by what came
+   * last:
    *
    * ```js
    * new Pokemon(999).notShinyEligible().withRegion(ALOLA, (alolan) => alolan.isShinyEligible());
@@ -113,43 +114,18 @@ export class Pokemon {
     return this;
   }
 
-  /** Marks what was declared last as having a shiny in the game. */
-  isShinyEligible() {
-    for (const variant of this.#declared) {
-      variant.#shinyEligible = true;
-    }
-
+  /**
+   * The regions this species has a variant in. Each is a Pokemon of its own.
+   */
+  withRegions(...regions) {
+    this.#declared = regions.map((region) => this.#variant(`${region} ${this.#name}`));
+    regions.forEach((region, i) => this.#regions.set(region, this.#declared[i]));
     return this;
   }
 
-  /** Marks what was declared last as having none, which keeps it out of a filter that hunts shinies. */
-  notShinyEligible() {
-    for (const variant of this.#declared) {
-      variant.#shinyEligible = false;
-    }
-
-    return this;
-  }
-
-  /** Marks what was declared last as something the wild turns up, which is what the feed filters watch for. */
-  doesSpawn() {
-    for (const variant of this.#declared) {
-      variant.#spawns = true;
-    }
-
-    return this;
-  }
-
-  /** Marks what was declared last as something the wild never turns up — a raid, a trade or an egg only. */
-  doesNotSpawn() {
-    for (const variant of this.#declared) {
-      variant.#spawns = false;
-    }
-
-    return this;
-  }
-
-  /** Marks what was declared last as out in Pokémon GO — in the game to be had at all. */
+  /**
+   * Marks what was declared last as out in Pokémon GO — in the game to be had at all.
+   */
   isReleased() {
     for (const variant of this.#declared) {
       variant.#released = true;
@@ -158,7 +134,9 @@ export class Pokemon {
     return this;
   }
 
-  /** Marks what was declared last as not in Pokémon GO yet, which keeps it out of a filter for what you can get. */
+  /**
+   * Marks what was declared last as not in Pokémon GO yet, which keeps it out of a filter for what you can get.
+   */
   isNotReleased() {
     for (const variant of this.#declared) {
       variant.#released = false;
@@ -167,27 +145,53 @@ export class Pokemon {
     return this;
   }
 
-  /** Marks what was declared last as a Legendary; the wild never turns one up, so it stops spawning too. */
-  isLegendary() {
+  /**
+   * Marks what was declared last as having a shiny in the game.
+   */
+  isShinyEligible() {
     for (const variant of this.#declared) {
-      variant.#legendary = true;
+      variant.#shinyEligible = true;
+    }
+
+    return this;
+  }
+
+  /**
+   * Marks what was declared last as having none, which keeps it out of a filter that hunts shinies.
+   */
+  isNotShinyEligible() {
+    for (const variant of this.#declared) {
+      variant.#shinyEligible = false;
+    }
+
+    return this;
+  }
+
+  /**
+   * Marks what was declared last as something the wild turns up, which is what the feed filters watch for.
+   */
+  doesSpawn() {
+    for (const variant of this.#declared) {
+      variant.#spawns = true;
+    }
+
+    return this;
+  }
+
+  /**
+   * Marks what was declared last as something the wild never turns up — a raid, a trade or an egg only.
+   */
+  doesNotSpawn() {
+    for (const variant of this.#declared) {
       variant.#spawns = false;
     }
 
     return this;
   }
 
-  /** The same for a Mythical — Meltan the one that spawns anyway, saying `doesSpawn` after to put it back. */
-  isMythical() {
-    for (const variant of this.#declared) {
-      variant.#mythical = true;
-      variant.#spawns = false;
-    }
-
-    return this;
-  }
-
-  /** Marks what was declared last as a Baby — hatched from an egg, never met in the wild, so it stops spawning too. */
+  /**
+   * Marks what was declared last as a Baby — hatched from an egg, never met in the wild, so it stops spawning too.
+   */
   isBaby() {
     for (const variant of this.#declared) {
       variant.#baby = true;
@@ -197,7 +201,33 @@ export class Pokemon {
     return this;
   }
 
-  /** Marks what was declared last as an Ultra Beast; the wild never turns one up, so it stops spawning too. */
+  /**
+   * Marks what was declared last as a Legendary; the wild never turns one up, so it stops spawning too.
+   */
+  isLegendary() {
+    for (const variant of this.#declared) {
+      variant.#legendary = true;
+      variant.#spawns = false;
+    }
+
+    return this;
+  }
+
+  /**
+   * The same for a Mythical — Meltan the one that spawns anyway, saying `doesSpawn` after to put it back.
+   */
+  isMythical() {
+    for (const variant of this.#declared) {
+      variant.#mythical = true;
+      variant.#spawns = false;
+    }
+
+    return this;
+  }
+
+  /**
+   * Marks what was declared last as an Ultra Beast; the wild never turns one up, so it stops spawning too.
+   */
   isUltraBeast() {
     for (const variant of this.#declared) {
       variant.#ultraBeast = true;
@@ -207,7 +237,9 @@ export class Pokemon {
     return this;
   }
 
-  /** Names this species for the errors below, from the constant it is bound to, and renames its forms with it. */
+  /**
+   * Names this species for the errors below, from the constant it is bound to, and renames its forms with it.
+   */
   as(name) {
     this.#name = name;
 
@@ -222,7 +254,11 @@ export class Pokemon {
     return this;
   }
 
-  /** One of this species' forms. A name it does not have stops here rather than reaching the backup as a null. */
+  /**
+   * One of this species' forms.
+   *
+   * A name it does not have stops here rather than reaching the backup as a null.
+   */
   form(name) {
     if (!this.#forms.has(name)) {
       throw new Error(`${this.#name} has no ${name} form — check it against pokemon.js`);
@@ -231,7 +267,11 @@ export class Pokemon {
     return this.#forms.get(name);
   }
 
-  /** This species as one region sees it. A region it has no variant in stops here for the same reason. */
+  /**
+   * This species as one region sees it.
+   *
+   * A region it has no variant in stops here for the same reason.
+   */
   region(region) {
     if (!this.#regions.has(region)) {
       throw new Error(`${this.#name} has no ${region} form — check it against pokemon.js`);
@@ -240,37 +280,51 @@ export class Pokemon {
     return this.#regions.get(region);
   }
 
-  /** Whether a shiny of this one exists to be hunted. */
-  get shinyEligible() {
-    return this.#shinyEligible;
-  }
-
-  /** Whether the wild turns this one up at all. */
-  get spawns() {
-    return this.#spawns;
-  }
-
-  /** Whether this one is in Pokémon GO yet. */
-  get released() {
-    return this.#released;
-  }
-
-  /** Whether this one is a Legendary. */
-  get legendary() {
-    return this.#legendary;
-  }
-
-  /** Whether this one is Mythical. */
-  get mythical() {
-    return this.#mythical;
-  }
-
-  /** Whether this one is a Baby. */
+  /**
+   * Whether this one is a Baby.
+   */
   get baby() {
     return this.#baby;
   }
 
-  /** Whether this one is an Ultra Beast. */
+  /**
+   * Whether this one is a Legendary.
+   */
+  get legendary() {
+    return this.#legendary;
+  }
+
+  /**
+   * Whether this one is Mythical.
+   */
+  get mythical() {
+    return this.#mythical;
+  }
+
+  /**
+   * Whether this one is in Pokémon GO yet.
+   */
+  get released() {
+    return this.#released;
+  }
+
+  /**
+   * Whether a shiny of this one exists to be hunted.
+   */
+  get shinyEligible() {
+    return this.#shinyEligible;
+  }
+
+  /**
+   * Whether the wild turns this one up at all.
+   */
+  get spawns() {
+    return this.#spawns;
+  }
+
+  /**
+   * Whether this one is an Ultra Beast.
+   */
   get ultraBeast() {
     return this.#ultraBeast;
   }
@@ -289,13 +343,15 @@ export class Pokemon {
     return variant;
   }
 
-  /** Its name, for reading in a message or a log — a string coercion, where valueOf below hands back the number. */
-  toString() {
-    return this.#name;
-  }
-
   toJSON() {
     return this.#dex;
+  }
+
+  /**
+   * Its name, for reading in a message or a log — a string coercion, where valueOf below hands back the number.
+   */
+  toString() {
+    return this.#name;
   }
 
   valueOf() {
@@ -416,7 +472,7 @@ const POKEMON = {
   VOLTORB: new Pokemon(100).withRegion(HISUI),
   ELECTRODE: new Pokemon(101).withRegion(HISUI),
   EXEGGCUTE: new Pokemon(102),
-  EXEGGUTOR: new Pokemon(103).withRegion(ALOLA),
+  EXEGGUTOR: new Pokemon(103).withRegion(ALOLA).doesNotSpawn(),
   CUBONE: new Pokemon(104),
   MAROWAK: new Pokemon(105).withRegion(ALOLA),
   HITMONLEE: new Pokemon(106),
@@ -581,7 +637,7 @@ const POKEMON = {
   STANTLER: new Pokemon(234),
   SMEARGLE: new Pokemon(235).doesNotSpawn(),
   TYROGUE: new Pokemon(236).isBaby(),
-  HITMONTOP: new Pokemon(237).doesNotSpawn(),
+  HITMONTOP: new Pokemon(237),
   SMOOCHUM: new Pokemon(238).isBaby(),
   ELEKID: new Pokemon(239).isBaby(),
   MAGBY: new Pokemon(240).isBaby(),
@@ -951,7 +1007,7 @@ const POKEMON = {
   COTTONEE: new Pokemon(546),
   WHIMSICOTT: new Pokemon(547),
   PETILIL: new Pokemon(548),
-  LILLIGANT: new Pokemon(549).withRegion(HISUI),
+  LILLIGANT: new Pokemon(549).withRegion(HISUI).doesNotSpawn(),
   BASCULIN: new Pokemon(550).withForms('RED_STRIPED', 'BLUE_STRIPED', 'WHITE_STRIPED'),
   SANDILE: new Pokemon(551),
   KROKOROK: new Pokemon(552),
