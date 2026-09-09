@@ -27,11 +27,11 @@ export const PALDEA = 'Paldean';
  * Whether a shiny exists, whether the wild turns one up at all, and whether it is in Pokémon GO yet, are properties of
  * the form rather than of the species, since a species can have a shiny where its regional variant does not. Declaring
  * them walks with the entry: `isShinyEligible`, `notShinyEligible`, `doesSpawn`, `doesNotSpawn`, `isReleased`,
- * `isNotReleased`, `isLegendary` and `isMythical` apply to whatever was declared last — the species itself before any
- * form is named, and the forms or regions of the declaration just above otherwise. Undeclared reads as eligible, so a
- * species says nothing until it has something to say. A Legendary or Mythical is one the wild never turns up, so
- * `isLegendary` and `isMythical` stop it spawning as well — Meltan the lone Mythical that does, saying `doesSpawn`
- * after to put it back.
+ * `isNotReleased`, `isLegendary`, `isMythical` and `isBaby` apply to whatever was declared last — the species itself
+ * before any form is named, and the forms or regions of the declaration just above otherwise. Undeclared reads as
+ * eligible, so a species says nothing until it has something to say. A Legendary, Mythical or Baby is one the wild
+ * never turns up, so `isLegendary`, `isMythical` and `isBaby` stop it spawning as well — Meltan the lone Mythical that
+ * does, saying `doesSpawn` after to put it back.
  *
  * ```js
  * const ZORUA = new Pokemon(570).isShinyEligible().withRegions(HISUI).notShinyEligible();
@@ -47,6 +47,7 @@ export class Pokemon {
   #released = true;
   #legendary = false;
   #mythical = false;
+  #baby = false;
 
   // What the next `isShinyEligible` or `notShinyEligible` applies to: the species until a form or a region is declared.
   #declared;
@@ -185,6 +186,16 @@ export class Pokemon {
     return this;
   }
 
+  /** Marks what was declared last as a Baby — hatched from an egg, never met in the wild, so it stops spawning too. */
+  isBaby() {
+    for (const variant of this.#declared) {
+      variant.#baby = true;
+      variant.#spawns = false;
+    }
+
+    return this;
+  }
+
   /** Names this species for the errors below, from the constant it is bound to, and renames its forms with it. */
   as(name) {
     this.#name = name;
@@ -243,6 +254,11 @@ export class Pokemon {
     return this.#mythical;
   }
 
+  /** Whether this one is a Baby. */
+  get baby() {
+    return this.#baby;
+  }
+
   /** A form of this species, starting from where the species stands. */
   #variant(name) {
     const variant = new Pokemon(this.#dex);
@@ -252,6 +268,7 @@ export class Pokemon {
     variant.#released = this.#released;
     variant.#legendary = this.#legendary;
     variant.#mythical = this.#mythical;
+    variant.#baby = this.#baby;
     return variant;
   }
 
@@ -453,10 +470,10 @@ const POKEMON = {
   CROBAT: new Pokemon(169),
   CHINCHOU: new Pokemon(170),
   LANTURN: new Pokemon(171),
-  PICHU: new Pokemon(172).doesNotSpawn(),
-  CLEFFA: new Pokemon(173).doesNotSpawn(),
-  IGGLYBUFF: new Pokemon(174).doesNotSpawn(),
-  TOGEPI: new Pokemon(175).doesNotSpawn(),
+  PICHU: new Pokemon(172).isBaby(),
+  CLEFFA: new Pokemon(173).isBaby(),
+  IGGLYBUFF: new Pokemon(174).isBaby(),
+  TOGEPI: new Pokemon(175).isBaby(),
   TOGETIC: new Pokemon(176),
   NATU: new Pokemon(177),
   XATU: new Pokemon(178),
@@ -546,11 +563,11 @@ const POKEMON = {
   PORYGON2: new Pokemon(233),
   STANTLER: new Pokemon(234),
   SMEARGLE: new Pokemon(235).doesNotSpawn(),
-  TYROGUE: new Pokemon(236),
+  TYROGUE: new Pokemon(236).isBaby(),
   HITMONTOP: new Pokemon(237).doesNotSpawn(),
-  SMOOCHUM: new Pokemon(238).doesNotSpawn(),
-  ELEKID: new Pokemon(239).doesNotSpawn(),
-  MAGBY: new Pokemon(240).doesNotSpawn(),
+  SMOOCHUM: new Pokemon(238).isBaby(),
+  ELEKID: new Pokemon(239).isBaby(),
+  MAGBY: new Pokemon(240).isBaby(),
   MILTANK: new Pokemon(241),
   BLISSEY: new Pokemon(242),
   RAIKOU: new Pokemon(243).isLegendary(),
@@ -610,7 +627,7 @@ const POKEMON = {
   EXPLOUD: new Pokemon(295),
   MAKUHITA: new Pokemon(296),
   HARIYAMA: new Pokemon(297),
-  AZURILL: new Pokemon(298).doesNotSpawn(),
+  AZURILL: new Pokemon(298).isBaby(),
   NOSEPASS: new Pokemon(299),
   SKITTY: new Pokemon(300),
   DELCATTY: new Pokemon(301),
@@ -698,7 +715,7 @@ const POKEMON = {
   TROPIUS: new Pokemon(357),
   CHIMECHO: new Pokemon(358),
   ABSOL: new Pokemon(359),
-  WYNAUT: new Pokemon(360).doesNotSpawn(),
+  WYNAUT: new Pokemon(360).isBaby(),
   SNORUNT: new Pokemon(361),
   GLALIE: new Pokemon(362),
   SPHEAL: new Pokemon(363),
@@ -746,7 +763,7 @@ const POKEMON = {
   SHINX: new Pokemon(403),
   LUXIO: new Pokemon(404),
   LUXRAY: new Pokemon(405),
-  BUDEW: new Pokemon(406),
+  BUDEW: new Pokemon(406).isBaby(),
   ROSERADE: new Pokemon(407),
   CRANIDOS: new Pokemon(408),
   RAMPARDOS: new Pokemon(409),
@@ -773,21 +790,21 @@ const POKEMON = {
   HONCHKROW: new Pokemon(430),
   GLAMEOW: new Pokemon(431),
   PURUGLY: new Pokemon(432),
-  CHINGLING: new Pokemon(433),
+  CHINGLING: new Pokemon(433).isBaby(),
   STUNKY: new Pokemon(434),
   SKUNTANK: new Pokemon(435),
   BRONZOR: new Pokemon(436),
   BRONZONG: new Pokemon(437),
-  BONSLY: new Pokemon(438),
-  MIME_JR: new Pokemon(439).doesNotSpawn(),
-  HAPPINY: new Pokemon(440).doesNotSpawn(),
+  BONSLY: new Pokemon(438).isBaby(),
+  MIME_JR: new Pokemon(439).isBaby(),
+  HAPPINY: new Pokemon(440).isBaby(),
   CHATOT: new Pokemon(441),
   SPIRITOMB: new Pokemon(442).doesNotSpawn(),
   GIBLE: new Pokemon(443),
   GABITE: new Pokemon(444),
   GARCHOMP: new Pokemon(445),
-  MUNCHLAX: new Pokemon(446),
-  RIOLU: new Pokemon(447),
+  MUNCHLAX: new Pokemon(446).isBaby(),
+  RIOLU: new Pokemon(447).isBaby(),
   LUCARIO: new Pokemon(448),
   HIPPOPOTAS: new Pokemon(449),
   HIPPOWDON: new Pokemon(450),
@@ -798,7 +815,7 @@ const POKEMON = {
   CARNIVINE: new Pokemon(455),
   FINNEON: new Pokemon(456),
   LUMINEON: new Pokemon(457),
-  MANTYKE: new Pokemon(458).doesNotSpawn(),
+  MANTYKE: new Pokemon(458).isBaby(),
   SNOVER: new Pokemon(459),
   ABOMASNOW: new Pokemon(460),
   WEAVILE: new Pokemon(461),
@@ -862,7 +879,7 @@ const POKEMON = {
     ),
 
   // Generation 5
-  VICTINI: new Pokemon(494).isMythical(),
+  VICTINI: new Pokemon(494).isMythical().notShinyEligible(),
   SNIVY: new Pokemon(495),
   SERVINE: new Pokemon(496),
   SERPERIOR: new Pokemon(497),
@@ -1135,10 +1152,13 @@ const POKEMON = {
   NOIVERN: new Pokemon(715),
   XERNEAS: new Pokemon(716).isLegendary(),
   YVELTAL: new Pokemon(717).isLegendary(),
-  ZYGARDE: new Pokemon(718).isLegendary().withForms('TEN_PERCENT_FORME', 'FIFTY_PERCENT_FORME', 'COMPLETE_FORME'),
+  ZYGARDE: new Pokemon(718)
+    .isLegendary()
+    .notShinyEligible()
+    .withForms('TEN_PERCENT_FORME', 'FIFTY_PERCENT_FORME', 'COMPLETE_FORME'),
   DIANCIE: new Pokemon(719).isMythical(),
-  HOOPA: new Pokemon(720).isMythical().withForms('CONFINED', 'UNBOUND'),
-  VOLCANION: new Pokemon(721).isMythical(),
+  HOOPA: new Pokemon(720).isMythical().notShinyEligible().withForms('CONFINED', 'UNBOUND'),
+  VOLCANION: new Pokemon(721).isMythical().notShinyEligible(),
 
   // Generation 7
   ROWLET: new Pokemon(722),
@@ -1230,29 +1250,29 @@ const POKEMON = {
   TAPU_LELE: new Pokemon(786).isLegendary(),
   TAPU_BULU: new Pokemon(787).isLegendary(),
   TAPU_FINI: new Pokemon(788).isLegendary(),
-  COSMOG: new Pokemon(789).isLegendary(),
-  COSMOEM: new Pokemon(790).isLegendary(),
+  COSMOG: new Pokemon(789).isLegendary().notShinyEligible(),
+  COSMOEM: new Pokemon(790).isLegendary().notShinyEligible(),
   SOLGALEO: new Pokemon(791).isLegendary(),
   LUNALA: new Pokemon(792).isLegendary(),
-  NIHILEGO: new Pokemon(793),
-  BUZZWOLE: new Pokemon(794),
-  PHEROMOSA: new Pokemon(795),
-  XURKITREE: new Pokemon(796),
-  CELESTEELA: new Pokemon(797),
-  KARTANA: new Pokemon(798),
-  GUZZLORD: new Pokemon(799),
+  NIHILEGO: new Pokemon(793).doesNotSpawn(),
+  BUZZWOLE: new Pokemon(794).doesNotSpawn(),
+  PHEROMOSA: new Pokemon(795).doesNotSpawn(),
+  XURKITREE: new Pokemon(796).doesNotSpawn(),
+  CELESTEELA: new Pokemon(797).doesNotSpawn(),
+  KARTANA: new Pokemon(798).doesNotSpawn(),
+  GUZZLORD: new Pokemon(799).doesNotSpawn(),
   NECROZMA: new Pokemon(800)
     .isLegendary()
     .withForms('NORMAL', 'DUSK_MANE', 'DAWN_WINGS')
     .withForm('ULTRA')
     .isNotReleased(),
   MAGEARNA: new Pokemon(801).isMythical().isNotReleased(),
-  MARSHADOW: new Pokemon(802).isMythical(),
-  POIPOLE: new Pokemon(803),
-  NAGANADEL: new Pokemon(804),
-  STAKATAKA: new Pokemon(805),
-  BLACEPHALON: new Pokemon(806),
-  ZERAORA: new Pokemon(807).isMythical(),
+  MARSHADOW: new Pokemon(802).isMythical().notShinyEligible(),
+  POIPOLE: new Pokemon(803).doesNotSpawn(),
+  NAGANADEL: new Pokemon(804).doesNotSpawn(),
+  STAKATAKA: new Pokemon(805).doesNotSpawn(),
+  BLACEPHALON: new Pokemon(806).doesNotSpawn(),
+  ZERAORA: new Pokemon(807).isMythical().notShinyEligible(),
   MELTAN: new Pokemon(808).isMythical().doesSpawn(),
 
   // Generation 8
@@ -1337,10 +1357,10 @@ const POKEMON = {
   DRAGAPULT: new Pokemon(887),
   ZACIAN: new Pokemon(888).isLegendary().withForms('HERO_OF_MANY_BATTLES', 'CROWNED_SWORD'),
   ZAMAZENTA: new Pokemon(889).isLegendary().withForms('HERO_OF_MANY_BATTLES', 'CROWNED_SHIELD'),
-  ETERNATUS: new Pokemon(890).isLegendary().withForms('NORMAL', 'ETERNAMAX'),
-  KUBFU: new Pokemon(891).isLegendary(),
-  URSHIFU: new Pokemon(892).isLegendary().withForms('SINGLE_STRIKE_STYLE', 'RAPID_STRIKE_STYLE'),
-  ZARUDE: new Pokemon(893).isMythical(),
+  ETERNATUS: new Pokemon(890).isLegendary().notShinyEligible().withForms('NORMAL', 'ETERNAMAX'),
+  KUBFU: new Pokemon(891).isLegendary().notShinyEligible(),
+  URSHIFU: new Pokemon(892).isLegendary().notShinyEligible().withForms('SINGLE_STRIKE_STYLE', 'RAPID_STRIKE_STYLE'),
+  ZARUDE: new Pokemon(893).isMythical().notShinyEligible(),
   REGIELEKI: new Pokemon(894).isLegendary(),
   REGIDRAGO: new Pokemon(895).isLegendary(),
   GLASTRIER: new Pokemon(896).isLegendary().isNotReleased(),
@@ -1349,10 +1369,10 @@ const POKEMON = {
   WYRDEER: new Pokemon(899),
   KLEAVOR: new Pokemon(900),
   URSALUNA: new Pokemon(901),
-  BASCULEGION: new Pokemon(902),
+  BASCULEGION: new Pokemon(902).isNotReleased(),
   SNEASLER: new Pokemon(903),
   OVERQWIL: new Pokemon(904),
-  ENAMORUS: new Pokemon(905).isLegendary().withForms('INCARNATE_FORME', 'THERIAN_FORME'),
+  ENAMORUS: new Pokemon(905).isLegendary().notShinyEligible().withForms('INCARNATE_FORME', 'THERIAN_FORME'),
   SPRIGATITO: new Pokemon(906),
   FLORAGATO: new Pokemon(907),
   MEOWSCARADA: new Pokemon(908),
