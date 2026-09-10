@@ -4,6 +4,10 @@
  * second list to keep in step but a slice of this one. Kept apart from the filters so each reads as its settings rather
  * than being buried under the species.
  *
+ * It is a Set so a constant named twice by accident is simply the same member, not a repeat to trip over. That guards
+ * only against listing the very same constant twice — two different forms sharing a dex number are distinct members
+ * still, and collapsing those to one entry stays `pgsharp-filters.js`'s job.
+ *
  * The list is grouped by generation and often names several species to a line, so `// prettier-ignore` holds that
  * hand-set shape rather than letting one entry per line stretch it out.
  */
@@ -11,7 +15,7 @@
 import POKEMON, { GALAR, HISUI, PALDEA } from './pokedex.js';
 
 // prettier-ignore
-export default [
+export default new Set([
   // Generation 1
   POKEMON.GROWLITHE.region(HISUI), POKEMON.ARCANINE.region(HISUI),
   POKEMON.PONYTA.region(GALAR), POKEMON.RAPIDASH.region(GALAR),
@@ -311,4 +315,4 @@ export default [
   POKEMON.IRON_CROWN,
   ...POKEMON.TERAPAGOS.forms('NORMAL_FORM', 'TERASTAL_FORM', 'STELLAR_FORM'),
   POKEMON.PECHARUNT,
-];
+]);

@@ -14,7 +14,9 @@ import SHINY_HUNTING from './shiny-hunting.js';
  * A filter's species list, checked, narrowed and collapsed to one entry per species. A form or a region the species
  * does not have has already thrown by the time we are called, so what is left to catch is a name pokemon.js does not
  * define at all, which reads as undefined and would reach the backup as a null where a species should be. The value is
- * all we are handed — the constant's name is gone by then — so the error gives the position to look at.
+ * all we are handed — the constant's name is gone by then — so the error gives the position to look at. The species
+ * arrive as a Set, taken here in the order they were written so the position and the first-survivor rule below mean
+ * what they say.
  *
  * Every `keep` given has to hold for an entry to stay, which is how a filter drops what has no shiny to find or what
  * the wild never turns up. They run before the list collapses, so a species listed twice — once as a form that
@@ -26,13 +28,14 @@ import SHINY_HUNTING from './shiny-hunting.js';
  * the rest go, leaving the list PGSharp itself would write.
  */
 function species(entries, ...keep) {
-  const at = entries.findIndex((entry) => !(entry instanceof Pokemon));
+  const list = [...entries];
+  const at = list.findIndex((entry) => !(entry instanceof Pokemon));
 
   if (at !== -1) {
     throw new Error(`species #${at + 1} is not a POKEMON constant — check it against pokedex.js`);
   }
 
-  const kept = entries.filter((entry) => keep.every((predicate) => predicate(entry)));
+  const kept = list.filter((entry) => keep.every((predicate) => predicate(entry)));
 
   return [...new Map(kept.map((entry) => [Number(entry), entry])).values()];
 }
