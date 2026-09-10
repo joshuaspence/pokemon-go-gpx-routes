@@ -3,16 +3,10 @@
      xmlns:pgr="https://joshuaspence.github.io/pokemon-go-gpx-routes/gpx/1"
      version="1.1"
      creator="https://github.com/joshuaspence/pokemon-go-gpx-routes">
-  <wpt lat="-22.912900" lon="-43.177271">
-    <name>Rio de Janeiro</name>
+  <wpt lat="47.529972" lon="19.051153">
+    <name>Budapest</name>
     <extensions>
-      <pgr:country>Brazil</pgr:country>
-    </extensions>
-  </wpt>
-  <wpt lat="-23.585955" lon="-46.661010">
-    <name>São Paulo</name>
-    <extensions>
-      <pgr:country>Brazil</pgr:country>
+      <pgr:country>Hungary</pgr:country>
     </extensions>
   </wpt>
 </gpx>
