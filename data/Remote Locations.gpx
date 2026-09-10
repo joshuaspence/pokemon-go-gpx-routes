@@ -33,4 +33,10 @@
       <pgr:country>United States</pgr:country>
     </extensions>
   </wpt>
+  <wpt lat="1.983019" lon="-157.473020">
+    <name>Kiritimati</name>
+    <extensions>
+      <pgr:country>Kiribati</pgr:country>
+    </extensions>
+  </wpt>
 </gpx>
