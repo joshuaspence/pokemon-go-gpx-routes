@@ -3,7 +3,7 @@
      xmlns:pgr="https://joshuaspence.github.io/pokemon-go-gpx-routes/gpx/1"
      version="1.1"
      creator="https://github.com/joshuaspence/pokemon-go-gpx-routes">
-  <wpt lat="-23.550572" lon="-46.657470">
+  <wpt lat="-23.585955" lon="-46.661010">
     <name>São Paulo</name>
     <extensions>
       <pgr:country>Brazil</pgr:country>
