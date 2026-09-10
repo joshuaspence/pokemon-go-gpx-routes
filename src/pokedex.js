@@ -818,14 +818,17 @@ const POKEMON = {
   LITLEO: new Pokemon(667),
   PYROAR: new Pokemon(668).addForms('MALE', 'FEMALE'),
   FLABEBE: new Pokemon(669)
-    .isRegional()
-    .addForms('RED_FLOWER', 'YELLOW_FLOWER', 'ORANGE_FLOWER', 'BLUE_FLOWER', 'WHITE_FLOWER'),
+    .addForms('ORANGE_FLOWER', 'WHITE_FLOWER')
+    .addForms('RED_FLOWER', 'YELLOW_FLOWER', 'BLUE_FLOWER')
+    .isRegional(),
   FLOETTE: new Pokemon(670)
-    .isRegional()
-    .addForms('RED_FLOWER', 'YELLOW_FLOWER', 'ORANGE_FLOWER', 'BLUE_FLOWER', 'WHITE_FLOWER'),
+    .addForms('ORANGE_FLOWER', 'WHITE_FLOWER')
+    .addForms('RED_FLOWER', 'YELLOW_FLOWER', 'BLUE_FLOWER')
+    .isRegional(),
   FLORGES: new Pokemon(671)
-    .isRegional()
-    .addForms('RED_FLOWER', 'YELLOW_FLOWER', 'ORANGE_FLOWER', 'BLUE_FLOWER', 'WHITE_FLOWER'),
+    .addForms('ORANGE_FLOWER', 'WHITE_FLOWER')
+    .addForms('RED_FLOWER', 'YELLOW_FLOWER', 'BLUE_FLOWER')
+    .isRegional(),
   SKIDDO: new Pokemon(672),
   GOGOAT: new Pokemon(673),
   PANCHAM: new Pokemon(674),
@@ -1132,8 +1135,9 @@ const POKEMON = {
   DOLLIV: new Pokemon(929),
   ARBOLIVA: new Pokemon(930),
   SQUAWKABILLY: new Pokemon(931)
-    .isRegional()
-    .addForms('GREEN_PLUMAGE', 'BLUE_PLUMAGE', 'YELLOW_PLUMAGE', 'WHITE_PLUMAGE'),
+    .addForms('YELLOW_PLUMAGE', 'WHITE_PLUMAGE')
+    .addForms('GREEN_PLUMAGE', 'BLUE_PLUMAGE')
+    .isRegional(),
   NACLI: new Pokemon(932),
   NACLSTACK: new Pokemon(933),
   GARGANACL: new Pokemon(934),
