@@ -3,16 +3,10 @@
      xmlns:pgr="https://joshuaspence.github.io/pokemon-go-gpx-routes/gpx/1"
      version="1.1"
      creator="https://github.com/joshuaspence/pokemon-go-gpx-routes">
-  <wpt lat="35.153662" lon="129.060283">
-    <name>Busan</name>
+  <wpt lat="19.427393" lon="-99.193284">
+    <name>Mexico City</name>
     <extensions>
-      <pgr:country>South Korea</pgr:country>
-    </extensions>
-  </wpt>
-  <wpt lat="37.551167" lon="126.939058">
-    <name>Seoul</name>
-    <extensions>
-      <pgr:country>South Korea</pgr:country>
+      <pgr:country>Mexico</pgr:country>
     </extensions>
   </wpt>
 </gpx>
