@@ -15,4 +15,10 @@
       <pgr:country>Spain</pgr:country>
     </extensions>
   </wpt>
+  <wpt lat="41.661130" lon="-0.893750">
+    <name>Zaragoza</name>
+    <extensions>
+      <pgr:country>Spain</pgr:country>
+    </extensions>
+  </wpt>
 </gpx>
