@@ -11,7 +11,7 @@
 import POKEMON, { GALAR, HISUI, PALDEA } from './pokedex.js';
 
 // prettier-ignore
-export const SHINY_HUNTING_SPECIES = [
+export default [
   // Generation 1
   POKEMON.GROWLITHE.region(HISUI), POKEMON.ARCANINE.region(HISUI),
   POKEMON.PONYTA.region(GALAR), POKEMON.RAPIDASH.region(GALAR),

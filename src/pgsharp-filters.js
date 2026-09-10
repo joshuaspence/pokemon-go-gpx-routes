@@ -8,7 +8,7 @@
 
 import Pokemon from './pokemon.js';
 import { filterRegional, filterReleased, filterShinyEligible, filterWildSpawns } from './pokedex.js';
-import { SHINY_HUNTING_SPECIES } from './shiny-hunting.js';
+import SHINY_HUNTING_SPECIES from './shiny-hunting.js';
 
 /**
  * A filter's species list, checked, narrowed and collapsed to one entry per species. A form or a region the species
