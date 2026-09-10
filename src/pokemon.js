@@ -53,18 +53,10 @@ export default class Pokemon {
   }
 
   /**
-   * The forms this species comes in as peers of one another, spelled as the games spell them. Each is a Pokemon of its
-   * own, hung off the current target — the species, or a region `withRegion` last descended into. The target does not
-   * move, so a later `addForms` adds more siblings rather than nesting under the first.
-   */
-  addForms(...names) {
-    this.#declared = names.map((name) => this.#target.#createForm(name));
-    return this;
-  }
-
-  /**
-   * One form, as `addForms` with a single name. The callback is handed that form, so what is true of it is said where
-   * it is declared rather than by what came last, and the target stays put:
+   * One form, as `addForms` with a single name.
+   *
+   * The callback is handed that form, so what is true of it is said where it is declared rather than by what came
+   * last, and the target stays put:
    *
    * ```js
    * new Pokemon(999).addForm('SPEED', (form) => form.isShinyEligible());
@@ -82,16 +74,20 @@ export default class Pokemon {
   }
 
   /**
-   * The regions this species has a variant in, as peers of one another. Each is a Pokemon of its own, hung off the
-   * current target, which does not move — for a single region to descend into, reach for `withRegion`.
+   * The forms this species comes in as peers of one another, spelled as the games spell them.
+   *
+   * Each is a Pokemon of its own, hung off the current target — the species, or a region `withRegion` last descended
+   * into. The target does not move, so a later `addForms` adds more siblings rather than nesting under the first.
    */
-  addRegions(...regions) {
-    this.#declared = regions.map((region) => this.#target.#createRegion(region));
+  addForms(...names) {
+    this.#declared = names.map((name) => this.#target.#createForm(name));
     return this;
   }
 
   /**
-   * One region, as `addRegions` with a single region. The callback is handed that variant, and the target stays put:
+   * One region, as `addRegions` with a single region.
+   *
+   * The callback is handed that variant, and the target stays put:
    *
    * ```js
    * new Pokemon(999).addRegion(ALOLA, (alolan) => alolan.isShinyEligible());
@@ -105,6 +101,17 @@ export default class Pokemon {
       configure(variant);
     }
 
+    return this;
+  }
+
+  /**
+   * The regions this species has a variant in, as peers of one another.
+   *
+   * Each is a Pokemon of its own, hung off the current target, which does not move — for a single region to descend
+   * into, reach for `withRegion`.
+   */
+  addRegions(...regions) {
+    this.#declared = regions.map((region) => this.#target.#createRegion(region));
     return this;
   }
 
