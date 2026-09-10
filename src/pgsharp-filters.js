@@ -8,7 +8,7 @@
 
 import Pokemon from './pokemon.js';
 import { filterRegional, filterReleased, filterShinyEligible, filterWildSpawns } from './pokedex.js';
-import SHINY_HUNTING_SPECIES from './shiny-hunting.js';
+import SHINY_HUNTING from './shiny-hunting.js';
 
 /**
  * A filter's species list, checked, narrowed and collapsed to one entry per species. A form or a region the species
@@ -87,8 +87,7 @@ export const FEED_FILTERS = [
     name: 'Shiny Hunting',
     distance: 80,
     priority: 1,
-
-    pokemons: species(SHINY_HUNTING_SPECIES, filterReleased, filterShinyEligible, filterWildSpawns),
+    pokemons: species(SHINY_HUNTING, filterReleased, filterShinyEligible, filterWildSpawns),
   },
   {
     checkAll: false,
@@ -111,8 +110,7 @@ export const FEED_FILTERS = [
     name: 'Regional Shiny Hunting',
     distance: 80,
     priority: 1,
-
-    pokemons: species(SHINY_HUNTING_SPECIES, filterReleased, filterShinyEligible, filterWildSpawns, filterRegional),
+    pokemons: species(SHINY_HUNTING, filterReleased, filterShinyEligible, filterWildSpawns, filterRegional),
   },
   {
     checkAll: false,
