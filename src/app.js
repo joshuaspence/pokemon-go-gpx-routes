@@ -1,5 +1,5 @@
 import COUNTRIES from './countries.js';
-import { entryCountry, extText, loadManifest, placeName } from './gpx.js';
+import { eachTrack, entryCountry, extText, loadManifest, parseGpxDocument, placeName } from './gpx.js';
 
 const cssVar = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 
@@ -142,26 +142,11 @@ async function loadGpxFile(file) {
   }
 
   const text = await res.text();
-  const doc = new DOMParser().parseFromString(text, 'application/xml');
-
-  if (doc.querySelector('parsererror')) {
-    throw new Error('not valid XML');
-  }
+  const doc = parseGpxDocument(text);
 
   const routes = [];
 
-  for (const trk of doc.getElementsByTagName('trk')) {
-    const trkpts = trk.getElementsByTagName('trkpt');
-
-    /**
-     * An emptied <trk> is what gpx.studio writes for a cleared track; skip it rather than report it, matching
-     * parseGpxFavourites. A <trk> that kept a single point is a different thing — a track that cannot be drawn — and is
-     * still an error.
-     */
-    if (trkpts.length === 0) {
-      continue;
-    }
-
+  for (const { trk, trkpts } of eachTrack(doc)) {
     const latlngs = [];
 
     for (const p of trkpts) {

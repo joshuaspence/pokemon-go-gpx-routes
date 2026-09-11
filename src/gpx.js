@@ -1,7 +1,8 @@
 /**
- * Reading the GPX files the viewer and the backup builder both consume. `loadManifest` fetches the file list; the rest
- * pull an entry's name, locality and country out of a parsed <trk> or <wpt>. Kept in one place so the map and the
- * PGSharp backup agree on what a file says rather than each parsing it their own way.
+ * Reading the GPX files the viewer and the backup builder both consume. `loadManifest` fetches the file list;
+ * `parseGpxDocument` and `eachTrack` turn a file into elements to walk; the rest pull an entry's name, locality and
+ * country out of a parsed <trk> or <wpt>. Kept in one place so the map and the PGSharp backup agree on what a file says
+ * rather than each parsing it their own way.
  */
 
 export async function loadManifest() {
@@ -18,6 +19,38 @@ export async function loadManifest() {
   }
 
   return files;
+}
+
+/**
+ * Parse a GPX file's text into a document, rejecting one that is not valid XML. The single place either consumer turns
+ * bytes into a tree, so both fail the same way on a malformed file.
+ */
+export function parseGpxDocument(text) {
+  const doc = new DOMParser().parseFromString(text, 'application/xml');
+
+  if (doc.querySelector('parsererror')) {
+    throw new Error('not valid XML');
+  }
+
+  return doc;
+}
+
+/**
+ * The file's drawable <trk> elements paired with their <trkpt> list, skipping the emptied <trk> that gpx.studio writes
+ * for a cleared route. Yielding the pair keeps the empty-track skip in one place, so the viewer and the backup builder
+ * never disagree about which tracks a file holds. A <trk> that kept a single point is a different thing — a track that
+ * cannot be drawn — and is left to each caller to reject.
+ */
+export function* eachTrack(doc) {
+  for (const trk of doc.getElementsByTagName('trk')) {
+    const trkpts = trk.getElementsByTagName('trkpt');
+
+    if (trkpts.length === 0) {
+      continue;
+    }
+
+    yield { trk, trkpts };
+  }
 }
 
 /**

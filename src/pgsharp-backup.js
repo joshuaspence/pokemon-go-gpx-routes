@@ -7,7 +7,7 @@
  */
 
 import COUNTRIES from './countries.js';
-import { entryCountry, extText, loadManifest, placeName } from './gpx.js';
+import { eachTrack, entryCountry, extText, loadManifest, parseGpxDocument, placeName } from './gpx.js';
 import { JavaSer } from './java-serialization.js';
 import { CONTROL_RESETS } from './pgsharp-controls.js';
 
@@ -129,11 +129,7 @@ function coord(el) {
  * flagged, so the two lists read alike in the app even though PGSharp shows them on separate tabs.
  */
 function parseGpxFavourites(text) {
-  const doc = new DOMParser().parseFromString(text, 'application/xml');
-
-  if (doc.querySelector('parsererror')) {
-    throw new Error('not valid XML');
-  }
+  const doc = parseGpxDocument(text);
 
   const points = [],
     routes = [];
@@ -143,13 +139,7 @@ function parseGpxFavourites(text) {
     points.push({ name: flaggedName(wpt), lat, lng });
   }
 
-  for (const trk of doc.getElementsByTagName('trk')) {
-    const trkpts = trk.getElementsByTagName('trkpt');
-
-    if (trkpts.length === 0) {
-      continue;
-    }
-
+  for (const { trk, trkpts } of eachTrack(doc)) {
     const pts = [];
 
     for (const p of trkpts) {
