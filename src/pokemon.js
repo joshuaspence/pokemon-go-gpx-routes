@@ -42,6 +42,10 @@ export default class Pokemon {
   #regional = false;
   #ultraBeast = false;
 
+  // Set by `freeze()` once the dex is fully declared; a builder called afterwards throws rather than quietly changing a
+  // shared, exported species. See freeze.
+  #frozen = false;
+
   // The cursor a marker lands on: the species until a form or region is declared, then whatever was declared last.
   #declared;
 
@@ -158,6 +162,8 @@ export default class Pokemon {
    * Marks what was declared last as out in Pokémon GO — in the game to be had at all.
    */
   isReleased() {
+    this.#assertMutable();
+
     for (const variant of this.#declared) {
       variant.#released = true;
     }
@@ -169,6 +175,8 @@ export default class Pokemon {
    * Marks what was declared last as not in Pokémon GO yet, which keeps it out of a filter for what you can get.
    */
   isNotReleased() {
+    this.#assertMutable();
+
     for (const variant of this.#declared) {
       variant.#released = false;
     }
@@ -180,6 +188,8 @@ export default class Pokemon {
    * Marks what was declared last as having a shiny in the game.
    */
   isShinyEligible() {
+    this.#assertMutable();
+
     for (const variant of this.#declared) {
       variant.#shinyEligible = true;
     }
@@ -191,6 +201,8 @@ export default class Pokemon {
    * Marks what was declared last as having none, which keeps it out of a filter that hunts shinies.
    */
   isNotShinyEligible() {
+    this.#assertMutable();
+
     for (const variant of this.#declared) {
       variant.#shinyEligible = false;
     }
@@ -202,6 +214,8 @@ export default class Pokemon {
    * Marks what was declared last as something the wild turns up, which is what the feed filters watch for.
    */
   doesSpawn() {
+    this.#assertMutable();
+
     for (const variant of this.#declared) {
       variant.#spawns = true;
     }
@@ -213,6 +227,8 @@ export default class Pokemon {
    * Marks what was declared last as something the wild never turns up — a raid, a trade or an egg only.
    */
   doesNotSpawn() {
+    this.#assertMutable();
+
     for (const variant of this.#declared) {
       variant.#spawns = false;
     }
@@ -224,6 +240,8 @@ export default class Pokemon {
    * Marks what was declared last as a Baby — hatched from an egg, never met in the wild, so it stops spawning too.
    */
   isBaby() {
+    this.#assertMutable();
+
     for (const variant of this.#declared) {
       variant.#baby = true;
       variant.#spawns = false;
@@ -236,6 +254,8 @@ export default class Pokemon {
    * Marks what was declared last as a Legendary; the wild never turns one up, so it stops spawning too.
    */
   isLegendary() {
+    this.#assertMutable();
+
     for (const variant of this.#declared) {
       variant.#legendary = true;
       variant.#spawns = false;
@@ -248,6 +268,8 @@ export default class Pokemon {
    * The same for a Mythical — Meltan the one that spawns anyway, saying `doesSpawn` after to put it back.
    */
   isMythical() {
+    this.#assertMutable();
+
     for (const variant of this.#declared) {
       variant.#mythical = true;
       variant.#spawns = false;
@@ -261,6 +283,8 @@ export default class Pokemon {
    * spawns, so unlike the categories above this leaves `#spawns` alone; it only says where.
    */
   isRegional() {
+    this.#assertMutable();
+
     for (const variant of this.#declared) {
       variant.#regional = true;
     }
@@ -273,6 +297,8 @@ export default class Pokemon {
    * does not, so a species can be Regional and hand a form that inherited it back to the wild at large.
    */
   isNotRegional() {
+    this.#assertMutable();
+
     for (const variant of this.#declared) {
       variant.#regional = false;
     }
@@ -284,6 +310,8 @@ export default class Pokemon {
    * Marks what was declared last as an Ultra Beast; the wild never turns one up, so it stops spawning too.
    */
   isUltraBeast() {
+    this.#assertMutable();
+
     for (const variant of this.#declared) {
       variant.#ultraBeast = true;
       variant.#spawns = false;
@@ -296,6 +324,7 @@ export default class Pokemon {
    * Names this species for the errors below, from the constant it is bound to, and renames its forms with it.
    */
   as(name) {
+    this.#assertMutable();
     this.#name = name;
 
     for (const [form, variant] of this.#forms) {
@@ -304,6 +333,26 @@ export default class Pokemon {
 
     for (const [region, variant] of this.#regions) {
       variant.as(`${region} ${name}`);
+    }
+
+    return this;
+  }
+
+  /**
+   * Seal this species and its forms and regions once the dex is declared. A builder called afterwards then throws
+   * rather than quietly flipping state every consumer of POKEMON sees.
+   *
+   * Read-only lookups (`form`, `region`, the getters) are unaffected.
+   */
+  freeze() {
+    this.#frozen = true;
+
+    for (const variant of this.#forms.values()) {
+      variant.freeze();
+    }
+
+    for (const variant of this.#regions.values()) {
+      variant.freeze();
     }
 
     return this;
@@ -409,8 +458,16 @@ export default class Pokemon {
     return this.#ultraBeast;
   }
 
+  /** Refuse a mutation once frozen (see freeze), naming the species so a stray call is easy to trace. */
+  #assertMutable() {
+    if (this.#frozen) {
+      throw new Error(`${this.#name} is frozen; set its state in pokedex.js, before the dex is frozen`);
+    }
+  }
+
   /** Creates a form of this Pokemon and files it under the name the games give it. */
   #createForm(name) {
+    this.#assertMutable();
     const variant = this.#variant(`${this.#name} (${name})`);
     this.#forms.set(name, variant);
     return variant;
@@ -418,6 +475,7 @@ export default class Pokemon {
 
   /** Creates this Pokemon as one region sees it and files it under that region. */
   #createRegion(region) {
+    this.#assertMutable();
     const variant = this.#variant(`${region} ${this.#name}`);
     variant.#region = region;
     this.#regions.set(region, variant);

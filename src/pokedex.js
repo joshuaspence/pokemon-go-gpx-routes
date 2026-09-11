@@ -1241,4 +1241,10 @@ for (const [name, species] of Object.entries(POKEMON)) {
   species.as(name);
 }
 
+// The dex is fully declared, so freeze it: a builder called from anywhere else now throws rather than quietly mutating
+// this shared, exported table (see Pokemon#freeze).
+for (const species of Object.values(POKEMON)) {
+  species.freeze();
+}
+
 export default POKEMON;
