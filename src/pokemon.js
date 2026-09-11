@@ -26,6 +26,9 @@ export default class Pokemon {
   #dex;
   #name;
 
+  // The region this variant belongs to — its adjective (`PALDEA`), or null for the base species and a plain form.
+  #region = null;
+
   #forms = new Map();
   #regions = new Map();
 
@@ -341,6 +344,16 @@ export default class Pokemon {
   }
 
   /**
+   * Whether this one is the given region's variant — Paldean Tauros answers to `PALDEA`, and its breeds inherit the
+   * region so they answer too, while the base species and a plain form belong to none. The region is data the variant
+   * carries, not the adjective spelled at the front of its name, so a filter for one region's own asks this rather than
+   * reading that name. Distinct from `regional`, which asks whether a species is a region-locked spawn at all.
+   */
+  isFrom(region) {
+    return this.#region === region;
+  }
+
+  /**
    * Whether this one is a Baby.
    */
   get baby() {
@@ -406,6 +419,7 @@ export default class Pokemon {
   /** Creates this Pokemon as one region sees it and files it under that region. */
   #createRegion(region) {
     const variant = this.#variant(`${region} ${this.#name}`);
+    variant.#region = region;
     this.#regions.set(region, variant);
     return variant;
   }
@@ -414,6 +428,7 @@ export default class Pokemon {
   #variant(name) {
     const variant = new Pokemon(this.#dex);
     variant.#name = name;
+    variant.#region = this.#region;
     variant.#shinyEligible = this.#shinyEligible;
     variant.#spawns = this.#spawns;
     variant.#released = this.#released;

@@ -1242,9 +1242,3 @@ for (const [name, species] of Object.entries(POKEMON)) {
 }
 
 export default POKEMON;
-
-// Reads as filter's predicate: `species([...], filterShinyEligible)` drops the ones with no shiny to find.
-export const filterRegional = (pokemon) => pokemon.regional;
-export const filterShinyEligible = (pokemon) => pokemon.shinyEligible;
-export const filterWildSpawns = (pokemon) => pokemon.spawns;
-export const filterReleased = (pokemon) => pokemon.released;

@@ -7,7 +7,6 @@
  */
 
 import Pokemon from './pokemon.js';
-import { filterRegional, filterReleased, filterShinyEligible, filterWildSpawns } from './pokedex.js';
 import SHINY_HUNTING from './shiny-hunting.js';
 
 /**
@@ -39,6 +38,22 @@ function species(entries, ...keep) {
 
   return [...new Map(kept.map((entry) => [Number(entry), entry])).values()];
 }
+
+// Reads as filter's predicate: `species([...], filterShinyEligible)` drops the ones with no shiny to find.
+const filterRegional = (pokemon) => pokemon.regional;
+const filterShinyEligible = (pokemon) => pokemon.shinyEligible;
+const filterWildSpawns = (pokemon) => pokemon.spawns;
+const filterReleased = (pokemon) => pokemon.released;
+
+/**
+ * A filter for one region's own — `filterRegion(PALDEA)` keeps the Paldean variants and drops the rest. Unlike
+ * `filterRegional`, which asks whether a species is a region-locked spawn at all, this asks which region a variant
+ * belongs to, so it reads the region the variant carries as data through `isFrom` rather than the adjective on its
+ * name. It is a factory rather than a predicate: handed a region it returns the predicate `species` runs, so it sits
+ * in a filter list beside the flag ones. A form of a regional variant inherits the region, so naming the region
+ * catches its forms without naming each.
+ */
+const filterRegion = (region) => (pokemon) => pokemon.isFrom(region);
 
 /**
  * The nearby radar's own filter, stored under "hlscan" — it rides along with the radar button's position rather than
