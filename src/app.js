@@ -150,12 +150,16 @@ async function loadGpxFile(file) {
     const latlngs = [];
 
     for (const p of trkpts) {
-      const lat = parseFloat(p.getAttribute('lat'));
-      const lon = parseFloat(p.getAttribute('lon'));
+      const latStr = p.getAttribute('lat'),
+        lonStr = p.getAttribute('lon');
+      const lat = parseFloat(latStr),
+        lon = parseFloat(lonStr);
 
-      if (Number.isFinite(lat) && Number.isFinite(lon)) {
-        latlngs.push([lat, lon]);
+      if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
+        throw new Error(`<trkpt> at ${latStr},${lonStr} has an unparseable coordinate`);
       }
+
+      latlngs.push([lat, lon]);
     }
 
     if (latlngs.length < 2) {
