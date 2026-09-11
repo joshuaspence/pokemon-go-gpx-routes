@@ -6,6 +6,7 @@
  * be rearranged.
  */
 
+import { HISUI } from './pokedex.js';
 import Pokemon from './pokemon.js';
 import SHINY_HUNTING from './shiny-hunting.js';
 
@@ -83,52 +84,54 @@ export const SCAN_CONFIG = {
   pgp: true,
 };
 
+const baseFilter = {
+  attrMode: 0,
+  checkAll: false,
+  distance: 80,
+  form: 0,
+  gender: 0,
+  level: 1,
+  lvmax: 36,
+  maxatk: 15,
+  maxdef: 15,
+  maxIV: 100,
+  maxsta: 15,
+  minatk: 0,
+  mindef: 0,
+  minIV: 0,
+  minsta: 0,
+  notif: false,
+  priority: 1,
+  size: 0,
+};
+
+// The predicates every shiny-hunting feed shares; a region or `filterRegional` is added to these per feed. Shared as a
+// list of predicates rather than a computed species list because `species` collapses to one entry per dex number: a
+// feed built off another's collapsed list would filter what the dedupe already dropped, losing a regional form whose
+// dex a plainer form had won. Each feed therefore filters `SHINY_HUNTING` afresh, collapsing last.
+const SHINY_HUNTING_FILTERS = [filterReleased, filterShinyEligible, filterWildSpawns];
+
+const baseShinyHuntingFilter = {
+  ...baseFilter,
+  onlyShiny: true,
+};
+
 export const FEED_FILTERS = [
   {
-    checkAll: false,
-    level: 1,
-    lvmax: 36,
-    minIV: 0,
-    maxIV: 100,
-    onlyShiny: true,
-    attrMode: 0,
-    minatk: 0,
-    maxatk: 15,
-    mindef: 0,
-    maxdef: 15,
-    minsta: 0,
-    maxsta: 15,
-    gender: 0,
-    form: 0,
-    size: 0,
-    notif: false,
+    ...baseShinyHuntingFilter,
     name: 'Shiny Hunting',
-    distance: 80,
-    priority: 1,
-    pokemons: species(SHINY_HUNTING, filterReleased, filterShinyEligible, filterWildSpawns),
+    pokemons: species(SHINY_HUNTING, ...SHINY_HUNTING_FILTERS),
   },
   {
-    checkAll: false,
-    level: 1,
-    lvmax: 36,
-    minIV: 0,
-    maxIV: 100,
-    onlyShiny: true,
-    attrMode: 0,
-    minatk: 0,
-    maxatk: 15,
-    mindef: 0,
-    maxdef: 15,
-    minsta: 0,
-    maxsta: 15,
-    gender: 0,
-    form: 0,
-    size: 0,
-    notif: false,
+    ...baseShinyHuntingFilter,
+    name: 'Shiny Hunting (Hisuian)',
+    form: 3,
+    pokemons: species(SHINY_HUNTING, ...SHINY_HUNTING_FILTERS, filterRegion(HISUI)),
+  },
+  {
+    ...baseShinyHuntingFilter,
     name: 'Regional Shiny Hunting',
-    distance: 80,
-    priority: 1,
-    pokemons: species(SHINY_HUNTING, filterReleased, filterShinyEligible, filterWildSpawns, filterRegional),
+    pokemons: species(SHINY_HUNTING, ...SHINY_HUNTING_FILTERS, filterRegional),
   },
   {
     checkAll: false,
