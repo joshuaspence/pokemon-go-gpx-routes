@@ -123,8 +123,8 @@ export default class Pokemon {
   }
 
   /**
-   * One form to descend into: declared as a peer would be, then made the target, so what follows — its own forms, or a
-   * trailing marker — lands on it rather than on the species. Reach for this when a form carries forms of its own.
+   * One form to descend into: declared as a peer would be, then made the target, so what follows — its own forms, or
+   * a trailing marker — lands on it rather than on the species. Reach for this when a form carries forms of its own.
    */
   withForm(name, configure) {
     const variant = this.#target.#createForm(name);
@@ -139,8 +139,8 @@ export default class Pokemon {
   }
 
   /**
-   * One region to descend into: its variant declared, then made the target, so the forms that follow hang beneath it —
-   * the Paldean breeds under Paldean Tauros, the Galarian modes under Galarian Darmanitan.
+   * One region to descend into: its variant declared, then made the target, so the forms that follow hang beneath it
+   * — the Paldean breeds under Paldean Tauros, the Galarian modes under Galarian Darmanitan.
    *
    * ```js
    * new Pokemon(128).withRegion(PALDEA).doesNotSpawn().addForms('COMBAT_BREED', 'BLAZE_BREED', 'AQUA_BREED');
@@ -293,8 +293,8 @@ export default class Pokemon {
   }
 
   /**
-   * Marks what was declared last as no Regional — for a form that turns up anywhere where the species it descends from
-   * does not, so a species can be Regional and hand a form that inherited it back to the wild at large.
+   * Marks what was declared last as no Regional — for a form that turns up anywhere where the species it descends
+   * from does not, so a species can be Regional and hand a form that inherited it back to the wild at large.
    */
   isNotRegional() {
     this.#assertMutable();
