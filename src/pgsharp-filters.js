@@ -1,5 +1,5 @@
 /**
- * The filters PGSharp saves — which spawns the radar and the nearby feed are looking for. Unlike a control's position,
+ * The filters PGSharp saves for the nearby feed — which spawns it is looking for. Unlike a control's position,
  * which is a Java Float, each of these is stored as one JSON string; they are kept as objects here so every field
  * reads and diffs on its own, and JSON.stringify re-emits the compact string PGSharp wrote where they are put in the
  * backup. That re-emission goes field by field in source order, so the order below is part of the value and must not
@@ -55,34 +55,6 @@ const filterReleased = (pokemon) => pokemon.released;
  * catches its forms without naming each.
  */
 const filterRegion = (region) => (pokemon) => pokemon.isFrom(region);
-
-/**
- * The nearby radar's own filter, stored under "hlscan" — it rides along with the radar button's position rather than
- * ticking separately, since the button is what carries it.
- */
-export const SCAN_CONFIG = {
-  shiny: true,
-  minlv: 1,
-  maxlv: 36,
-  miniv: 0,
-  maxiv: 100,
-  checkAll: true,
-  onlyShiny: true,
-  name: 'Nearby Radar',
-  birds: true,
-  attrMode: 0,
-  minatk: 0,
-  maxatk: 15,
-  mindef: 0,
-  maxdef: 15,
-  minsta: 0,
-  maxsta: 15,
-  showShinyOnly: true,
-  loadShiny: true,
-  notify: true,
-  stop: true,
-  pgp: true,
-};
 
 const baseFilter = {
   attrMode: 0,
