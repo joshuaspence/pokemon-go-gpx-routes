@@ -5,7 +5,7 @@
  * along the bottom of the screen, so they share a Y. Dragging each into place by hand left them a pixel or so apart
  * (the floating control was higher still, at 535.75); naming the row's Y once keeps them level.
  */
-import { FEED_FILTERS } from './pgsharp-filters.js';
+import FEED_FILTERS from './pgsharp-filters.js';
 import SCAN_CONFIG from './pgsharp-scan-config.js';
 
 const CONTROL_ROW_Y = 785.09375;

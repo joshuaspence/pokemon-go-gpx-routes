@@ -88,7 +88,7 @@ const baseShinyHuntingFilter = {
   onlyShiny: true,
 };
 
-export const FEED_FILTERS = [
+export default [
   {
     ...baseShinyHuntingFilter,
     name: 'Shiny Hunting',
