@@ -38,8 +38,8 @@ export function parseGpxDocument(text) {
 /**
  * The file's drawable <trk> elements paired with their <trkpt> list, skipping the emptied <trk> that gpx.studio writes
  * for a cleared route. Yielding the pair keeps the empty-track skip in one place, so the viewer and the backup builder
- * never disagree about which tracks a file holds. A <trk> that kept a single point is a different thing — a track that
- * cannot be drawn — and is left to each caller to reject.
+ * never disagree about which tracks a file holds. A <trk> that kept a single point is a different thing
+ * — a track that cannot be drawn — and is left to each caller to reject.
  */
 export function* eachTrack(doc) {
   for (const trk of doc.getElementsByTagName('trk')) {
@@ -82,8 +82,8 @@ export function extText(el, tag) {
 }
 
 /**
- * An entry's name with the locality it sits in — "Kings Park, Perth, Western Australia". The country is left out: it is
- * the sidebar's own grouping, and entryName adds it where a favourite needs the whole thing.
+ * An entry's name with the locality it sits in — "Kings Park, Perth, Western Australia". The country is left out:
+ * it is the sidebar's own grouping, and entryName adds it where a favourite needs the whole thing.
  *
  * These readers say what is wrong with the element without naming the file; each caller already knows which file it is
  * reading, and says so once.

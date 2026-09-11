@@ -63,8 +63,8 @@ async function copyText(text) {
 }
 
 /**
- * Flash a copy button through its outcome — "Copied" or "Failed" — then restore its label a moment later. The button is
- * optional, so a caller with none to flash still shares this path.
+ * Flash a copy button through its outcome — "Copied" or "Failed" — then restore its label a moment later. The
+ * button is optional, so a caller with none to flash still shares this path.
  */
 function flashButton(btn, ok) {
   if (!btn) {
@@ -124,8 +124,8 @@ class FetchError extends Error {}
  *
  * Name, locality, country and variant all come from the file's own metadata; an entry missing what it needs is rejected
  * rather than guessed at, so the gap shows up in the banner instead of quietly reading back the path. The variant stays
- * optional — it is empty for a route with no short/long counterpart. The whole file text is returned once, for the copy
- * button to hand over.
+ * optional — it is empty for a route with no short/long counterpart. The whole file text is returned once,
+ * for the copy button to hand over.
  */
 async function loadGpxFile(file) {
   let res;
@@ -137,7 +137,8 @@ async function loadGpxFile(file) {
   }
 
   if (!res.ok) {
-    // HTTP/2 sends no reason phrase, so a bare status is all there is to say — trim rather than print a trailing space.
+    // HTTP/2 sends no reason phrase, so a bare status is all there is to say — trim rather than print a
+    // trailing space.
     throw new FetchError(`${res.status} ${res.statusText}`.trim());
   }
 
@@ -509,8 +510,8 @@ async function init() {
   const note = (file, e) => (e instanceof FetchError ? unreachable : rejected).push({ file, reason: e.message });
 
   /**
-   * Nothing can be drawn without the list, and reading it is the page's first fetch — so this is also where opening the
-   * page from disk lands.
+   * Nothing can be drawn without the list, and reading it is the page's first fetch — so this is also where opening
+   * the page from disk lands.
    */
   let files;
 
