@@ -75,7 +75,7 @@ encoding is a client-side port of [`pgsedit`](https://github.com/joshuaspence/pg
 
 Every favourite is named with its country's flag in front — `🇳🇱 Amsterdam, Netherlands`, `🇯🇵 Ueno Park, Tokyo, Japan` —
 matching PGSharp's own hot places (`🇺🇸 Pier 39, California, USA`). The favourite format has no icon field, so the flag
-is simply part of the name; it is derived from the `<desc>` country, and a country the viewer has no code for stops the
+is simply part of the name; it is derived from the `<pgr:country>`, and a country the viewer has no code for stops the
 build rather than importing unflagged. Both lists still sort by the name itself, so a flag never moves an entry.
 
 Each waypoint also carries the IANA timezone its coordinates fall in (`Europe/Madrid`), read from the boundary data in
