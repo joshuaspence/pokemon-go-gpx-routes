@@ -9,6 +9,18 @@
       <pgr:country>Japan</pgr:country>
     </extensions>
   </wpt>
+  <wpt lat="35.659500" lon="139.700560">
+    <name>Shibuya</name>
+    <extensions>
+      <pgr:country>Japan</pgr:country>
+    </extensions>
+  </wpt>
+  <wpt lat="35.693840" lon="139.703549">
+    <name>Shinjuku</name>
+    <extensions>
+      <pgr:country>Japan</pgr:country>
+    </extensions>
+  </wpt>
   <wpt lat="35.691619" lon="139.696914">
     <name>Tokyo</name>
     <extensions>

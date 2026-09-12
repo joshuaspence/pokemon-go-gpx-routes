@@ -3,10 +3,11 @@
      xmlns:pgr="https://joshuaspence.github.io/pokemon-go-gpx-routes/gpx/1"
      version="1.1"
      creator="https://github.com/joshuaspence/pokemon-go-gpx-routes">
-  <wpt lat="48.209445" lon="16.372196">
-    <name>Vienna</name>
+  <wpt lat="25.026700" lon="121.535000">
+    <name>Daan Forest Park</name>
     <extensions>
-      <pgr:country>Austria</pgr:country>
+      <pgr:city>Taipei</pgr:city>
+      <pgr:country>Taiwan</pgr:country>
     </extensions>
   </wpt>
 </gpx>

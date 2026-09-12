@@ -3,10 +3,10 @@
      xmlns:pgr="https://joshuaspence.github.io/pokemon-go-gpx-routes/gpx/1"
      version="1.1"
      creator="https://github.com/joshuaspence/pokemon-go-gpx-routes">
-  <wpt lat="28.129760" lon="-15.451060">
-    <name>Gran Canaria</name>
+  <wpt lat="45.526700" lon="-73.568900">
+    <name>Montreal</name>
     <extensions>
-      <pgr:country>Canary Islands</pgr:country>
+      <pgr:country>Canada</pgr:country>
     </extensions>
   </wpt>
 </gpx>

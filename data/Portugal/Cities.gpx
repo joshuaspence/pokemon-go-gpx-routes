@@ -3,8 +3,8 @@
      xmlns:pgr="https://joshuaspence.github.io/pokemon-go-gpx-routes/gpx/1"
      version="1.1"
      creator="https://github.com/joshuaspence/pokemon-go-gpx-routes">
-  <wpt lat="38.699629" lon="-9.300969">
-    <name>Oeiras</name>
+  <wpt lat="38.767841" lon="-9.099345">
+    <name>Lisbon</name>
     <extensions>
       <pgr:country>Portugal</pgr:country>
     </extensions>

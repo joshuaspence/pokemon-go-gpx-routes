@@ -3,8 +3,14 @@
      xmlns:pgr="https://joshuaspence.github.io/pokemon-go-gpx-routes/gpx/1"
      version="1.1"
      creator="https://github.com/joshuaspence/pokemon-go-gpx-routes">
-  <wpt lat="18.513834" lon="73.853668">
-    <name>Pune</name>
+  <wpt lat="28.632935" lon="77.219467">
+    <name>Delhi</name>
+    <extensions>
+      <pgr:country>India</pgr:country>
+    </extensions>
+  </wpt>
+  <wpt lat="18.938771" lon="72.835336">
+    <name>Mumbai</name>
     <extensions>
       <pgr:country>India</pgr:country>
     </extensions>

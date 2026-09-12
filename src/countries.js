@@ -32,6 +32,7 @@ export default {
   'Italy': { code: 'IT', continent: 'Europe' },
   'Japan': { code: 'JP', continent: 'Asia' },
   'Kiribati': { code: 'KI', continent: 'Oceania' },
+  'Malaysia': { code: 'MY', continent: 'Asia' },
   'Mexico': { code: 'MX', continent: 'North America' },
   'Netherlands': { code: 'NL', continent: 'Europe' },
   'New Zealand': { code: 'NZ', continent: 'Oceania' },
