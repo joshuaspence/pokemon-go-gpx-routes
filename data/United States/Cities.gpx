@@ -27,12 +27,6 @@
       <pgr:country>United States</pgr:country>
     </extensions>
   </wpt>
-  <wpt lat="44.859873" lon="-93.618821">
-    <name>Minnesota Landscape Arboretum</name>
-    <extensions>
-      <pgr:country>United States</pgr:country>
-    </extensions>
-  </wpt>
   <wpt lat="40.755931" lon="-73.984606">
     <name>New York City, NY</name>
     <extensions>
