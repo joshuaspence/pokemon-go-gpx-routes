@@ -6,8 +6,8 @@
  * be rearranged.
  */
 
-import { HISUI } from '../pokedex.js';
-import Pokemon from '../pokemon.js';
+import { HISUI } from '../pokemon/pokedex.js';
+import Pokemon from '../pokemon/pokemon.js';
 import SHINY_HUNTING from '../shiny-hunting.js';
 
 /**

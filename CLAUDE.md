@@ -9,7 +9,7 @@
 - **Commit to `master`.** Single maintainer, linear history, so work lands on `master` directly. Create a branch only
   when asked for one.
 
-## Cross-checking `src/pokedex.js` against the web
+## Cross-checking `src/pokemon/pokedex.js` against the web
 
 Three sources cover a variant's `released` and `shinyEligible` state. Each has a demonstrated failure mode, so take a
 change only where two of the three agree. Checked September 2026.
@@ -33,8 +33,9 @@ Reading them:
 
 - **Fetch the raw HTML with `curl` and parse it.** `WebFetch` answers a prompt through a small model, which drops rows
   from the 1,195 that `/go/pokedex` carries.
-- **Diff the whole table rather than spot-checking.** Copy `src/pokemon.js`, add a getter over its private fields and
-  import the copy of `pokedex.js`: `as()` has run by then, so every variant reports a name like `Hisuian ZORUA`.
+- **Diff the whole table rather than spot-checking.** Copy `src/pokemon/pokemon.js`, add a getter over its private
+  fields and import the copy of `pokedex.js`: `as()` has run by then, so every variant reports a name like
+  `Hisuian ZORUA`.
 - **Compare at dex level, with form names only as a fallback.** `/go/shiny` collapses Unown and Spinda to one card each
   yet lists Vivillon per pattern, so per-card matching reports 28 Unown forms as missing when they are not. The labels
   are the sites' own rather than ours — `Poké Ball Pattern` for `POKE_BALL`.
