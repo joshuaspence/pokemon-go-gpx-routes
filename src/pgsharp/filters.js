@@ -6,9 +6,9 @@
  * be rearranged.
  */
 
-import { HISUI } from './pokedex.js';
-import Pokemon from './pokemon.js';
-import SHINY_HUNTING from './shiny-hunting.js';
+import { HISUI } from '../pokedex.js';
+import Pokemon from '../pokemon.js';
+import SHINY_HUNTING from '../shiny-hunting.js';
 
 /**
  * A filter's species list, checked, narrowed and collapsed to one entry per species. A form or a region the species

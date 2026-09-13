@@ -6,10 +6,10 @@
  * java-serialization.js — nothing is read from an existing backup, so importing it leaves the rest of the profile be.
  */
 
-import COUNTRIES from './countries.js';
-import { eachTrack, entryCountry, extText, loadManifest, parseGpxDocument, placeName } from './gpx.js';
-import { JavaSer } from './java-serialization.js';
-import { CONTROL_RESETS } from './pgsharp-controls.js';
+import COUNTRIES from '../countries.js';
+import { eachTrack, entryCountry, extText, loadManifest, parseGpxDocument, placeName } from '../gpx.js';
+import { JavaSer } from '../java-serialization.js';
+import { CONTROL_RESETS } from './controls.js';
 
 const POINTS_KEY = 'hlfavor';
 const ROUTES_KEY = 'hlfavorRoute';

@@ -1,12 +1,12 @@
 /**
  * On-screen controls, taken verbatim from a known-good backup. Each checkbox includes one entry's keys in the
- * synthesized backup: a control's x/y are fixed Java Floats, and a filter from pgsharp-filters.js is the JSON string
+ * synthesized backup: a control's x/y are fixed Java Floats, and a filter from filters.js is the JSON string
  * PGSharp stores. The values are not user-editable. The floating control and both fast-snipe buttons sit in one row
  * along the bottom of the screen, so they share a Y. Dragging each into place by hand left them a pixel or so apart
  * (the floating control was higher still, at 535.75); naming the row's Y once keeps them level.
  */
-import FEED_FILTERS from './pgsharp-filters.js';
-import SCAN_CONFIG from './pgsharp-scan-config.js';
+import FEED_FILTERS from './filters.js';
+import SCAN_CONFIG from './scan-config.js';
 
 const CONTROL_ROW_Y = 785.09375;
 const SNIPE2 = {

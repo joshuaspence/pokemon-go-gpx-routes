@@ -2,7 +2,7 @@ import Pokemon from './pokemon.js';
 
 /**
  * The National Pokédex — every species as a constant naming it. PGSharp stores a species as its dex number, which
- * says nothing on its own, so the filters in `pgsharp-filters.js` are written with these constants instead:
+ * says nothing on its own, so the filters in `pgsharp/filters.js` are written with these constants instead:
  * `POKEMON.PANPOUR` reads as the species it is, and a misspelling is a name the table does not define rather than a
  * number nothing checks.
  *
