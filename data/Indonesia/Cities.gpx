@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx xmlns="http://www.topografix.com/GPX/1/1"
+     xmlns:pgr="https://joshuaspence.github.io/pokemon-go-gpx-routes/gpx/1"
+     version="1.1"
+     creator="https://github.com/joshuaspence/pokemon-go-gpx-routes">
+  <wpt lat="-6.911280" lon="107.613320">
+    <name>Bandung</name>
+    <extensions>
+      <pgr:country>Indonesia</pgr:country>
+    </extensions>
+  </wpt>
+  <wpt lat="-6.218619" lon="106.802203">
+    <name>Jakarta</name>
+    <extensions>
+      <pgr:country>Indonesia</pgr:country>
+    </extensions>
+  </wpt>
+</gpx>

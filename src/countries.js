@@ -28,6 +28,7 @@ export default {
   'Germany': { code: 'DE', continent: 'Europe' },
   'Hungary': { code: 'HU', continent: 'Europe' },
   'India': { code: 'IN', continent: 'Asia' },
+  'Indonesia': { code: 'ID', continent: 'Asia' },
   'Ireland': { code: 'IE', continent: 'Europe' },
   'Italy': { code: 'IT', continent: 'Europe' },
   'Japan': { code: 'JP', continent: 'Asia' },
